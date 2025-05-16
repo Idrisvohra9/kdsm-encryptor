@@ -1,7 +1,3 @@
-Absolutely, Master Idris 🙌! Here's a well-structured **AI-readable development plan** broken down into clear **phases**, designed to guide any AI (or dev team) to successfully implement the **KDSM (Keyed Dynamic Shift Matrix)** encryption-decryption project using **Next.js** and **shadcn/ui**.
-
----
-
 ## 📦 Project Name: `KDSM Encryptor`
 
 ---

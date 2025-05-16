@@ -15,21 +15,9 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { encrypt, decrypt, generateKey } from "@/utils/kdsm";
 import VariableProximity from "@/components/ui/VariableProximity";
-import FlowingMenu from "@/components/ui/FlowingMenu";
 import LetterGlitch from "@/components/ui/LetterGlitch";
-const demoItems = [
-  { link: "#", text: "FAST", image: "https://picsum.photos/600/400?random=1" },
-  {
-    link: "#",
-    text: "SECURE",
-    image: "https://picsum.photos/600/400?random=2",
-  },
-  {
-    link: "#",
-    text: "CUSTOM",
-    image: "https://picsum.photos/600/400?random=3",
-  },
-];
+import ShinyText from "@/components/ui/ShinyText";
+import Image from "next/image";
 
 export default function Home() {
   const [message, setMessage] = useState("");
@@ -51,7 +39,20 @@ export default function Home() {
     try {
       // Use provided key or generate one if empty
       const usedKey = key || generateKey();
+
+      // Measure encryption time for performance monitoring
+      const startTime = performance.now();
       const result = encrypt(message, usedKey);
+      const endTime = performance.now();
+
+      // Log performance in development
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `Encryption time: ${(endTime - startTime).toFixed(2)}ms for ${
+            message.length
+          } characters`
+        );
+      }
 
       setEncryptedResult(result);
       setLastUsedKey(usedKey);
@@ -67,6 +68,7 @@ export default function Home() {
         });
       }
     } catch (error) {
+      console.error("Encryption error:", error);
       toast("Encryption Failed", {
         description: error.message || "An error occurred during encryption",
         variant: "destructive",
@@ -83,13 +85,35 @@ export default function Home() {
       return;
     }
 
+    if (!key) {
+      toast("Error", {
+        description: "A key is required for decryption",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      // Measure decryption time for performance monitoring
+      const startTime = performance.now();
       const result = decrypt(encryptedResult, key);
+      const endTime = performance.now();
+
+      // Log performance in development
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          `Decryption time: ${(endTime - startTime).toFixed(2)}ms for ${
+            encryptedResult.length
+          } characters`
+        );
+      }
+
       setDecryptedResult(result);
       toast("Success", {
         description: "Message decrypted successfully",
       });
     } catch (error) {
+      console.error("Decryption error:", error);
       toast("Decryption Failed", {
         description: error.message || "An error occurred during decryption",
         variant: "destructive",
@@ -145,9 +169,23 @@ export default function Home() {
       <div className="w-full max-w-3xl relative z-20">
         <Card className="w-full">
           <CardHeader>
-            <div ref={containerRef} style={{ position: "relative" }}>
+            <div
+              ref={containerRef}
+              style={{
+                position: "relative",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <Image
+                src="/kdsm-logo.png"
+                width={48}
+                height={48}
+                className="me-2 object-cover"
+                alt="KDSM Logo"
+              />
               <VariableProximity
-                label={"KDSM Encryptor"}
+                label={"Encryptor V - 0.1"}
                 className={"text-2xl "}
                 fromFontVariationSettings="'wght' 400, 'opsz' 9"
                 toFontVariationSettings="'wght' 1000, 'opsz' 40"
@@ -187,10 +225,12 @@ export default function Home() {
             {/* Key Input */}
             <div className="space-y-2">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-                <Label htmlFor="key" className="whitespace-nowrap">Encryption Key (Optional)</Label>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Label htmlFor="key" className="whitespace-nowrap">
+                  Encryption Key (Optional)
+                </Label>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={generateRandomKey}
                   className="w-full sm:w-auto"
                 >
@@ -278,8 +318,16 @@ export default function Home() {
           </CardContent>
 
           <CardFooter className="flex justify-between text-sm text-muted-foreground">
-            <div>KDSM Encryption</div>
-            <div>Secure • Fast • Custom</div>
+            <ShinyText
+              text="KDSM Encryptor by - Idris Vohra"
+              disabled={false}
+              speed={3}
+            />
+            <ShinyText
+              text="Secure • Fast • Custom"
+              disabled={false}
+              speed={3}
+            />
           </CardFooter>
         </Card>
       </div>
