@@ -60,12 +60,10 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} ${robotoFlex.variable} antialiased`}>
+      <body className={`${inter.className} ${robotoFlex.className} antialiased`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+          defaultTheme="dark"
         >
           {children}
           <Dock />

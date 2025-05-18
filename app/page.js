@@ -25,6 +25,7 @@ import { motion } from "framer-motion"; // Import motion
 // Define a unique marker for the key within the copied string
 const KEY_START_MARKER = "[KDSM_KEY_START]";
 const KEY_END_MARKER = "[KDSM_KEY_END]";
+// TODO: Make it work well with links and automatically detect link in decryped result
 
 export default function Home() {
   const [key, setKey] = useState("");
@@ -60,16 +61,16 @@ export default function Home() {
     // Remove emojis from the message string
     const emojiRegex =
       /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
-    message = message.replace(emojiRegex, ''); // Replace emojis with an empty string
+    message = message.replace(emojiRegex, ""); // Replace emojis with an empty string
 
     // Optional: Show a warning if emojis were removed
-    if (containsEmoji(messageRef.current?.value || "")) { // Check original message for emojis
-         toast.warning("Emojis Removed", {
-           description: "Emojis were detected and removed from the message before encryption.",
-         });
+    if (containsEmoji(messageRef.current?.value || "")) {
+      // Check original message for emojis
+      toast.warning("Emojis Removed", {
+        description:
+          "Emojis were detected and removed from the message before encryption.",
+      });
     }
-
-
     try {
       // Use provided key or generate one if empty
       const usedKey = key || generateKey();
@@ -114,17 +115,15 @@ export default function Home() {
     const textToDecrypt = messageRef.current?.value || "";
 
     if (!textToDecrypt) {
-      toast.error("Oopsie!", { // Changed to toast.error
+      toast.error("Oopsie!", {
         description: "Please enter encrypted text to decrypt", // Updated error message
-        // Removed variant: "destructive"
       });
       return;
     }
 
     if (!key) {
-      toast.error("Oopsie!", { // Changed to toast.error
+      toast.error("Oopsie!", {
         description: "A key is required for decryption",
-        // Removed variant: "destructive"
       });
       return;
     }
@@ -150,7 +149,8 @@ export default function Home() {
       });
     } catch (error) {
       console.error("Decryption error:", error);
-      toast.error("Decryption Failed", { // Changed to toast.error
+      toast.error("Decryption Failed", {
+        // Changed to toast.error
         description: error.message || "An error occurred during decryption",
         // Removed variant: "destructive"
       });
@@ -184,7 +184,8 @@ export default function Home() {
         }, 2000);
       },
       (err) => {
-        toast.error("Copy Failed", { // Changed to toast.error
+        toast.error("Copy Failed", {
+          // Changed to toast.error
           description: "Could not copy to clipboard",
           // Removed variant: "destructive"
         });
@@ -195,7 +196,8 @@ export default function Home() {
   // New function to copy encrypted result with key
   const copyEncryptedWithKey = () => {
     if (!encryptedResult || !lastUsedKey) {
-      toast.error("Oopsie!", { // Changed to toast.error
+      toast.error("Oopsie!", {
+        // Changed to toast.error
         description: "No encrypted message or key available to copy",
         // Removed variant: "destructive"
       });
@@ -218,42 +220,63 @@ export default function Home() {
   };
 
   // Handle paste event on the message textarea
-  const handlePaste = (event) => {
-    const pastedText = event.clipboardData?.getData("text");
+  const handlePaste = async (event) => { // Mark function as async
+    // Prevent default paste behavior initially, we'll handle it manually
+    event.preventDefault();
 
-    if (pastedText) {
-      // Check if the pasted text contains the key markers
-      const keyStartIndex = pastedText.indexOf(KEY_START_MARKER);
-      const keyEndIndex = pastedText.indexOf(KEY_END_MARKER);
+    try {
+      // Use navigator.clipboard.readText() for more reliable access
+      const pastedText = await navigator.clipboard.readText();
 
-      if (
-        keyStartIndex !== -1 &&
-        keyEndIndex !== -1 &&
-        keyEndIndex > keyStartIndex
-      ) {
-        event.preventDefault(); // Prevent default paste behavior
+      if (pastedText) {
+        // Check if the pasted text contains the key markers
+        const keyStartIndex = pastedText.indexOf(KEY_START_MARKER);
+        const keyEndIndex = pastedText.indexOf(KEY_END_MARKER);
 
-        const key = pastedText.substring(
-          keyStartIndex + KEY_START_MARKER.length,
-          keyEndIndex
-        );
-        const message = pastedText.substring(
-          keyEndIndex + KEY_END_MARKER.length
-        );
+        if (
+          keyStartIndex !== -1 &&
+          keyEndIndex !== -1 &&
+          keyEndIndex > keyStartIndex
+        ) {
+          const key = pastedText.substring(
+            keyStartIndex + KEY_START_MARKER.length,
+            keyEndIndex
+          );
+          const message = pastedText.substring(
+            keyEndIndex + KEY_END_MARKER.length
+          );
 
-        // Set the key input value
-        setKey(key);
+          // Set the key input value
+          setKey(key);
 
-        // Set the message textarea value using the ref
-        if (messageRef.current) {
-          messageRef.current.value = message;
+          // Set the message textarea value using the ref
+          if (messageRef.current) {
+            messageRef.current.value = message;
+          }
+
+          toast("Key Detected", {
+            description: "Key automatically placed in the Encryption Key field",
+          });
+        } else {
+           // If markers are not found, paste the text normally
+           if (messageRef.current) {
+             const currentMessage = messageRef.current.value;
+             const cursorPosition = messageRef.current.selectionStart;
+             const newMessage = currentMessage.substring(0, cursorPosition) + pastedText + currentMessage.substring(messageRef.current.selectionEnd);
+             messageRef.current.value = newMessage;
+             // Optionally restore cursor position
+             messageRef.current.selectionStart = messageRef.current.selectionEnd = cursorPosition + pastedText.length;
+           }
         }
-
-        toast("Key Detected", {
-          description: "Key automatically placed in the Encryption Key field",
-        });
       }
-      // If markers are not found, allow default paste behavior
+    } catch (err) {
+      console.error("Failed to read clipboard contents: ", err);
+      toast.error("Paste Failed", {
+        description: "Could not read clipboard content.",
+      });
+      // Fallback: Allow default paste if reading clipboard fails
+      // Note: This might still fail on some mobile browsers if clipboardData is also unavailable
+      // event.target.dispatchEvent(new Event('paste', { bubbles: true })); // This might cause infinite loops or other issues, better to just log error.
     }
   };
 
@@ -299,7 +322,7 @@ export default function Home() {
                 />
                 <VariableProximity
                   label={"KDSM Encryptor V - 0.2"}
-                  className={"text-2xl "}
+                  className={"sm:text-2xl text-lg"}
                   fromFontVariationSettings="'wght' 400, 'opsz' 9"
                   toFontVariationSettings="'wght' 1000, 'opsz' 40"
                   containerRef={containerRef}
