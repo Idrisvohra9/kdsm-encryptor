@@ -41,15 +41,34 @@ export default function Home() {
   const containerRef = useRef(null);
   const messageRef = useRef(null); // Add ref for the message textarea
 
+  function containsEmoji(str) {
+    // Updated regex to match a broader range of Unicode emoji blocks and sequences
+    const emojiRegex =
+      /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
+    return emojiRegex.test(str);
+  }
+
   const handleEncrypt = () => {
-    const message = messageRef.current?.value || ""; // Read value from ref
+    let message = messageRef.current?.value || ""; // Read value from ref
     if (!message) {
-      toast("Error", {
+      toast.error("Oopsie!", {
         description: "Please enter a message to encrypt",
-        variant: "destructive",
       });
       return;
     }
+
+    // Remove emojis from the message string
+    const emojiRegex =
+      /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
+    message = message.replace(emojiRegex, ''); // Replace emojis with an empty string
+
+    // Optional: Show a warning if emojis were removed
+    if (containsEmoji(messageRef.current?.value || "")) { // Check original message for emojis
+         toast.warning("Emojis Removed", {
+           description: "Emojis were detected and removed from the message before encryption.",
+         });
+    }
+
 
     try {
       // Use provided key or generate one if empty
@@ -57,7 +76,7 @@ export default function Home() {
 
       // Measure encryption time for performance monitoring
       const startTime = performance.now();
-      const result = encrypt(message, usedKey);
+      const result = encrypt(message, usedKey); // Encrypt the message without emojis
       const endTime = performance.now();
 
       // Log performance in development
@@ -74,19 +93,18 @@ export default function Home() {
 
       if (!key) {
         setKey(usedKey);
-        toast("Key Generated", {
+        toast.success("Key Generated", {
           description: "A random key was generated for encryption",
         });
       } else {
-        toast("Success", {
+        toast.success("Success", {
           description: "Message encrypted successfully",
         });
       }
     } catch (error) {
       console.error("Encryption error:", error);
-      toast("Encryption Failed", {
+      toast.error("Encryption Failed", {
         description: error.message || "An error occurred during encryption",
-        variant: "destructive",
       });
     }
   };
@@ -96,17 +114,17 @@ export default function Home() {
     const textToDecrypt = messageRef.current?.value || "";
 
     if (!textToDecrypt) {
-      toast("Error", {
+      toast.error("Oopsie!", { // Changed to toast.error
         description: "Please enter encrypted text to decrypt", // Updated error message
-        variant: "destructive",
+        // Removed variant: "destructive"
       });
       return;
     }
 
     if (!key) {
-      toast("Error", {
+      toast.error("Oopsie!", { // Changed to toast.error
         description: "A key is required for decryption",
-        variant: "destructive",
+        // Removed variant: "destructive"
       });
       return;
     }
@@ -132,9 +150,9 @@ export default function Home() {
       });
     } catch (error) {
       console.error("Decryption error:", error);
-      toast("Decryption Failed", {
+      toast.error("Decryption Failed", { // Changed to toast.error
         description: error.message || "An error occurred during decryption",
-        variant: "destructive",
+        // Removed variant: "destructive"
       });
     }
   };
@@ -166,9 +184,9 @@ export default function Home() {
         }, 2000);
       },
       (err) => {
-        toast("Copy Failed", {
+        toast.error("Copy Failed", { // Changed to toast.error
           description: "Could not copy to clipboard",
-          variant: "destructive",
+          // Removed variant: "destructive"
         });
       }
     );
@@ -177,9 +195,9 @@ export default function Home() {
   // New function to copy encrypted result with key
   const copyEncryptedWithKey = () => {
     if (!encryptedResult || !lastUsedKey) {
-      toast("Error", {
+      toast.error("Oopsie!", { // Changed to toast.error
         description: "No encrypted message or key available to copy",
-        variant: "destructive",
+        // Removed variant: "destructive"
       });
       return;
     }
@@ -254,10 +272,15 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: -50 }} // Start slightly above and invisible
           animate={{ opacity: 1, y: 0 }} // End at original position and fully visible
-          transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.2 }} // Spring animation
-          className="bg-background/10 dark:border-white/10 backdrop-blur-md"
+          transition={{
+            type: "spring",
+            stiffness: 100,
+            damping: 10,
+            delay: 0.2,
+          }} // Spring animation
+          className="dark:border-white/10 backdrop-blur-md"
         >
-          <Card className="w-full text-primary">
+          <Card className="w-full text-primary bg-background/10">
             <CardHeader>
               <div
                 ref={containerRef}
@@ -454,13 +477,14 @@ export default function Home() {
                 speed={3}
               />
               <ShinyText
-                text="Secure • Fast • Custom"
+                text="OP • Super Fast • One of a kind"
                 disabled={false}
                 speed={3}
               />
             </CardFooter>
           </Card>
-        </motion.div> {/* Close motion.div */}
+        </motion.div>{" "}
+        {/* Close motion.div */}
       </div>
     </main>
   );
