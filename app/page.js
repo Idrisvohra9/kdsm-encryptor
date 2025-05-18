@@ -18,16 +18,31 @@ import VariableProximity from "@/components/ui/VariableProximity";
 import LetterGlitch from "@/components/ui/LetterGlitch";
 import ShinyText from "@/components/ui/ShinyText";
 import Image from "next/image";
+import { BrushCleaning, Check, Copy, Shield, ShieldOff } from "lucide-react";
+import ThemeToggle from "@/components/ui/theme-toggle";
+import { motion } from "framer-motion"; // Import motion
+
+// Define a unique marker for the key within the copied string
+const KEY_START_MARKER = "[KDSM_KEY_START]";
+const KEY_END_MARKER = "[KDSM_KEY_END]";
 
 export default function Home() {
-  const [message, setMessage] = useState("");
   const [key, setKey] = useState("");
   const [encryptedResult, setEncryptedResult] = useState("");
   const [decryptedResult, setDecryptedResult] = useState("");
   const [lastUsedKey, setLastUsedKey] = useState("");
+  const [copyStates, setCopyStates] = useState({
+    encrypted: false,
+    decrypted: false,
+    key: false,
+    encryptedWithKey: false, // Add state for the new copy button
+  });
 
   const containerRef = useRef(null);
+  const messageRef = useRef(null); // Add ref for the message textarea
+
   const handleEncrypt = () => {
+    const message = messageRef.current?.value || ""; // Read value from ref
     if (!message) {
       toast("Error", {
         description: "Please enter a message to encrypt",
@@ -77,9 +92,12 @@ export default function Home() {
   };
 
   const handleDecrypt = () => {
-    if (!encryptedResult) {
+    // Read the text directly from the message textarea using the ref
+    const textToDecrypt = messageRef.current?.value || "";
+
+    if (!textToDecrypt) {
       toast("Error", {
-        description: "Please encrypt a message first or enter encrypted text",
+        description: "Please enter encrypted text to decrypt", // Updated error message
         variant: "destructive",
       });
       return;
@@ -96,14 +114,14 @@ export default function Home() {
     try {
       // Measure decryption time for performance monitoring
       const startTime = performance.now();
-      const result = decrypt(encryptedResult, key);
+      const result = decrypt(textToDecrypt, key); // Use text from ref
       const endTime = performance.now();
 
       // Log performance in development
       if (process.env.NODE_ENV === "development") {
         console.log(
           `Decryption time: ${(endTime - startTime).toFixed(2)}ms for ${
-            encryptedResult.length
+            textToDecrypt.length
           } characters`
         );
       }
@@ -122,22 +140,30 @@ export default function Home() {
   };
 
   const handleClear = () => {
-    setMessage("");
+    if (messageRef.current) {
+      messageRef.current.value = ""; // Clear input using ref
+    }
     setKey("");
     setEncryptedResult("");
     setDecryptedResult("");
     setLastUsedKey("");
+    setCopyStates({
+      encrypted: false,
+      decrypted: false,
+      key: false,
+    });
     toast("Cleared", {
       description: "All fields have been cleared",
     });
   };
 
-  const copyToClipboard = (text, label) => {
+  const copyToClipboard = (text, type) => {
     navigator.clipboard.writeText(text).then(
       () => {
-        toast("Copied!", {
-          description: `${label} copied to clipboard`,
-        });
+        setCopyStates((prev) => ({ ...prev, [type]: true }));
+        setTimeout(() => {
+          setCopyStates((prev) => ({ ...prev, [type]: false }));
+        }, 2000);
       },
       (err) => {
         toast("Copy Failed", {
@@ -148,6 +174,23 @@ export default function Home() {
     );
   };
 
+  // New function to copy encrypted result with key
+  const copyEncryptedWithKey = () => {
+    if (!encryptedResult || !lastUsedKey) {
+      toast("Error", {
+        description: "No encrypted message or key available to copy",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Format the string with markers
+    const textToCopy = `${KEY_START_MARKER}${lastUsedKey}${KEY_END_MARKER}${encryptedResult}`;
+    copyToClipboard(textToCopy, "encryptedWithKey");
+    toast("Copied", {
+      description: "Encrypted message and key copied to clipboard",
+    });
+  };
+
   const generateRandomKey = () => {
     const newKey = generateKey();
     setKey(newKey);
@@ -156,180 +199,268 @@ export default function Home() {
     });
   };
 
+  // Handle paste event on the message textarea
+  const handlePaste = (event) => {
+    const pastedText = event.clipboardData?.getData("text");
+
+    if (pastedText) {
+      // Check if the pasted text contains the key markers
+      const keyStartIndex = pastedText.indexOf(KEY_START_MARKER);
+      const keyEndIndex = pastedText.indexOf(KEY_END_MARKER);
+
+      if (
+        keyStartIndex !== -1 &&
+        keyEndIndex !== -1 &&
+        keyEndIndex > keyStartIndex
+      ) {
+        event.preventDefault(); // Prevent default paste behavior
+
+        const key = pastedText.substring(
+          keyStartIndex + KEY_START_MARKER.length,
+          keyEndIndex
+        );
+        const message = pastedText.substring(
+          keyEndIndex + KEY_END_MARKER.length
+        );
+
+        // Set the key input value
+        setKey(key);
+
+        // Set the message textarea value using the ref
+        if (messageRef.current) {
+          messageRef.current.value = message;
+        }
+
+        toast("Key Detected", {
+          description: "Key automatically placed in the Encryption Key field",
+        });
+      }
+      // If markers are not found, allow default paste behavior
+    }
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-4 md:p-24">
       <div className="absolute inset-0 -z-10 w-full h-[165vh]">
         <LetterGlitch
           glitchSpeed={50}
-          centerVignette={true}
+          centerVignette={false}
           outerVignette={false}
           smooth={true}
         />
       </div>
       <div className="w-full max-w-3xl relative z-20">
-        <Card className="w-full">
-          <CardHeader>
-            <div
-              ref={containerRef}
-              style={{
-                position: "relative",
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <Image
-                src="/kdsm-logo.png"
-                width={48}
-                height={48}
-                className="me-2 object-cover"
-                alt="KDSM Logo"
-              />
-              <VariableProximity
-                label={"Encryptor V - 0.1"}
-                className={"text-2xl "}
-                fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                toFontVariationSettings="'wght' 1000, 'opsz' 40"
-                containerRef={containerRef}
-                radius={100}
-                falloff="gaussian"
-              />
-            </div>
-            <CardDescription>
-              <VariableProximity
-                label={
-                  "Secure your messages with Keyed Dynamic Shift Matrix encryption"
-                }
-                className={"text-base"}
-                fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                toFontVariationSettings="'wght' 1000, 'opsz' 40"
-                containerRef={containerRef}
-                radius={100}
-                falloff="gaussian"
-              />
-            </CardDescription>
-          </CardHeader>
+        {/* Wrap the Card with motion.div */}
+        <motion.div
+          initial={{ opacity: 0, y: -50 }} // Start slightly above and invisible
+          animate={{ opacity: 1, y: 0 }} // End at original position and fully visible
+          transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.2 }} // Spring animation
+          className="bg-background/10 dark:border-white/10 backdrop-blur-md"
+        >
+          <Card className="w-full text-primary">
+            <CardHeader>
+              <div
+                ref={containerRef}
+                style={{
+                  position: "relative",
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  src="/dark/1.png"
+                  width={48}
+                  height={48}
+                  className="me-2 object-cover"
+                  alt="KDSM Logo"
+                />
+                <VariableProximity
+                  label={"KDSM Encryptor V - 0.2"}
+                  className={"text-2xl "}
+                  fromFontVariationSettings="'wght' 400, 'opsz' 9"
+                  toFontVariationSettings="'wght' 1000, 'opsz' 40"
+                  containerRef={containerRef}
+                  radius={100}
+                  falloff="gaussian"
+                />
+                <div className="ms-auto">
+                  <ThemeToggle />
+                </div>
+              </div>
+              <CardDescription>
+                <VariableProximity
+                  label={
+                    "Secure your messages with Keyed Dynamic Shift Matrix encryption"
+                  }
+                  className={"text-base"}
+                  fromFontVariationSettings="'wght' 400, 'opsz' 9"
+                  toFontVariationSettings="'wght' 1000, 'opsz' 40"
+                  containerRef={containerRef}
+                  radius={100}
+                  falloff="gaussian"
+                />
+              </CardDescription>
+            </CardHeader>
 
-          <CardContent className="space-y-6">
-            {/* Message Input */}
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea
-                id="message"
-                placeholder="Enter your message here..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="min-h-[120px]"
-              />
-            </div>
+            <CardContent className="space-y-6">
+              {/* Message Input */}
+              <div className="space-y-2">
+                <Label htmlFor="message">Message</Label>
+                <Textarea
+                  id="message"
+                  placeholder="Enter your message here or paste message with key..."
+                  ref={messageRef} // Attach ref to the textarea
+                  onPaste={handlePaste} // Add paste handler
+                  className="min-h-[120px]"
+                />
+              </div>
 
-            {/* Key Input */}
-            <div className="space-y-2">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-                <Label htmlFor="key" className="whitespace-nowrap">
-                  Encryption Key (Optional)
-                </Label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={generateRandomKey}
-                  className="w-full sm:w-auto"
-                >
-                  Generate Random Key
+              {/* Key Input */}
+              <div className="space-y-2">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+                  <Label htmlFor="key" className="whitespace-nowrap">
+                    Encryption Key (Optional)
+                  </Label>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={generateRandomKey}
+                    className="w-full sm:w-auto"
+                  >
+                    Generate Random Key
+                  </Button>
+                </div>
+                <Input
+                  id="key"
+                  placeholder="Enter a key or leave blank for auto-generation"
+                  value={key}
+                  onChange={(e) => setKey(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-4 flex-row-reverse">
+                <Button onClick={handleEncrypt}>
+                  Encrypt <Shield className="w-5 h-5" />
+                </Button>
+                <Button onClick={handleDecrypt} variant="secondary">
+                  Decrypt <ShieldOff className="w-5 h-5" />
+                </Button>
+                <Button onClick={handleClear} variant="outline">
+                  Clear All
+                  <BrushCleaning className="w-5 h-5" />
                 </Button>
               </div>
-              <Input
-                id="key"
-                placeholder="Enter a key or leave blank for auto-generation"
-                value={key}
-                onChange={(e) => setKey(e.target.value)}
-                className="w-full"
+
+              {/* Results Section */}
+              {encryptedResult && (
+                <div className="space-y-2 p-4 border rounded-md bg-muted/50">
+                  <div className="flex justify-between items-center">
+                    <Label>Encrypted Result</Label>
+                    <div className="flex gap-2">
+                      {" "}
+                      {/* Container for copy buttons */}
+                      {/* Original "Copy" button */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          copyToClipboard(encryptedResult, "encrypted")
+                        }
+                        title="Copy Encrypted Message Only"
+                      >
+                        {copyStates.encrypted ? (
+                          <Check className="w-5 h-5" />
+                        ) : (
+                          <Copy className="w-5 h-5" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-background rounded border break-all">
+                    {encryptedResult}
+                  </div>
+                  {/* New "Copy with key" button */}
+                  <div className="w-full flex flex-row-reverse">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={copyEncryptedWithKey}
+                      title="Copy with Key"
+                    >
+                      {copyStates.encryptedWithKey ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <Copy className="w-5 h-5" />
+                      )}{" "}
+                      With Key
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {decryptedResult && (
+                <div className="space-y-2 p-4 border rounded-md bg-muted/50">
+                  <div className="flex justify-between items-center">
+                    <Label>Decrypted Result</Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        copyToClipboard(decryptedResult, "decrypted")
+                      }
+                    >
+                      {copyStates.decrypted ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <Copy className="w-5 h-5" />
+                      )}
+                    </Button>
+                  </div>
+                  <div className="p-3 bg-background rounded border break-all">
+                    {decryptedResult}
+                  </div>
+                </div>
+              )}
+
+              {lastUsedKey && (
+                <div className="space-y-2 p-4 border rounded-md bg-muted/50">
+                  <div className="flex justify-between items-center">
+                    <Label>Last Used Key</Label>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => copyToClipboard(lastUsedKey, "key")}
+                    >
+                      {copyStates.key ? (
+                        <Check className="w-5 h-5" />
+                      ) : (
+                        <Copy className="w-5 h-5" />
+                      )}
+                    </Button>
+                  </div>
+                  <div className="p-3 bg-background rounded border break-all">
+                    {lastUsedKey}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+
+            <CardFooter className="flex justify-between text-sm text-muted-foreground">
+              <ShinyText
+                text="KDSM Encryptor by - Idris Vohra"
+                disabled={false}
+                speed={3}
               />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-4 flex-row-reverse">
-              <Button onClick={handleEncrypt}>Encrypt</Button>
-              <Button onClick={handleDecrypt} variant="secondary">
-                Decrypt
-              </Button>
-              <Button onClick={handleClear} variant="outline">
-                Clear All
-              </Button>
-            </div>
-
-            {/* Results Section */}
-            {encryptedResult && (
-              <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                <div className="flex justify-between items-center">
-                  <Label>Encrypted Result</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      copyToClipboard(encryptedResult, "Encrypted text")
-                    }
-                  >
-                    Copy
-                  </Button>
-                </div>
-                <div className="p-3 bg-background rounded border break-all">
-                  {encryptedResult}
-                </div>
-              </div>
-            )}
-
-            {decryptedResult && (
-              <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                <div className="flex justify-between items-center">
-                  <Label>Decrypted Result</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() =>
-                      copyToClipboard(decryptedResult, "Decrypted text")
-                    }
-                  >
-                    Copy
-                  </Button>
-                </div>
-                <div className="p-3 bg-background rounded border break-all">
-                  {decryptedResult}
-                </div>
-              </div>
-            )}
-
-            {lastUsedKey && (
-              <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                <div className="flex justify-between items-center">
-                  <Label>Last Used Key</Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => copyToClipboard(lastUsedKey, "Key")}
-                  >
-                    Copy
-                  </Button>
-                </div>
-                <div className="p-3 bg-background rounded border break-all">
-                  {lastUsedKey}
-                </div>
-              </div>
-            )}
-          </CardContent>
-
-          <CardFooter className="flex justify-between text-sm text-muted-foreground">
-            <ShinyText
-              text="KDSM Encryptor by - Idris Vohra"
-              disabled={false}
-              speed={3}
-            />
-            <ShinyText
-              text="Secure • Fast • Custom"
-              disabled={false}
-              speed={3}
-            />
-          </CardFooter>
-        </Card>
+              <ShinyText
+                text="Secure • Fast • Custom"
+                disabled={false}
+                speed={3}
+              />
+            </CardFooter>
+          </Card>
+        </motion.div> {/* Close motion.div */}
       </div>
     </main>
   );

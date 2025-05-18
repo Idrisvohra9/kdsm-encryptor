@@ -4,28 +4,31 @@
 
 ## 📋 Overview
 
-> A secure message encryption-decryption web app using a custom `Keyed Dynamic Shift Matrix (KDSM)` algorithm. Built with **Next.js** for frontend, styled using **shadcn/ui** and **Tailwind CSS**, and optimized for high-performance on large inputs.
+> A secure messagaging platform that uses an external socket.io node.js server for real time chat messaging, adding friends to the chat rooms. It uses our kdsm algorithm to encrypt messages sent and recieved using a key that the user creates when creating a chat room, the message can be decrypted by clicking on the decypt button and it asks for the key then decyrpts it. Built with **Next.js** for frontend, styled using **shadcn/ui** and **Tailwind CSS**, and uses node-appwrite as a backend API routes for database, storage, authentication and sending real-time notification to users.
+The user is first required to create an account or login to create a chat room (upto 3 in free tier). The user can then add friends to the chat room and send messages to them. The user can also copy the encrypted or decrypted message to the clipboard.
+There are subscription plans available for users to create more chat rooms, make the chats last more than the 7 day cap.
 
 ---
 
-## 🚧 Development Plan
+## 🚧 Development Plan for encrypted messaging feature
 
 ---
 
 ### ⚙️ Phase 1: Project Setup
 
-**Objective:** Initialize project and prepare environment for dev.
+**Objective:** Setup a backend with **Next.js** API routes using appwrite database.
 
 #### Tasks:
 
-* [ ] Set up **Next.js** project with `app/` router.
-* [ ] Install and configure **Tailwind CSS**.
-* [ ] Install and set up **shadcn/ui**:
+- [ ] Set up **Next.js** project with `app/` router.
+- [ ] Install and configure **Tailwind CSS**.
+- [ ] Install and set up **shadcn/ui**:
 
   ```bash
   npx shadcn-ui@latest init
   ```
-* [ ] Create basic folder structure:
+
+- [ ] Create basic folder structure:
 
   ```
   /components
@@ -42,28 +45,30 @@
 
 #### Tasks:
 
-* [ ] In `/lib/kdsm.ts` or `/utils/kdsm.ts` implement:
+- [ ] In `/lib/kdsm.ts` or `/utils/kdsm.ts` implement:
 
-  * [ ] `deriveSeed(key: string): number`
-  * [ ] `encrypt(message: string, key?: string): string`
-  * [ ] `decrypt(encrypted: string, key?: string): string`
+  - [ ] `deriveSeed(key: string): number`
+  - [ ] `encrypt(message: string, key?: string): string`
+  - [ ] `decrypt(encrypted: string, key?: string): string`
 
 #### Algorithm Design:
 
 1. Derive seed from key using weighted char code sum.
 2. For each character in message:
 
-   * Shift based on:
+   - Shift based on:
 
      ```
      shift = charCode + ((seed % 97) + i * (seed % 11)) % 127
      wrapped = 32 + (shift % 95)
      ```
+
 3. Optionally:
 
-   * Reverse string
-   * Apply 3rd-4th char swap
-   * Base64 encode
+   - Reverse string
+   - Apply 3rd-4th char swap
+   - Base64 encode
+
 4. Decrypt by reversing the above.
 
 ✅ Ensure output is safe printable ASCII, reversible, and fast.
@@ -76,8 +81,8 @@
 
 #### Layout Structure:
 
-* Use a **Card** or **Container** for the main UI.
-* Add the following UI components:
+- Use a **Card** or **Container** for the main UI.
+- Add the following UI components:
 
 | Element                | Type                                        |
 | ---------------------- | ------------------------------------------- |
@@ -89,14 +94,15 @@
 
 #### Tasks:
 
-* [ ] Add form with validation (`message !== ""`)
-* [ ] Add buttons: `Encrypt`, `Decrypt`, `Clear`
-* [ ] Show:
+- [ ] Add form with validation (`message !== ""`)
+- [ ] Add buttons: `Encrypt`, `Decrypt`, `Clear`
+- [ ] Show:
 
-  * Encrypted result
-  * Decrypted result
-  * Key used
-* [ ] Add toast for "Copied!" or error messages using `useToast()`
+  - Encrypted result
+  - Decrypted result
+  - Key used
+
+- [ ] Add toast for "Copied!" or error messages using `useToast()`
 
 ---
 
@@ -106,21 +112,21 @@
 
 #### Tasks:
 
-* [ ] Test with:
+- [ ] Test with:
 
-  * Long strings (1000+ chars)
-  * Special characters
-  * No key (auto-generated time-based key)
-  * Invalid decryption key
+  - Long strings (1000+ chars)
+  - Special characters
+  - No key (auto-generated time-based key)
+  - Invalid decryption key
 
-* [ ] Handle:
-  * Empty input
-  * Decryption failures
-* [ ] Benchmark encryption/decryption speed
-* [ ] Optimize logic with:
+- [ ] Handle:
+  - Empty input
+  - Decryption failures
+- [ ] Benchmark encryption/decryption speed
+- [ ] Optimize logic with:
 
-  * `Array.push().join('')` over `+=`
-  * Memoization where needed
+  - `Array.push().join('')` over `+=`
+  - Memoization where needed
 
 ---
 
@@ -130,23 +136,10 @@
 
 #### Tasks:
 
-* [ ] Add Framer Motion animations
-* [ ] Show shift matrix (developer toggle)
-* [ ] Add Dark mode toggle (if not by default)
-* [ ] Add download buttons for encrypted/decrypted text
-
----
-
-### 🚀 Phase 6: Deployment
-
-**Objective:** Go live.
-
-#### Tasks:
-
-* [ ] Add favicon, SEO metadata
-* [ ] Deploy to **Vercel** or preferred platform
-* [ ] Protect dev tools in prod (`console.log()` only in dev mode)
-* [ ] Write README with algorithm description + usage guide
+- [ ] Add Framer Motion animations
+- [ ] Show shift matrix (developer toggle)
+- [ ] Add Dark mode toggle (if not by default)
+- [ ] Add download buttons for encrypted/decrypted text
 
 ---
 
@@ -164,16 +157,5 @@
 
 ## 🧠 Notes for AI Implementer
 
-* Stick to **KDSM** logic rules exactly.
-* Do **not** use any built-in crypto libraries.
-* Encryption must be **non-standard**, fully **custom**, and **impossible to reverse** without the exact logic and key.
-* Code must be readable, modular, and optimized for large-scale usage.
-
----
-
-Would you like me to now:
-
-* 🔧 Generate the code for `/utils/kdsm.ts`
-* 💻 Scaffold the `page.tsx` with all the UI components
-
-Or both? Let’s build this beast together! 💪😎
+- Stick to **KDSM** logic rules exactly.
+- Code must be readable, modular, and optimized for large-scale usage.

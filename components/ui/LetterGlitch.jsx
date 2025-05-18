@@ -1,12 +1,16 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo } from 'react'; // Import memo
+import { useTheme } from 'next-themes';
 
 const LetterGlitch = ({
-  glitchColors = ['#2f2f2f', '#4a4a4a', '#666666'],
   glitchSpeed = 50,
   centerVignette = false,
   outerVignette = true,
   smooth = true,
 }) => {
+  const { theme, systemTheme } = useTheme();
+  
+  const glitchColors = ['#2f2f2f', '#4a4a4a', '#666666'];
+
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
   const letters = useRef([]);
@@ -35,6 +39,28 @@ const LetterGlitch = ({
   };
 
   const hexToRgb = (hex) => {
+    // For HSL values from CSS variables
+    if (hex.startsWith('hsl')) {
+      // Create a temporary element to compute the RGB value
+      const tempEl = document.createElement('div');
+      tempEl.style.color = hex;
+      document.body.appendChild(tempEl);
+      const color = window.getComputedStyle(tempEl).color;
+      document.body.removeChild(tempEl);
+      
+      // Parse the computed RGB value
+      const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+      if (rgbMatch) {
+        return {
+          r: parseInt(rgbMatch[1], 10),
+          g: parseInt(rgbMatch[2], 10),
+          b: parseInt(rgbMatch[3], 10)
+        };
+      }
+      return { r: 100, g: 100, b: 100 }; // Fallback
+    }
+    
+    // Original hex handling
     const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthandRegex, (m, r, g, b) => {
       return r + r + g + g + b + b;
@@ -47,33 +73,6 @@ const LetterGlitch = ({
       b: parseInt(result[3], 16)
     } : null;
   };
-
-  const interpolateColor = (start, end, factor) => {
-    const result = {
-      r: Math.round(start.r + (end.r - start.r) * factor),
-      g: Math.round(start.g + (end.g - start.g) * factor),
-      b: Math.round(start.b + (end.b - start.b) * factor),
-    };
-    return `rgb(${result.r}, ${result.g}, ${result.b})`;
-  };
-
-  const calculateGrid = (width, height) => {
-    const columns = Math.ceil(width / charWidth);
-    const rows = Math.ceil(height / charHeight);
-    return { columns, rows };
-  };
-
-  const initializeLetters = (columns, rows) => {
-    grid.current = { columns, rows };
-    const totalLetters = columns * rows;
-    letters.current = Array.from({ length: totalLetters }, () => ({
-      char: getRandomChar(),
-      color: getRandomColor(),
-      targetColor: getRandomColor(),
-      colorProgress: 1,
-    }));
-  };
-
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -172,6 +171,45 @@ const LetterGlitch = ({
     animationRef.current = requestAnimationFrame(animate);
   };
 
+  // Update glitch colors when theme changes
+  useEffect(() => {
+    
+    // Reinitialize letters with new colors if canvas is already set up
+    if (canvasRef.current && context.current) {
+      const { columns, rows } = grid.current;
+      if (columns > 0 && rows > 0) {
+        initializeLetters(columns, rows);
+        drawLetters();
+      }
+    }
+  }, [theme, systemTheme]);
+
+  const interpolateColor = (start, end, factor) => {
+    const result = {
+      r: Math.round(start.r + (end.r - start.r) * factor),
+      g: Math.round(start.g + (end.g - start.g) * factor),
+      b: Math.round(start.b + (end.b - start.b) * factor),
+    };
+    return `rgb(${result.r}, ${result.g}, ${result.b})`;
+  };
+
+  const calculateGrid = (width, height) => {
+    const columns = Math.ceil(width / charWidth);
+    const rows = Math.ceil(height / charHeight);
+    return { columns, rows };
+  };
+
+  const initializeLetters = (columns, rows) => {
+    grid.current = { columns, rows };
+    const totalLetters = columns * rows;
+    letters.current = Array.from({ length: totalLetters }, () => ({
+      char: getRandomChar(),
+      color: getRandomColor(),
+      targetColor: getRandomColor(),
+      colorProgress: 1,
+    }));
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -197,11 +235,10 @@ const LetterGlitch = ({
       cancelAnimationFrame(animationRef.current);
       window.removeEventListener('resize', handleResize);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [glitchSpeed, smooth]);
+  }, [glitchSpeed, smooth, glitchColors]);
 
   return (
-    <div className="relative w-full h-full bg-black overflow-hidden">
+    <div className="relative w-full h-full bg-background overflow-hidden">
       <canvas ref={canvasRef} className="block w-full h-full" />
       {outerVignette && (
         <div
@@ -217,4 +254,4 @@ const LetterGlitch = ({
   );
 };
 
-export default LetterGlitch;
+export default memo(LetterGlitch); // Wrap the component with memo
