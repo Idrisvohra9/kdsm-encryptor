@@ -54,6 +54,9 @@ export function deriveSeed(key: string): number {
   return finalSeed;
 }
 
+// URL-safe characters that need special handling
+const URL_CHARS = new Set([':', '/', '?', '#', '[', ']', '@', '!', '$', '&', "'", '(', ')', '*', '+', ',', ';', '=', '-', '.', '_', '~', '%']);
+
 /**
  * Encrypts a message using the KDSM algorithm
  * @param message - The message to encrypt
@@ -78,12 +81,23 @@ export function encrypt(message: string, key?: string): string {
   // Process each character in the message
   for (let i = 0; i < charCodes.length; i++) {
     const charCode = charCodes[i];
+    const char = message[i];
     
     // Apply the dynamic shift based on seed and position
     const dynamicShift = seedMod97 + i * seedMod11;
     
+    // Special handling for backslash and pipe characters
+    if (char === '\\' || char === '|') {
+      // Use a special range (300-399) to mark these characters
+      encryptedCodes[i] = 300 + charCode;
+    }
+    // Special handling for URL characters - preserve them with a marker
+    else if (URL_CHARS.has(char)) {
+      // Use a special range (300-399) to mark URL characters
+      encryptedCodes[i] = 300 + charCode;
+    }
     // For ASCII printable range (32-126), use our standard algorithm
-    if (charCode >= 32 && charCode <= 126) {
+    else if (charCode >= 32 && charCode <= 126) {
       let shiftedCode = charCode + dynamicShift;
       
       // Wrap around within printable ASCII range (32-126)
@@ -165,8 +179,13 @@ export function decrypt(encrypted: string, key?: string): string {
     // Calculate the same dynamic shift used during encryption
     const dynamicShift = seedMod97 + i * seedMod11;
     
+    // Check if this is a URL character marker (300-426 range)
+    if (charCode >= 300 && charCode <= 426) { // Changed 399 to 426
+      // Extract the original URL character
+      decryptedCodes[i] = charCode - 300;
+    }
     // Check if this is a special whitespace marker (200-213 range)
-    if (charCode >= 200 && charCode <= 213) {
+    else if (charCode >= 200 && charCode <= 213) {
       // Extract the original whitespace character
       decryptedCodes[i] = charCode - 200;
     }

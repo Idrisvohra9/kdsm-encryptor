@@ -6,7 +6,7 @@
  **/
 
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { ChevronUp, X } from "lucide-react";
 import {
   AnimatePresence,
   motion,
@@ -15,6 +15,7 @@ import {
   useTransform,
 } from "motion/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { useRef, useState } from "react";
 
@@ -59,7 +60,7 @@ const FloatingDockMobile = ({ items, className }) => {
                   key={item.title}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50/80 backdrop-blur-md border border-white/20 shadow-lg dark:bg-primary/10 dark:border-white/10"
                 >
-                  <div className="h-4 w-4">{item.icon}</div>
+                  <div className="h-8 w-8">{item.icon}</div>
                 </Link>
               </motion.div>
             ))}
@@ -70,7 +71,11 @@ const FloatingDockMobile = ({ items, className }) => {
         onClick={() => setOpen(!open)}
         className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50/80 backdrop-blur-md border border-white/20 shadow-lg dark:bg-primary/10 dark:border-white/10"
       >
-        <X className="h-5 w-5 text-primary dark:text-primary" />
+        {open ? (
+          <X className="h-5 w-5 text-primary dark:text-primary" />
+        ) : (
+          <ChevronUp className="h-5 w-5 text-primary dark:text-primary" />
+        )}
       </button>
     </div>
   );
@@ -78,23 +83,29 @@ const FloatingDockMobile = ({ items, className }) => {
 
 const FloatingDockDesktop = ({ items, className }) => {
   let mouseX = useMotionValue(Infinity);
+  const pathname = usePathname();
   return (
     <motion.div
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
       className={cn(
-        "mx-auto hidden h-18 items-end gap-4 rounded-2xl bg-background/10 backdrop-blur-md border border-white/20 shadow-lg px-4 pb-3 md:flex dark:border-white/10 max-w-3xl w-full justify-center",
+        "mx-auto hidden h-18 items-end gap-4 rounded-2xl bg-primary/20 backdrop-blur-md border border-white/20 shadow-lg px-4 pb-3 md:flex dark:border-white/10 max-w-fit justify-center",
         className
       )}
     >
       {items.map((item) => (
-        <IconContainer mouseX={mouseX} key={item.title} {...item} />
+        <IconContainer
+          mouseX={mouseX}
+          key={item.title}
+          {...item}
+          isActive={item.href === pathname}
+        />
       ))}
     </motion.div>
   );
 };
 
-function IconContainer({ mouseX, title, icon, href }) {
+function IconContainer({ mouseX, title, icon, href, isActive }) {
   let ref = useRef(null);
 
   let distance = useTransform(mouseX, (val) => {
@@ -138,13 +149,15 @@ function IconContainer({ mouseX, title, icon, href }) {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <Link href={href}>
+    <Link href={href} className="group">
       <motion.div
         ref={ref}
         style={{ width, height }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="relative flex aspect-square items-center justify-center rounded-full bg-background/10 backdrop-blur-sm border border-white/20 shadow-md  dark:border-white/10"
+        className={`relative flex aspect-square items-center justify-center rounded-full bg-primary/20 backdrop-blur-sm border border-white/20 shadow-md dark:border-white/10 group-hover:bg-primary/30 group-hover:border-white/30 dark:group-hover:border-white/20 transition-colors ${
+          isActive && "border-2 !border-white"
+        }`}
       >
         <AnimatePresence>
           {hovered && (
@@ -160,7 +173,7 @@ function IconContainer({ mouseX, title, icon, href }) {
         </AnimatePresence>
         <motion.div
           style={{ width: widthIcon, height: heightIcon }}
-          className="flex items-center justify-center"
+          className="flex items-center justify-center text-primary/70 group-hover:text-primary dark:text-white/70 dark:group-hover:text-white transition-colors"
         >
           {icon}
         </motion.div>

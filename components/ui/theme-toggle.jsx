@@ -3,27 +3,27 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 
-export default function ThemeToggle() {
+export default function ThemeToggle({ className = "" }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  
+
   // Avoid hydration mismatch by only rendering after component is mounted
   useEffect(() => {
     setMounted(true);
   }, []);
-  
+
   // Handle theme toggle
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
-  
+
   if (!mounted) return null;
-  
+
   return (
-    <label className="theme-switch">
-      <input 
-        type="checkbox" 
-        className="theme-switch__checkbox" 
+    <label className={`theme-switch ${className}`}>
+      <input
+        type="checkbox"
+        className="theme-switch__checkbox"
         checked={theme === "dark"}
         onChange={toggleTheme}
       />

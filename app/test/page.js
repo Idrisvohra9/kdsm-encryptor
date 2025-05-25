@@ -97,14 +97,16 @@ export default function TestPage() {
             <div className="text-sm text-muted-foreground">
               <p>These tests verify:</p>
               <ul className="list-disc pl-5 space-y-1 mt-2">
-                <li>Basic encryption/decryption functionality</li>
+                {/* <li>Basic encryption/decryption functionality</li>
                 <li>Handling of special cases (empty strings, no key)</li>
                 <li>Performance with large inputs (1000+ characters)</li>
                 <li>Special character handling</li>
                 <li>Unicode support</li>
                 <li>Wrong key behavior</li>
                 <li>Whitespace preservation</li>
-                <li>Case preservation</li>
+                <li>Case preservation</li> */}
+                <li>URL encryption/decryption</li>
+                {/* <li>Complex URLs with special characters</li> */}
               </ul>
             </div>
           </CardContent>

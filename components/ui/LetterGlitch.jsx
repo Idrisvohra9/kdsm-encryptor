@@ -73,6 +73,7 @@ const LetterGlitch = ({
       b: parseInt(result[3], 16)
     } : null;
   };
+
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -89,20 +90,20 @@ const LetterGlitch = ({
     canvas.style.height = `${rect.height}px`;
 
     if (context.current) {
-      context.current.setTransform(dpr, 0, 0, dpr, 0, 0); // Properly scale without stacking transforms
+      context.current.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     const { columns, rows } = calculateGrid(rect.width, rect.height);
     initializeLetters(columns, rows);
 
-    drawLetters(); // Ensure letters are drawn after resizing
+    drawLetters();
   };
 
   const drawLetters = () => {
-    if (!context.current || letters.current.length === 0) return;
+    if (!context.current || !letters.current.length || !canvasRef.current) return;
     const ctx = context.current;
-    const { width, height } = canvasRef.current.getBoundingClientRect();
-    ctx.clearRect(0, 0, width, height);
+    const rect = canvasRef.current.getBoundingClientRect();
+    ctx.clearRect(0, 0, rect.width, rect.height);
     ctx.font = `${fontSize}px monospace`;
     ctx.textBaseline = 'top';
 
@@ -115,13 +116,13 @@ const LetterGlitch = ({
   };
 
   const updateLetters = () => {
-    if (!letters.current || letters.current.length === 0) return; // Prevent accessing empty array
+    if (!letters.current || letters.current.length === 0) return;
 
     const updateCount = Math.max(1, Math.floor(letters.current.length * 0.05));
 
     for (let i = 0; i < updateCount; i++) {
       const index = Math.floor(Math.random() * letters.current.length);
-      if (!letters.current[index]) continue; // Skip if index is invalid
+      if (!letters.current[index]) continue;
 
       letters.current[index].char = getRandomChar();
       letters.current[index].targetColor = getRandomColor();
@@ -171,10 +172,7 @@ const LetterGlitch = ({
     animationRef.current = requestAnimationFrame(animate);
   };
 
-  // Update glitch colors when theme changes
   useEffect(() => {
-    
-    // Reinitialize letters with new colors if canvas is already set up
     if (canvasRef.current && context.current) {
       const { columns, rows } = grid.current;
       if (columns > 0 && rows > 0) {
@@ -211,28 +209,38 @@ const LetterGlitch = ({
   };
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     context.current = canvas.getContext('2d');
-    resizeCanvas();
-    animate();
+    
+    // Delay initial setup to ensure parent element is properly sized
+    setTimeout(() => {
+      resizeCanvas();
+      animate();
+    }, 0);
 
     let resizeTimeout;
 
     const handleResize = () => {
       clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
-        cancelAnimationFrame(animationRef.current); // Stop animation loop during resize
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+        }
         resizeCanvas();
-        animate(); // Restart after resizing
+        animate();
       }, 100);
     };
 
     window.addEventListener('resize', handleResize);
 
     return () => {
-      cancelAnimationFrame(animationRef.current);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
       window.removeEventListener('resize', handleResize);
     };
   }, [glitchSpeed, smooth, glitchColors]);
@@ -242,12 +250,12 @@ const LetterGlitch = ({
       <canvas ref={canvasRef} className="block w-full h-full" />
       {outerVignette && (
         <div
-          className="absolute top-0 left-0 w-full h-full pointer-events-none bg-[radial-gradient(circle,_rgba(0,0,0,0)_60%,_rgba(0,0,0,1)_100%)]"
+          className="absolute top-0 left-0 w-full h-full pointer-events-none dark:bg-[radial-gradient(circle,_rgba(0,0,0,0)_60%,_rgba(0,0,0,1)_100%)] bg-[radial-gradient(circle,_rgba(255,255,255,0)_0%,_rgba(200,200,200,0.32)_60%)]"
         ></div>
       )}
       {centerVignette && (
         <div
-          className="absolute top-0 left-0 w-full h-full pointer-events-none bg-[radial-gradient(circle,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0)_60%)]"
+          className="absolute top-0 left-0 w-full h-full pointer-events-none dark:bg-[radial-gradient(circle,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0)_60%)] bg-[radial-gradient(circle,_rgba(255,255,255,0.6)_0%,_rgba(200,200,200,0)_60%)]"
         ></div>
       )}
     </div>

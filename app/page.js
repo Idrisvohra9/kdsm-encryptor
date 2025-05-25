@@ -18,17 +18,27 @@ import VariableProximity from "@/components/ui/VariableProximity";
 import LetterGlitch from "@/components/ui/LetterGlitch";
 import ShinyText from "@/components/ui/ShinyText";
 import Image from "next/image";
-import { BrushCleaning, Check, Copy, Shield, ShieldOff } from "lucide-react";
+import {
+  BrushCleaning,
+  Check,
+  Copy,
+  ExternalLink,
+  Shield,
+  ShieldOff,
+} from "lucide-react";
 import ThemeToggle from "@/components/ui/theme-toggle";
 import { motion } from "framer-motion"; // Import motion
+import Carousel from "@/components/ui/Carousel";
+import DecryptedText from "@/components/ui/DecryptedText";
+import { unstable_ViewTransition as ViewTransition } from "react";
 
 // Define a unique marker for the key within the copied string
 const KEY_START_MARKER = "[KDSM_KEY_START]";
 const KEY_END_MARKER = "[KDSM_KEY_END]";
-// TODO: Make it work well with links and automatically detect link in decryped result
 
 export default function Home() {
   const [key, setKey] = useState("");
+  const [message, setMessage] = useState(""); // Add state for the message input
   const [encryptedResult, setEncryptedResult] = useState("");
   const [decryptedResult, setDecryptedResult] = useState("");
   const [lastUsedKey, setLastUsedKey] = useState("");
@@ -40,7 +50,7 @@ export default function Home() {
   });
 
   const containerRef = useRef(null);
-  const messageRef = useRef(null); // Add ref for the message textarea
+  const messageRef = useRef(null); // Keep ref for cursor position in paste handler
 
   function containsEmoji(str) {
     // Updated regex to match a broader range of Unicode emoji blocks and sequences
@@ -50,44 +60,36 @@ export default function Home() {
   }
 
   const handleEncrypt = () => {
-    let message = messageRef.current?.value || ""; // Read value from ref
-    if (!message) {
+    let currentMessage = message; // Use state value
+    if (!currentMessage) {
       toast.error("Oopsie!", {
         description: "Please enter a message to encrypt",
       });
       return;
     }
 
-    // Remove emojis from the message string
-    const emojiRegex =
-      /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
-    message = message.replace(emojiRegex, ""); // Replace emojis with an empty string
+    let messageToEncrypt = currentMessage;
+    // Only remove emojis if it's not a URL (basic check)
+    if (
+      !currentMessage.startsWith("http://") &&
+      !currentMessage.startsWith("https://")
+    ) {
+      const emojiRegex =
+        /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
+      const messageWithoutEmojis = currentMessage.replace(emojiRegex, "");
 
-    // Optional: Show a warning if emojis were removed
-    if (containsEmoji(messageRef.current?.value || "")) {
-      // Check original message for emojis
-      toast.warning("Emojis Removed", {
-        description:
-          "Emojis were detected and removed from the message before encryption.",
-      });
-    }
-    try {
-      // Use provided key or generate one if empty
-      const usedKey = key || generateKey();
-
-      // Measure encryption time for performance monitoring
-      const startTime = performance.now();
-      const result = encrypt(message, usedKey); // Encrypt the message without emojis
-      const endTime = performance.now();
-
-      // Log performance in development
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `Encryption time: ${(endTime - startTime).toFixed(2)}ms for ${
-            message.length
-          } characters`
-        );
+      if (containsEmoji(currentMessage)) {
+        toast.warning("Emojis Removed", {
+          description:
+            "Emojis were detected and removed from the message before encryption.",
+        });
+        messageToEncrypt = messageWithoutEmojis;
       }
+    }
+
+    try {
+      const usedKey = key || generateKey();
+      const result = encrypt(messageToEncrypt, usedKey); // Use messageToEncrypt
 
       setEncryptedResult(result);
       setLastUsedKey(usedKey);
@@ -111,8 +113,7 @@ export default function Home() {
   };
 
   const handleDecrypt = () => {
-    // Read the text directly from the message textarea using the ref
-    const textToDecrypt = messageRef.current?.value || "";
+    const textToDecrypt = message; // Use state value
 
     if (!textToDecrypt) {
       toast.error("Oopsie!", {
@@ -129,20 +130,7 @@ export default function Home() {
     }
 
     try {
-      // Measure decryption time for performance monitoring
-      const startTime = performance.now();
-      const result = decrypt(textToDecrypt, key); // Use text from ref
-      const endTime = performance.now();
-
-      // Log performance in development
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `Decryption time: ${(endTime - startTime).toFixed(2)}ms for ${
-            textToDecrypt.length
-          } characters`
-        );
-      }
-
+      const result = decrypt(textToDecrypt, key); // Use text from state
       setDecryptedResult(result);
       toast("Success", {
         description: "Message decrypted successfully",
@@ -150,17 +138,13 @@ export default function Home() {
     } catch (error) {
       console.error("Decryption error:", error);
       toast.error("Decryption Failed", {
-        // Changed to toast.error
         description: error.message || "An error occurred during decryption",
-        // Removed variant: "destructive"
       });
     }
   };
 
   const handleClear = () => {
-    if (messageRef.current) {
-      messageRef.current.value = ""; // Clear input using ref
-    }
+    setMessage(""); // Clear message state
     setKey("");
     setEncryptedResult("");
     setDecryptedResult("");
@@ -169,6 +153,7 @@ export default function Home() {
       encrypted: false,
       decrypted: false,
       key: false,
+      encryptedWithKey: false, // Reset this state too
     });
     toast("Cleared", {
       description: "All fields have been cleared",
@@ -185,9 +170,7 @@ export default function Home() {
       },
       (err) => {
         toast.error("Copy Failed", {
-          // Changed to toast.error
           description: "Could not copy to clipboard",
-          // Removed variant: "destructive"
         });
       }
     );
@@ -197,9 +180,7 @@ export default function Home() {
   const copyEncryptedWithKey = () => {
     if (!encryptedResult || !lastUsedKey) {
       toast.error("Oopsie!", {
-        // Changed to toast.error
         description: "No encrypted message or key available to copy",
-        // Removed variant: "destructive"
       });
       return;
     }
@@ -220,7 +201,7 @@ export default function Home() {
   };
 
   // Handle paste event on the message textarea
-  const handlePaste = async (event) => { // Mark function as async
+  const handlePaste = async (event) => {
     // Prevent default paste behavior initially, we'll handle it manually
     event.preventDefault();
 
@@ -242,31 +223,40 @@ export default function Home() {
             keyStartIndex + KEY_START_MARKER.length,
             keyEndIndex
           );
-          const message = pastedText.substring(
+          const messageContent = pastedText.substring(
             keyEndIndex + KEY_END_MARKER.length
           );
 
           // Set the key input value
           setKey(key);
-
-          // Set the message textarea value using the ref
-          if (messageRef.current) {
-            messageRef.current.value = message;
-          }
+          // Set the message state value
+          setMessage(messageContent);
 
           toast("Key Detected", {
             description: "Key automatically placed in the Encryption Key field",
           });
         } else {
-           // If markers are not found, paste the text normally
-           if (messageRef.current) {
-             const currentMessage = messageRef.current.value;
-             const cursorPosition = messageRef.current.selectionStart;
-             const newMessage = currentMessage.substring(0, cursorPosition) + pastedText + currentMessage.substring(messageRef.current.selectionEnd);
-             messageRef.current.value = newMessage;
-             // Optionally restore cursor position
-             messageRef.current.selectionStart = messageRef.current.selectionEnd = cursorPosition + pastedText.length;
-           }
+          // If markers are not found, paste the text normally into the state
+          if (messageRef.current) {
+            const currentMessage = message; // Use state value
+            const cursorPosition = messageRef.current.selectionStart;
+            const newMessage =
+              currentMessage.substring(0, cursorPosition) +
+              pastedText +
+              currentMessage.substring(messageRef.current.selectionEnd);
+
+            setMessage(newMessage); // Update state
+
+            // Restore cursor position after state update
+            // Need a small delay or use a state variable for cursor position
+            // For simplicity, we'll just set it directly, might not be perfect
+            messageRef.current.selectionStart =
+              messageRef.current.selectionEnd =
+                cursorPosition + pastedText.length;
+          } else {
+            // Fallback if ref is not available, just append
+            setMessage((prevMessage) => prevMessage + pastedText);
+          }
         }
       }
     } catch (err) {
@@ -274,19 +264,16 @@ export default function Home() {
       toast.error("Paste Failed", {
         description: "Could not read clipboard content.",
       });
-      // Fallback: Allow default paste if reading clipboard fails
-      // Note: This might still fail on some mobile browsers if clipboardData is also unavailable
-      // event.target.dispatchEvent(new Event('paste', { bubbles: true })); // This might cause infinite loops or other issues, better to just log error.
     }
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-4 md:p-24">
-      <div className="absolute inset-0 -z-10 w-full h-[165vh]">
+    <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
+      <div className="fixed inset-0 -z-10 w-screen h-screen">
         <LetterGlitch
           glitchSpeed={50}
-          centerVignette={false}
-          outerVignette={false}
+          centerVignette={true}
+          outerVignette={true}
           smooth={true}
         />
       </div>
@@ -303,7 +290,7 @@ export default function Home() {
           }} // Spring animation
           className="dark:border-white/10 backdrop-blur-md"
         >
-          <Card className="w-full text-primary bg-background/10">
+          <Card className="w-full text-primary bg-primary/10">
             <CardHeader>
               <div
                 ref={containerRef}
@@ -313,13 +300,15 @@ export default function Home() {
                   alignItems: "center",
                 }}
               >
-                <Image
-                  src="/dark/1.png"
-                  width={48}
-                  height={48}
-                  className="me-2 object-cover"
-                  alt="KDSM Logo"
-                />
+                <ViewTransition name="kdsm-logo">
+                  <Image
+                    src="/dark/1.png"
+                    width={48}
+                    height={48}
+                    className="me-2 object-cover"
+                    alt="KDSM Logo"
+                  />
+                </ViewTransition>
                 <VariableProximity
                   label={"KDSM Encryptor V - 0.2"}
                   className={"sm:text-2xl text-lg"}
@@ -350,15 +339,38 @@ export default function Home() {
 
             <CardContent className="space-y-6">
               {/* Message Input */}
+
               <div className="space-y-2">
                 <Label htmlFor="message">Message</Label>
                 <Textarea
                   id="message"
                   placeholder="Enter your message here or paste message with key..."
-                  ref={messageRef} // Attach ref to the textarea
+                  ref={messageRef} // Keep ref for cursor position
+                  value={message} // Bind value to state
+                  onChange={(e) => setMessage(e.target.value)} // Update state on change
                   onPaste={handlePaste} // Add paste handler
                   className="min-h-[120px]"
                 />
+                <span className="text-muted-foreground text-sm flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-yellow-500"
+                  >
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  For security reasons, emojis (if there are) will be
+                  automatically removed from your message during encryption
+                </span>
               </div>
 
               {/* Key Input */}
@@ -465,8 +477,26 @@ export default function Home() {
                     </Button>
                   </div>
                   <div className="p-3 bg-background rounded border break-all">
-                    {decryptedResult}
+                    {/* Example 2: Customized speed and characters */}
+                    <DecryptedText
+                      text={decryptedResult}
+                      animateOn="view"
+                      revealDirection="start"
+                      speed={200}
+                      useOriginalCharsOnly={true}
+                    />
                   </div>
+                  {decryptedResult.includes("https://") && (
+                    <div className="flex flex-row-reverse">
+                      <Button
+                        size="sm"
+                        onClick={() => window.open(decryptedResult, "_blank")}
+                        title="Open link in new tab"
+                      >
+                        <ExternalLink className="w-5 h-5" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -493,22 +523,32 @@ export default function Home() {
               )}
             </CardContent>
 
-            <CardFooter className="flex justify-between text-sm text-muted-foreground">
-              <ShinyText
-                text="KDSM Encryptor by - Idris Vohra"
-                disabled={false}
-                speed={3}
-              />
-              <ShinyText
-                text="OP • Super Fast • One of a kind"
-                disabled={false}
-                speed={3}
-              />
+            <CardFooter className="flex-col">
+              <div className="flex justify-center items-center mb-3">
+                <Carousel
+                  autoplay={true}
+                  autoplayDelay={3000}
+                  pauseOnHover={true}
+                  loop={true}
+                />
+              </div>
+              <div className="flex justify-between text-sm text-muted-foreground w-full">
+                <ShinyText
+                  text="KDSM Encryptor by - Idris Vohra"
+                  disabled={false}
+                  speed={3}
+                />
+                <ShinyText
+                  text="OP • Super Fast • One of a kind"
+                  disabled={false}
+                  speed={3}
+                />
+              </div>
             </CardFooter>
           </Card>
         </motion.div>{" "}
         {/* Close motion.div */}
       </div>
-    </main>
+    </div>
   );
 }
