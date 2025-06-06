@@ -3,6 +3,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Dock } from "@/components/Dock";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/context/AuthContext";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 const robotoFlex = Roboto_Flex({
@@ -64,9 +66,11 @@ export default function RootLayout({ children }) {
         className={`${inter.className} ${robotoFlex.className} antialiased bg-pimary`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
-          <main>{children}</main>
-          <Dock />
-          <Toaster />
+          <AuthProvider>
+            <main>{children}</main>
+            <Dock />
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

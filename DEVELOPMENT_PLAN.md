@@ -10,7 +10,7 @@
 
 **Steps:**
 
-1. Install and configure **Appwrite SDK**, `socket.io-client`, `clsx`, and `zod`.
+1. Install and configure **Appwrite SDK**, `socket.io-client` in ('/socket-server'), `clsx`, and `zod`.
 2. Setup environment file (`.env.local`) with Appwrite credentials.
 3. Build reusable base UI components:
 
