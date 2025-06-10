@@ -1,14 +1,13 @@
 "use client";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, memo } from "react";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
 
-export const LiquidChrome = ({
+export const LiquidChrome = memo(({
   baseColor = [0.1, 0.1, 0.1],
   speed = 0.2,
   amplitude = 0.5,
   frequencyX = 3,
   frequencyY = 2,
-  interactive = false,
   ...props
 }) => {
   const containerRef = useRef(null);
@@ -42,7 +41,6 @@ export const LiquidChrome = ({
       uniform float uAmplitude;
       uniform float uFrequencyX;
       uniform float uFrequencyY;
-      uniform vec2 uMouse;
       varying vec2 vUv;
 
       // Render function for a given uv coordinate.
@@ -54,16 +52,9 @@ export const LiquidChrome = ({
 
           // Iterative cosine-based distortions.
           for (float i = 1.0; i < 10.0; i++){
-              uv.x += uAmplitude / i * cos(i * uFrequencyX * uv.y + uTime + uMouse.x * 3.14159);
-              uv.y += uAmplitude / i * cos(i * uFrequencyY * uv.x + uTime + uMouse.y * 3.14159);
+              uv.x += uAmplitude / i * cos(i * uFrequencyX * uv.y + uTime);
+              uv.y += uAmplitude / i * cos(i * uFrequencyY * uv.x + uTime);
           }
-
-          // Add a liquid ripple effect based on the mouse position.
-          vec2 diff = (uvCoord - uMouse);
-          float dist = length(diff);
-          float falloff = exp(-dist * 20.0);
-          float ripple = sin(10.0 * dist - uTime * 2.0) * 0.03;
-          uv += (diff / (dist + 0.0001)) * ripple * falloff;
 
           // Original vibrant color computation.
           vec3 color = uBaseColor / abs(sin(uTime - uv.y - uv.x));
@@ -103,7 +94,6 @@ export const LiquidChrome = ({
         uAmplitude: { value: amplitude },
         uFrequencyX: { value: frequencyX },
         uFrequencyY: { value: frequencyY },
-        uMouse: { value: new Float32Array([0, 0]) },
       },
     });
     const mesh = new Mesh(gl, { geometry, program });
@@ -123,33 +113,6 @@ export const LiquidChrome = ({
     window.addEventListener("resize", resize);
     resize();
 
-    // Mouse and touch move handlers for interactivity.
-    function handleMouseMove(event) {
-      const rect = container.getBoundingClientRect();
-      const x = (event.clientX - rect.left) / rect.width;
-      const y = 1 - (event.clientY - rect.top) / rect.height;
-      const mouseUniform = program.uniforms.uMouse.value;
-      mouseUniform[0] = x;
-      mouseUniform[1] = y;
-    }
-
-    function handleTouchMove(event) {
-      if (event.touches.length > 0) {
-        const touch = event.touches[0];
-        const rect = container.getBoundingClientRect();
-        const x = (touch.clientX - rect.left) / rect.width;
-        const y = 1 - (touch.clientY - rect.top) / rect.height;
-        const mouseUniform = program.uniforms.uMouse.value;
-        mouseUniform[0] = x;
-        mouseUniform[1] = y;
-      }
-    }
-
-    if (interactive) {
-      container.addEventListener("mousemove", handleMouseMove);
-      container.addEventListener("touchmove", handleTouchMove);
-    }
-
     // Animation loop.
     let animationId;
     function update(t) {
@@ -165,16 +128,12 @@ export const LiquidChrome = ({
     return () => {
       cancelAnimationFrame(animationId);
       window.removeEventListener("resize", resize);
-      if (interactive) {
-        container.removeEventListener("mousemove", handleMouseMove);
-        container.removeEventListener("touchmove", handleTouchMove);
-      }
       if (gl.canvas.parentElement) {
         gl.canvas.parentElement.removeChild(gl.canvas);
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [baseColor, speed, amplitude, frequencyX, frequencyY, interactive]);
+  }, [baseColor, speed, amplitude, frequencyX, frequencyY]);
 
   return (
     <div
@@ -183,6 +142,8 @@ export const LiquidChrome = ({
       {...props}
     />
   );
-};
+});
+
+LiquidChrome.displayName = 'LiquidChrome';
 
 export default LiquidChrome;

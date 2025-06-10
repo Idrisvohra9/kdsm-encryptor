@@ -20,7 +20,7 @@ async function getUserFromSession(request) {
   }
 }
 
-export async function DELETE(request, { params }) {
+export async function GET(request) {
   try {
     const user = await getUserFromSession(request);
     if (!user) {
@@ -30,19 +30,17 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    const { keyId } = await params;
-    
-    await ApiKeyManager.deleteApiKey(keyId, user.$id);
+    const rateLimitStatus = await ApiKeyManager.getRateLimitStatus(user.$id);
     
     return NextResponse.json({
       success: true,
-      message: 'API key deleted successfully'
+      data: rateLimitStatus
     });
   } catch (error) {
-    console.error('Delete API key error:', error);
+    console.error('Rate limit status error:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 400 }
+      { success: false, error: 'Failed to fetch rate limit status' },
+      { status: 500 }
     );
   }
 }

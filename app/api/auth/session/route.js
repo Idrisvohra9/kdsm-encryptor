@@ -19,7 +19,7 @@ export async function POST(request) {
     
     // Set the session cookie
     const response = NextResponse.json({ success: true, session });
-    response.cookies.set("appwrite-session", session.secret, {
+    response.cookies.set("kdsm-session", session.secret, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: "strict",
@@ -39,7 +39,7 @@ export async function POST(request) {
 // Logout route
 export async function DELETE(request) {
   try {
-    const sessionToken = request.cookies.get("appwrite-session")?.value;
+    const sessionToken = request.cookies.get("kdsm-session")?.value;
 
     if (!sessionToken) {
       return NextResponse.json(
@@ -61,7 +61,7 @@ export async function DELETE(request) {
 
     // Clear the session cookie
     const response = NextResponse.json({ success: true });
-    response.cookies.delete("appwrite-session", {
+    response.cookies.delete("kdsm-session", {
       path: "/",
     });
 
@@ -74,7 +74,7 @@ export async function DELETE(request) {
       success: true, 
       message: "Logged out locally" 
     });
-    response.cookies.delete("appwrite-session", {
+    response.cookies.delete("kdsm-session", {
       path: "/",
     });
     
@@ -84,7 +84,7 @@ export async function DELETE(request) {
 // Verify session route
 export async function GET(request) {
   try {
-    const sessionToken = request.cookies.get("appwrite-session")?.value;
+    const sessionToken = request.cookies.get("kdsm-session")?.value;
 
     if (!sessionToken) {
       return NextResponse.json(

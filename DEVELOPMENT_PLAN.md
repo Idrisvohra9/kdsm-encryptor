@@ -46,7 +46,7 @@
 
 **Steps:**
 
-1. Build `/chat/create/page.jsx` for room creation.
+1. Build `/chatss/create/page.jsx` for room creation.
 2. Store room name, creatorId, and hashed Room Key in Appwrite.
 3. Add Room PIN for private access, stored as `roomKeyHash` (optional).
 4. Generate invite links:
@@ -57,7 +57,7 @@
 
    - If `invite=true`, auto-prompt user to enter PIN.
 
-5. Render `/chat/[roomId]/page.jsx` dynamically.
+5. Render `/chats/[roomId]/page.jsx` dynamically.
 
 ---
 
@@ -135,7 +135,7 @@
 
 **Steps:**
 
-1. Add `/chat/settings/page.jsx`.
+1. Add `/chats/settings/page.jsx`.
 2. Let room creators:
 
    - Toggle auto-decrypt

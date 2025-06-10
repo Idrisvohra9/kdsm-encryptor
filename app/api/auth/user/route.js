@@ -5,7 +5,7 @@ import { config } from '@/lib/appwrite/kdsm';
 // Get user data using session route
 export async function GET(request) {
   try {
-    const sessionId = request.cookies.get('appwrite-session')?.value;
+    const sessionId = request.cookies.get('kdsm-session')?.value;
     
     if (!sessionId) {
       return NextResponse.json(

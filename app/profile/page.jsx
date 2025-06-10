@@ -36,11 +36,23 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import LiquidChrome from "@/components/ui/LiquidChrome";
 import GhostLoader from "@/components/ui/GhostLoader";
 import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 import { toast } from "sonner";
-import { Copy, Plus, Trash2, Key, Code, Eye, EyeOff } from "lucide-react";
+import {
+  Copy,
+  Plus,
+  Trash2,
+  Key,
+  Code,
+  Eye,
+  EyeOff,
+  Crown,
+  Shield,
+  Zap,
+} from "lucide-react";
 import Image from "next/image";
 
 export default function ProfilePage() {
@@ -50,7 +62,9 @@ export default function ProfilePage() {
   const [loadingKeys, setLoadingKeys] = useState(false);
   const [newKeyName, setNewKeyName] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [hiddenKeys, setHiddenKeys] = useState(new Set());
+  const [visibleKeys, setVisibleKeys] = useState(new Set());
+  const [rateLimitStatus, setRateLimitStatus] = useState(null);
+  const [loadingRateLimit, setLoadingRateLimit] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -60,6 +74,7 @@ export default function ProfilePage() {
 
     if (user) {
       fetchApiKeys();
+      fetchRateLimitStatus();
     }
   }, [user, loading, router]);
 
@@ -71,8 +86,6 @@ export default function ProfilePage() {
 
       if (data.success) {
         setApiKeys(data.data);
-        // Initially hide all keys except newly created ones
-        setHiddenKeys(new Set(data.data.map(key => key.$id)));
       } else {
         toast.error("Failed to fetch API keys");
       }
@@ -81,6 +94,22 @@ export default function ProfilePage() {
       toast.error("Failed to fetch API keys");
     } finally {
       setLoadingKeys(false);
+    }
+  };
+
+  const fetchRateLimitStatus = async () => {
+    setLoadingRateLimit(true);
+    try {
+      const response = await fetch("/api/user/rate-limit");
+      const data = await response.json();
+
+      if (data.success) {
+        setRateLimitStatus(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching rate limit status:", error);
+    } finally {
+      setLoadingRateLimit(false);
     }
   };
 
@@ -105,13 +134,12 @@ export default function ProfilePage() {
         toast.success("API key created successfully");
         setNewKeyName("");
         setShowCreateDialog(false);
-        await fetchApiKeys();
-        // Show newly created key
-        setHiddenKeys(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(data.data.$id);
-          return newSet;
-        });
+        fetchApiKeys();
+
+        // Show the full key temporarily
+        setTimeout(() => {
+          setVisibleKeys((prev) => new Set([...prev, data.data.id]));
+        }, 100);
       } else {
         toast.error(data.error || "Failed to create API key");
       }
@@ -153,16 +181,12 @@ export default function ProfilePage() {
   };
 
   const toggleKeyVisibility = (keyId) => {
-    setHiddenKeys(prev => {
+    setVisibleKeys((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(keyId)) {
         newSet.delete(keyId);
       } else {
         newSet.add(keyId);
-        // Auto-hide key after 30 seconds
-        setTimeout(() => {
-          setHiddenKeys(current => new Set([...current, keyId]));
-        }, 30000);
       }
       return newSet;
     });
@@ -173,6 +197,33 @@ export default function ProfilePage() {
     router.push("/auth/login");
   };
 
+  const getTierIcon = (tier) => {
+    switch (tier) {
+      case "admin":
+        return <Shield className="w-4 h-4 text-red-500" />;
+      case "premium":
+        return <Crown className="w-4 h-4 text-yellow-500" />;
+      default:
+        return <Zap className="w-4 h-4 text-blue-500" />;
+    }
+  };
+
+  const getTierColor = (tier) => {
+    switch (tier) {
+      case "admin":
+        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300";
+      case "premium":
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300";
+      default:
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300";
+    }
+  };
+
+  const getUsagePercentage = () => {
+    if (!rateLimitStatus || rateLimitStatus.limit === "unlimited") return 0;
+    return (rateLimitStatus.used / rateLimitStatus.limit) * 100;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-primary">
@@ -181,273 +232,398 @@ export default function ProfilePage() {
     );
   }
 
-  const maskApiKey = (key) => {
-    return `${key.slice(0, 5)}${'•'.repeat(36)}${key.slice(-8)}`;
-  };
-
   return (
     <div className="flex justify-center items-center min-h-screen w-full p-4 relative">
-      <div className="absolute inset-0" style={{ height: "600px" }}>
+      <div className="absolute inset-0">
         <LiquidChrome />
       </div>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Card className="w-full max-w-4xl dark:border-white/30 backdrop-blur-md text-primary-foreground bg-primary/30">
-          <CardHeader>
-            <div className="flex items-center space-x-4">
-              <InitialsAvatar user={user} />
-              <div>
-                <CardTitle>{user?.name || "User"}</CardTitle>
-                <CardDescription>
-                  {user?.email || "user@example.com"}
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <Tabs defaultValue="account" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="account">Account</TabsTrigger>
-                <TabsTrigger value="developer">Developer</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="account" className="space-y-4">
-                <div>
-                  <h3 className="text-sm font-medium">Account Details</h3>
-                  <p className="text-sm">
-                    Subscription: {user?.subscriptionTier || "Free"}
-                  </p>
-                  <p className="text-sm">
-                    Joined:{" "}
-                    {user?.$createdAt
-                      ? new Date(user.$createdAt).toLocaleDateString()
-                      : "Unknown"}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-medium">Session Information</h3>
-                  <p className="text-sm">
-                    Your session will expire in 3 days from login.
-                  </p>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="developer" className="space-y-4">
-                <div className="flex justify-center items-center w-full mb-5">
-                  <Image
-                    src="/dark/5.png"
-                    width={120}
-                    height={120}
-                    className="me-2 object-cover"
-                    alt="KDSM API"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-medium flex items-center gap-2">
-                      <Code className="w-5 h-5" />
-                      API Keys
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Manage your KDSM API keys for external integrations
-                    </p>
-                  </div>
-
-                  <Dialog
-                    open={showCreateDialog}
-                    onOpenChange={setShowCreateDialog}
+      <Card className="w-full text-primary bg-secondary/20 dark:border-white/10 backdrop-blur-md min-h-screen">
+        <CardHeader>
+          <div className="flex items-center space-x-4">
+            <InitialsAvatar user={user} />
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                {user?.name || "User"}
+                {rateLimitStatus && (
+                  <Badge
+                    className={`${getTierColor(
+                      rateLimitStatus.tier
+                    )} flex items-center gap-1`}
                   >
-                    <DialogTrigger asChild>
+                    {getTierIcon(rateLimitStatus.tier)}
+                    {rateLimitStatus.tier.charAt(0).toUpperCase() +
+                      rateLimitStatus.tier.slice(1)}
+                  </Badge>
+                )}
+              </CardTitle>
+              <CardDescription>
+                {user?.email || "user@example.com"}
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          <Tabs defaultValue="account" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="account">Account</TabsTrigger>
+              <TabsTrigger value="developer">Developer</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="account" className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium">Account Details</h3>
+                <p className="text-sm">
+                  Subscription: {user?.subscriptionTier || "Free"}
+                </p>
+                <p className="text-sm">
+                  Joined:{" "}
+                  {user?.$createdAt
+                    ? new Date(user.$createdAt).toLocaleDateString()
+                    : "Unknown"}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="text-sm font-medium">Session Information</h3>
+                <p className="text-sm">
+                  Your session will expire in 3 days from login.
+                </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="developer" className="space-y-4">
+              <div className="flex justify-center items-center w-full mb-5">
+                <Image
+                  src="/dark/5.png"
+                  width={120}
+                  height={120}
+                  className="me-2 object-cover"
+                  alt="KDSM API"
+                />
+              </div>
+              {/* Rate Limit Status Card */}
+              {rateLimitStatus && (
+                <Card className="bg-background/50">
+                  <CardContent className="pt-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <h4 className="font-medium">API Usage</h4>
+                        <Badge
+                          className={`${getTierColor(
+                            rateLimitStatus.tier
+                          )} flex items-center gap-1`}
+                        >
+                          {getTierIcon(rateLimitStatus.tier)}
+                          {rateLimitStatus.tier.charAt(0).toUpperCase() +
+                            rateLimitStatus.tier.slice(1)}
+                        </Badge>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={fetchRateLimitStatus}
+                        disabled={loadingRateLimit}
+                      >
+                        Refresh
+                      </Button>
+                    </div>
+
+                    {rateLimitStatus.limit === "unlimited" ? (
+                      <div className="text-center py-4">
+                        <Shield className="w-8 h-8 mx-auto mb-2 text-red-500" />
+                        <p className="font-medium text-red-600 dark:text-red-400">
+                          Unlimited API Access
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Calls made today: {rateLimitStatus.used}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Daily Usage</span>
+                          <span>
+                            {rateLimitStatus.used} / {rateLimitStatus.limit}
+                          </span>
+                        </div>
+                        <Progress
+                          value={getUsagePercentage()}
+                          className="h-2"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {rateLimitStatus.remaining} calls remaining today
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-medium flex items-center gap-2">
+                    <Code className="w-5 h-5" />
+                    API Keys
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Manage your KDSM API keys for external integrations
+                  </p>
+                </div>
+
+                <Dialog
+                  open={showCreateDialog}
+                  onOpenChange={setShowCreateDialog}
+                >
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={apiKeys.length >= 3}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      New Key
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Create New API Key</DialogTitle>
+                      <DialogDescription>
+                        Give your API key a descriptive name to help you
+                        identify it later.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="keyName">Key Name</Label>
+                        <Input
+                          id="keyName"
+                          placeholder="e.g., My Project API"
+                          value={newKeyName}
+                          onChange={(e) => setNewKeyName(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
                       <Button
                         variant="outline"
-                        size="sm"
-                        disabled={apiKeys.length >= 3}
+                        onClick={() => setShowCreateDialog(false)}
                       >
-                        <Plus className="w-4 h-4 mr-2" />
-                        New Key
+                        Cancel
                       </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Create New API Key</DialogTitle>
-                        <DialogDescription>
-                          Give your API key a descriptive name to help you
-                          identify it later.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="keyName">Key Name</Label>
-                          <Input
-                            id="keyName"
-                            placeholder="e.g., My Project API"
-                            value={newKeyName}
-                            onChange={(e) => setNewKeyName(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <DialogFooter>
+                      <Button onClick={createApiKey}>Create Key</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              {loadingKeys ? (
+                <div className="flex justify-center py-8">
+                  <GhostLoader />
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {apiKeys.length === 0 ? (
+                    <Card className="bg-background/50">
+                      <CardContent className="pt-6 pb-6 text-center">
+                        <Key className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                        <h4 className="font-medium mb-2">No API Keys</h4>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Create your first API key to start using the KDSM API
+                        </p>
                         <Button
                           variant="outline"
-                          onClick={() => setShowCreateDialog(false)}
+                          onClick={() => setShowCreateDialog(true)}
                         >
-                          Cancel
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create API Key
                         </Button>
-                        <Button onClick={createApiKey}>Create Key</Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-
-                <div className="space-y-3">
-                  {loadingKeys ? (
-                    <div className="text-center py-4 flex w-full justify-center">
-                      <GhostLoader />
-                    </div>
-                  ) : apiKeys.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <Key className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                      <p>No API keys created yet</p>
-                      <p className="text-sm">
-                        Create your first API key to get started
-                      </p>
-                    </div>
+                      </CardContent>
+                    </Card>
                   ) : (
                     apiKeys.map((key) => (
                       <Card key={key.$id} className="bg-background/50">
                         <CardContent className="pt-4">
                           <div className="flex items-center justify-between">
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
                                 <h4 className="font-medium">{key.keyName}</h4>
                                 <Badge variant="secondary" className="text-xs">
-                                  Active
+                                  {key.apiKey.substring(0, 12)}...
                                 </Badge>
                               </div>
-                              <div className="flex items-center gap-2 font-mono text-sm">
-                                <span className="w-40 lg:w-64 truncate">
-                                  {hiddenKeys.has(key.$id)
-                                    ? maskApiKey(key.apiKey)
-                                    : key.apiKey}
-                                </span>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => toggleKeyVisibility(key.$id)}
-                                >
-                                  {!hiddenKeys.has(key.$id) ? (
-                                    <EyeOff className="w-4 h-4" />
-                                  ) : (
-                                    <Eye className="w-4 h-4" />
-                                  )}
-                                </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => copyToClipboard(key.apiKey)}
-                                >
-                                  <Copy className="w-4 h-4" />
-                                </Button>
-
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="ghost" size="sm">
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>
-                                        Delete API Key
-                                      </AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Are you sure you want to delete "
-                                        {key.keyName}"? This action cannot be
-                                        undone and will immediately revoke
-                                        access for any applications using this
-                                        key.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>
-                                        Cancel
-                                      </AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() => deleteApiKey(key.$id)}
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                      >
-                                        Delete
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
+                              <div className="space-y-1 text-xs text-muted-foreground">
+                                <p>
+                                  Created:{" "}
+                                  {new Date(
+                                    key.$createdAt
+                                  ).toLocaleDateString()}
+                                </p>
+                                <p>
+                                  Last used:{" "}
+                                  {key.lastUsed
+                                    ? new Date(
+                                        key.lastUsed
+                                      ).toLocaleDateString()
+                                    : "Never"}
+                                </p>
+                                <p>
+                                  Expires:{" "}
+                                  {new Date(key.expiresAt).toLocaleDateString()}
+                                </p>
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                Created:{" "}
-                                {new Date(key.$createdAt).toLocaleDateString()}
-                                {key.lastUsed && (
-                                  <span className="ml-4">
-                                    Last used:{" "}
-                                    {new Date(
-                                      key.lastUsed
-                                    ).toLocaleDateString()}
-                                  </span>
-                                )}
-                                {key.expiresAt && (
-                                  <span className="ml-4">
-                                    Expires At:{" "}
-                                    {new Date(
-                                      key.expiresAt
-                                    ).toLocaleDateString()}
-                                  </span>
-                                )}
-                              </p>
+
+                              <div className="mt-3 p-2 bg-muted rounded border">
+                                <div className="flex items-center gap-2">
+                                  <code className="text-xs flex-1 font-mono">
+                                    {visibleKeys.has(key.$id)
+                                      ? key.apiKey
+                                      : "••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"}
+                                  </code>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => toggleKeyVisibility(key.$id)}
+                                  >
+                                    {visibleKeys.has(key.$id) ? (
+                                      <EyeOff className="w-4 h-4" />
+                                    ) : (
+                                      <Eye className="w-4 h-4" />
+                                    )}
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => copyToClipboard(key.apiKey)}
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="ml-4">
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="sm">
+                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>
+                                      Delete API Key
+                                    </AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete "
+                                      {key.keyName}"? This action cannot be
+                                      undone and will immediately revoke access
+                                      for any applications using this key.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => deleteApiKey(key.$id)}
+                                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                    >
+                                      Delete Key
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
                             </div>
                           </div>
                         </CardContent>
                       </Card>
                     ))
                   )}
-                </div>
 
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Usage Limits</h4>
-                  <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li>• Maximum 3 API keys per account</li>
-                    <li>• 10 API calls per day per key</li>
-                    <li>• Rate limits reset daily at midnight UTC</li>
-                    <li>• API Key expires after 6 months of creation date</li>
-                  </ul>
+                  {apiKeys.length > 0 && apiKeys.length < 3 && (
+                    <Card className="bg-background/50 border-dashed">
+                      <CardContent className="pt-6 pb-6 text-center">
+                        <Button
+                          variant="ghost"
+                          onClick={() => setShowCreateDialog(true)}
+                          className="w-full"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add Another API Key ({apiKeys.length}/3)
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
                 </div>
-                <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">
-                    📚 API Documentation
-                  </h4>
-                  <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
-                    Learn how to integrate KDSM encryption into your
-                    applications.
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push("/readme#api-documentation")}
-                    className="text-blue-700 border-blue-300 hover:bg-blue-100 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-900/20"
-                  >
-                    View Documentation
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
+              )}
 
-          <CardFooter>
-            <Button onClick={handleLogout} variant="outline" className="w-full">
-              Logout
-            </Button>
-          </CardFooter>
-        </Card>
-      </div>
+              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">
+                  📚 API Documentation
+                </h4>
+                <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                  Learn how to integrate KDSM encryption into your applications.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push("/readme#api-documentation")}
+                  className="text-blue-700 border-blue-300 hover:bg-blue-100 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-900/20"
+                >
+                  View Documentation
+                </Button>
+              </div>
+
+              {/* Rate Limit Tiers Info */}
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-4 rounded-lg">
+                <h4 className="font-medium mb-3 text-gray-900 dark:text-gray-100">
+                  🚀 API Rate Limits
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                  <div className="flex items-center gap-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
+                    <Zap className="w-4 h-4 text-blue-500" />
+                    <div>
+                      <div className="font-medium">Free</div>
+                      <div className="text-xs text-muted-foreground">
+                        10 calls/day
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
+                    <Crown className="w-4 h-4 text-yellow-500" />
+                    <div>
+                      <div className="font-medium">Premium</div>
+                      <div className="text-xs text-muted-foreground">
+                        100 calls/day
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
+                    <Shield className="w-4 h-4 text-red-500" />
+                    <div>
+                      <div className="font-medium">Admin</div>
+                      <div className="text-xs text-muted-foreground">
+                        Unlimited
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Rate limits are shared across all your API keys and reset
+                  daily at midnight UTC.
+                </p>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+
+        <CardFooter>
+          <Button onClick={handleLogout} variant="outline" className="w-full">
+            Logout
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 }

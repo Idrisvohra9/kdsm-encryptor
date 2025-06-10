@@ -5,7 +5,7 @@ import { config } from '@/lib/appwrite/kdsm';
 
 async function getUserFromSession(request) {
   try {
-    const sessionToken = request.cookies.get('appwrite-session')?.value;
+    const sessionToken = request.cookies.get('kdsm-session')?.value;
     if (!sessionToken) return null;
 
     const client = new Client()

@@ -4,14 +4,18 @@ import { decrypt } from "@/utils/kdsm";
 
 export async function POST(request) {
   try {
-    const { encryptedMessage, key } = await request.json();
-    const apiKey = request.headers.get("x-api-key");
-    const clientIP =
-      request.headers.get("x-forwarded-for") ||
-      request.headers.get("x-real-ip") ||
-      "unknown";
+    // Parse request data once
+    const [{ encryptedMessage, key }, apiKey, clientIP] = await Promise.all([
+      request.json(),
+      request.headers.get("x-api-key"),
+      Promise.resolve(
+        request.headers.get("x-forwarded-for") ||
+        request.headers.get("x-real-ip") ||
+        "unknown"
+      )
+    ]);
 
-    // Validate required fields
+    // Early validation checks
     if (!encryptedMessage || !key) {
       return NextResponse.json(
         {
@@ -35,13 +39,9 @@ export async function POST(request) {
     // Validate API key
     const keyData = await ApiKeyManager.validateApiKey(apiKey);
     if (!keyData) {
-      await ApiKeyManager.logApiUsage(
-        null,
-        null,
-        "/api/v1/decrypt",
-        false,
-        clientIP
-      );
+      // Fire and forget logging for invalid key
+      ApiKeyManager.logApiUsage(null, null, "/api/v1/decrypt", false, clientIP).catch(console.error);
+      
       return NextResponse.json(
         {
           success: false,
@@ -51,23 +51,33 @@ export async function POST(request) {
       );
     }
 
-    // Check rate limit
-    const withinLimit = await ApiKeyManager.checkRateLimit(
-      keyData.id,
-      keyData.userId
-    );
+    // Parallel checks for rate limit and status
+    const [withinLimit, rateLimitStatus] = await Promise.all([
+      ApiKeyManager.checkRateLimit(keyData.userId),
+      ApiKeyManager.getRateLimitStatus(keyData.userId)
+    ]);
+    
     if (!withinLimit) {
-      await ApiKeyManager.logApiUsage(
+      // Fire and forget logging for rate limit exceeded
+      ApiKeyManager.logApiUsage(
         keyData.id,
         keyData.userId,
         "/api/v1/decrypt",
         false,
         clientIP
-      );
+      ).catch(console.error);
+      
+      const errorMessage = rateLimitStatus.tier === 'free' 
+        ? "Rate limit exceeded. Maximum 10 requests per day for free users."
+        : rateLimitStatus.tier === 'premium'
+          ? "Rate limit exceeded. Maximum 100 requests per day for premium users."
+          : "Rate limit exceeded.";
+      
       return NextResponse.json(
         {
           success: false,
-          error: "Rate limit exceeded. Maximum 10 requests per day.",
+          error: errorMessage,
+          rateLimitStatus
         },
         { status: 429 }
       );
@@ -76,28 +86,28 @@ export async function POST(request) {
     // Process decryption
     const decryptedMessage = decrypt(encryptedMessage, key);
 
-    // Log successful usage
-    await ApiKeyManager.logApiUsage(
+    // Fire and forget logging for successful usage
+    ApiKeyManager.logApiUsage(
       keyData.id,
       keyData.userId,
       "/api/v1/decrypt",
       true,
       clientIP
-    );
+    ).catch(console.error);
 
     return NextResponse.json({
       success: true,
       data: {
         decryptedMessage,
       },
+      rateLimitStatus
     });
   } catch (error) {
     console.error("Decryption API error:", error);
     return NextResponse.json(
       {
         success: false,
-        error:
-          "Decryption failed. Please check your encrypted message and key.",
+        error: "Decryption failed. Please check your encrypted message and key.",
       },
       { status: 400 }
     );

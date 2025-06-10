@@ -114,7 +114,7 @@ export default function ReadmePage() {
 
         <Scrollspy sections={sections} />
 
-        <main className="container mx-auto px-4 py-8 max-w-4xl text-primary">
+        <main className="container mx-auto px-4 py-8 max-w-4xl text-primary bg-secondary/30 rounded-xl">
           <Section id="introduction" title="Introduction">
             <p>
               KDSM (Keyed Dynamic Shift Matrix) is an innovative encryption
@@ -313,8 +313,36 @@ export default function ReadmePage() {
 
               <div>
                 <h3 className="text-xl font-semibold mb-4">Rate Limits</h3>
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-4 rounded-lg mb-4">
+                  <h4 className="font-medium mb-3">Tier-based Rate Limiting</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                    <div className="flex items-center gap-2 p-3 bg-white/70 dark:bg-gray-800/70 rounded">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                      <div>
+                        <div className="font-medium">Free Users</div>
+                        <div className="text-xs text-muted-foreground">
+                          10 calls per day
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 p-3 bg-white/70 dark:bg-gray-800/70 rounded">
+                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                      <div>
+                        <div className="font-medium">Premium Users</div>
+                        <div className="text-xs text-muted-foreground">
+                          100 calls per day
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 p-3 bg-white/70 dark:bg-gray-800/70 rounded">
+                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    </div>
+                  </div>
+                </div>
                 <ul className="list-disc list-inside space-y-2 mb-4">
-                  <li>10 requests per day per API key</li>
+                  <li>
+                    Rate limits are shared across all API keys for the same user
+                  </li>
                   <li>Rate limits reset daily at midnight UTC</li>
                   <li>Maximum 3 API keys per user account</li>
                 </ul>

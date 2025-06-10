@@ -63,7 +63,7 @@ export function Dock() {
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300"
         />
       ) : null,
-      href: "/messaging",
+      href: "/chats",
     },
   ];
 
