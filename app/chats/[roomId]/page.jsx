@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { databases } from "@/lib/appwrite";
+// import { databases } from "@/lib/appwrite";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,13 +32,13 @@ export default function ChatRoomPage() {
 
   const fetchRoom = async () => {
     try {
-      const roomDoc = await databases.getDocument(
-        process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
-        "chatRooms",
-        roomId
-      );
-
-      const roomData = roomDoc;
+      // const roomDoc = await databases.getDocument(
+      //   process.env.NEXT_PUBLIC_APPWRITE_DATABASE_ID,
+      //   "chatRooms",
+      //   roomId
+      // );
+      // Todo: Replace with actual room data from node-Appwrite
+      const roomData = [];
       setRoom(roomData);
 
       // Check if user is already a member
