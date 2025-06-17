@@ -1,11 +1,17 @@
 import { useEffect, useState, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
 
 const GAP = 16;
-const SPRING_OPTIONS = { type: "spring", stiffness: 300, damping: 30 };
+const SPRING_OPTIONS = {
+  type: "easeIn",
+  stiffness: 200, // Reduced stiffness for smoother motion
+  damping: 25,    // Adjusted damping
+  mass: 2,      // Added mass for more fluid movement
+  velocity: 0.5   // Controlled initial velocity
+};
 
 const BREAKPOINTS = {
   xl: { width: 1280, container: 720 },
@@ -15,9 +21,13 @@ const BREAKPOINTS = {
 };
 
 const CarouselItem = ({ item, width, theme, mounted }) => (
-  <div
+  <motion.div
     className={`relative shrink-0 flex flex-col items-start justify-between ${item.gradient} border border-secondary-foreground/20 rounded-[12px] overflow-hidden`}
     style={{ width }}
+    initial={{ opacity: 0.8, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0.8, scale: 0.95 }}
+    transition={{ duration: 0.3 }}
   >
     <div className="mb-4 p-5">
       <span className="flex h-[42px] w-[42px] items-center justify-center rounded-full bg-accent/30">
@@ -41,12 +51,12 @@ const CarouselItem = ({ item, width, theme, mounted }) => (
       </p>
       <Link
         href={item.link}
-        className="inline-flex items-center px-4 py-2 rounded-lg bg-secondary-foreground/10 hover:bg-secondary-foreground/20 text-secondary-foreground text-sm font-medium"
+        className="inline-flex items-center px-4 py-2 rounded-lg bg-secondary-foreground/10 hover:bg-secondary-foreground/20 text-secondary-foreground text-sm font-medium transition-colors duration-200"
       >
         Learn More
       </Link>
     </div>
-  </div>
+  </motion.div>
 );
 
 const ITEMS = [
@@ -100,6 +110,7 @@ export default function Carousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const containerRef = useRef(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -127,11 +138,15 @@ export default function Carousel({
       return;
 
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % ITEMS.length);
+      if (!isTransitioning) {
+        setIsTransitioning(true);
+        setCurrentIndex((prev) => (prev + 1) % ITEMS.length);
+        setTimeout(() => setIsTransitioning(false), 500);
+      }
     }, autoplayDelay);
 
     return () => clearInterval(timer);
-  }, [autoplay, autoplayDelay, pauseOnHover]);
+  }, [autoplay, autoplayDelay, pauseOnHover, isTransitioning]);
 
   const itemWidth = containerWidth - 32;
   const offset = -(currentIndex * (itemWidth + GAP));
@@ -141,31 +156,37 @@ export default function Carousel({
       ref={containerRef}
       className="relative overflow-hidden p-4 rounded-[24px] border border-secondary-foreground w-full"
     >
-      <motion.div
-        className="flex"
-        animate={{ x: offset }}
-        transition={SPRING_OPTIONS}
-        style={{ gap: GAP, width: itemWidth }}
-      >
-        {ITEMS.map((item, index) => (
-          <CarouselItem
-            key={item.id}
-            item={item}
-            width={itemWidth}
-            theme={theme}
-            mounted={mounted}
-          />
-        ))}
-      </motion.div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          className="flex"
+          animate={{ 
+            x: offset,
+            transition: { ...SPRING_OPTIONS, duration: 0.6 }
+          }}
+          style={{ gap: GAP, width: itemWidth }}
+        >
+          {ITEMS.map((item, index) => (
+            <CarouselItem
+              key={item.id}
+              item={item}
+              width={itemWidth}
+              theme={theme}
+              mounted={mounted}
+            />
+          ))}
+        </motion.div>
+      </AnimatePresence>
       <div className="flex w-full justify-center">
         <div className="mt-4 flex w-[150px] justify-between px-8">
           {ITEMS.map((_, index) => (
-            <button
+            <motion.button
               key={index}
-              className={`h-2 w-2 rounded-full transition-all duration-150 bg-secondary-foreground hover:scale-125 hover:bg-primary ${
+              className={`h-2 w-2 rounded-full transition-all duration-300 bg-secondary-foreground hover:scale-125 hover:bg-primary ${
                 currentIndex === index ? "scale-120" : ""
               }`}
-              onClick={() => setCurrentIndex(index)}
+              whileHover={{ scale: 1.25 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => !isTransitioning && setCurrentIndex(index)}
             />
           ))}
         </div>

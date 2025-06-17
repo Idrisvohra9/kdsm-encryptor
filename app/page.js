@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -27,58 +27,65 @@ import {
   ShieldOff,
 } from "lucide-react";
 import ThemeToggle from "@/components/ui/theme-toggle";
-import { motion } from "framer-motion"; // Import motion
+import { motion } from "framer-motion";
 import Carousel from "@/components/ui/Carousel";
 import DecryptedText from "@/components/ui/DecryptedText";
 import { unstable_ViewTransition as ViewTransition } from "react";
 
-// Define a unique marker for the key within the copied string
+// Define constants
 const KEY_START_MARKER = "[KDSM_KEY_START]";
 const KEY_END_MARKER = "[KDSM_KEY_END]";
+const EMOJI_REGEX =
+  /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
+const COPY_TIMEOUT = 2000;
 
 export default function Home() {
-  const [key, setKey] = useState("");
-  const [message, setMessage] = useState(""); // Add state for the message input
-  const [encryptedResult, setEncryptedResult] = useState("");
-  const [decryptedResult, setDecryptedResult] = useState("");
-  const [lastUsedKey, setLastUsedKey] = useState("");
+  // State management with useState hooks
+  const [formState, setFormState] = useState({
+    key: "",
+    message: "",
+    encryptedResult: "",
+    decryptedResult: "",
+    lastUsedKey: "",
+  });
+
   const [copyStates, setCopyStates] = useState({
     encrypted: false,
     decrypted: false,
     key: false,
-    encryptedWithKey: false, // Add state for the new copy button
+    encryptedWithKey: false,
   });
 
+  // Refs
   const containerRef = useRef(null);
-  const messageRef = useRef(null); // Keep ref for cursor position in paste handler
+  const messageRef = useRef(null);
 
-  function containsEmoji(str) {
-    // Updated regex to match a broader range of Unicode emoji blocks and sequences
-    const emojiRegex =
-      /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
-    return emojiRegex.test(str);
-  }
+  // Memoized functions
+  const containsEmoji = useMemo(() => (str) => EMOJI_REGEX.test(str), []);
 
-  const handleEncrypt = () => {
-    let currentMessage = message; // Use state value
-    if (!currentMessage) {
+  const handleMessageChange = useCallback((e) => {
+    setFormState((prev) => ({ ...prev, message: e.target.value }));
+  }, []);
+
+  const handleKeyChange = useCallback((e) => {
+    setFormState((prev) => ({ ...prev, key: e.target.value }));
+  }, []);
+
+  const handleEncrypt = useCallback(() => {
+    const { message, key } = formState;
+
+    if (!message) {
       toast.error("Oopsie!", {
         description: "Please enter a message to encrypt",
       });
       return;
     }
 
-    let messageToEncrypt = currentMessage;
-    // Only remove emojis if it's not a URL (basic check)
-    if (
-      !currentMessage.startsWith("http://") &&
-      !currentMessage.startsWith("https://")
-    ) {
-      const emojiRegex =
-        /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
-      const messageWithoutEmojis = currentMessage.replace(emojiRegex, "");
+    let messageToEncrypt = message;
+    if (!message.startsWith("http://") && !message.startsWith("https://")) {
+      const messageWithoutEmojis = message.replace(EMOJI_REGEX, "");
 
-      if (containsEmoji(currentMessage)) {
+      if (containsEmoji(message)) {
         toast.warning("Emojis Removed", {
           description:
             "Emojis were detected and removed from the message before encryption.",
@@ -89,37 +96,66 @@ export default function Home() {
 
     try {
       const usedKey = key || generateKey();
-      const result = encrypt(messageToEncrypt, usedKey); // Use messageToEncrypt
+      const result = encrypt(messageToEncrypt, usedKey);
 
-      setEncryptedResult(result);
-      setLastUsedKey(usedKey);
+      setFormState((prev) => ({
+        ...prev,
+        encryptedResult: result,
+        lastUsedKey: usedKey,
+        key: key || usedKey,
+      }));
 
-      if (!key) {
-        setKey(usedKey);
-        toast.success("Key Generated", {
-          description: "A random key was generated for encryption",
-        });
-      } else {
-        toast.success("Success", {
-          description: "Message encrypted successfully",
-        });
-      }
+      toast.success(key ? "Success" : "Key Generated", {
+        description: key
+          ? "Message encrypted successfully"
+          : "A random key was generated for encryption",
+      });
     } catch (error) {
       console.error("Encryption error:", error);
       toast.error("Encryption Failed", {
         description: error.message || "An error occurred during encryption",
       });
     }
-  };
+  }, [formState, containsEmoji]);
 
-  const handleDecrypt = () => {
-    const textToDecrypt = message; // Use state value
+  const handleDecrypt = useCallback(() => {
+    const { message, key } = formState;
 
-    if (!textToDecrypt) {
+    if (!message) {
       toast.error("Oopsie!", {
-        description: "Please enter encrypted text to decrypt", // Updated error message
+        description: "Please enter encrypted text to decrypt",
       });
       return;
+    }
+
+    // Extract key from message if present
+    const keyStartIndex = message.indexOf(KEY_START_MARKER);
+    const keyEndIndex = message.indexOf(KEY_END_MARKER);
+
+    let textToDecrypt = message;
+    if (
+      keyStartIndex !== -1 &&
+      keyEndIndex !== -1 &&
+      keyEndIndex > keyStartIndex
+    ) {
+      const extractedKey = message.substring(
+        keyStartIndex + KEY_START_MARKER.length,
+        keyEndIndex
+      );
+      const messageContent = message.substring(
+        keyEndIndex + KEY_END_MARKER.length
+      );
+
+      setFormState((prev) => ({
+        ...prev,
+        key: extractedKey,
+        message: messageContent,
+      }));
+
+      textToDecrypt = messageContent;
+      toast("Key Detected", {
+        description: "Key automatically placed in the Encryption Key field",
+      });
     }
 
     if (!key) {
@@ -130,9 +166,9 @@ export default function Home() {
     }
 
     try {
-      const result = decrypt(textToDecrypt, key); // Use text from state
-      setDecryptedResult(result);
-      toast("Success", {
+      const result = decrypt(textToDecrypt, key);
+      setFormState((prev) => ({ ...prev, decryptedResult: result }));
+      toast.success("Success", {
         description: "Message decrypted successfully",
       });
     } catch (error) {
@@ -141,76 +177,76 @@ export default function Home() {
         description: error.message || "An error occurred during decryption",
       });
     }
-  };
+  }, [formState]);
 
-  const handleClear = () => {
-    setMessage(""); // Clear message state
-    setKey("");
-    setEncryptedResult("");
-    setDecryptedResult("");
-    setLastUsedKey("");
+  const handleClear = useCallback(() => {
+    setFormState({
+      key: "",
+      message: "",
+      encryptedResult: "",
+      decryptedResult: "",
+      lastUsedKey: "",
+    });
     setCopyStates({
       encrypted: false,
       decrypted: false,
       key: false,
-      encryptedWithKey: false, // Reset this state too
+      encryptedWithKey: false,
     });
     toast("Cleared", {
       description: "All fields have been cleared",
     });
-  };
+  }, []);
 
-  const copyToClipboard = (text, type) => {
-    navigator.clipboard.writeText(text).then(
-      () => {
+  const copyToClipboard = useCallback((text, type) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
         setCopyStates((prev) => ({ ...prev, [type]: true }));
         setTimeout(() => {
           setCopyStates((prev) => ({ ...prev, [type]: false }));
-        }, 2000);
-      },
-      (err) => {
+        }, COPY_TIMEOUT);
+      })
+      .catch(() => {
         toast.error("Copy Failed", {
           description: "Could not copy to clipboard",
         });
-      }
-    );
-  };
+      });
+  }, []);
 
-  // New function to copy encrypted result with key
-  const copyEncryptedWithKey = () => {
+  const copyEncryptedWithKey = useCallback(() => {
+    const { encryptedResult, lastUsedKey } = formState;
+
     if (!encryptedResult || !lastUsedKey) {
       toast.error("Oopsie!", {
         description: "No encrypted message or key available to copy",
       });
       return;
     }
-    // Format the string with markers
+
     const textToCopy = `${KEY_START_MARKER}${lastUsedKey}${KEY_END_MARKER}${encryptedResult}`;
     copyToClipboard(textToCopy, "encryptedWithKey");
     toast("Copied", {
       description: "Encrypted message and key copied to clipboard",
     });
-  };
+  }, [formState, copyToClipboard]);
 
-  const generateRandomKey = () => {
+  const generateRandomKey = useCallback(() => {
     const newKey = generateKey();
-    setKey(newKey);
+    setFormState((prev) => ({ ...prev, key: newKey }));
     toast("Key Generated", {
       description: "A new random key has been generated",
     });
-  };
+  }, []);
 
-  // Handle paste event on the message textarea
-  const handlePaste = async (event) => {
-    // Prevent default paste behavior initially, we'll handle it manually
-    event.preventDefault();
+  const handlePaste = useCallback(
+    async (event) => {
+      event.preventDefault();
 
-    try {
-      // Use navigator.clipboard.readText() for more reliable access
-      const pastedText = await navigator.clipboard.readText();
+      try {
+        const pastedText = await navigator.clipboard.readText();
+        if (!pastedText) return;
 
-      if (pastedText) {
-        // Check if the pasted text contains the key markers
         const keyStartIndex = pastedText.indexOf(KEY_START_MARKER);
         const keyEndIndex = pastedText.indexOf(KEY_END_MARKER);
 
@@ -227,46 +263,44 @@ export default function Home() {
             keyEndIndex + KEY_END_MARKER.length
           );
 
-          // Set the key input value
-          setKey(key);
-          // Set the message state value
-          setMessage(messageContent);
+          setFormState((prev) => ({
+            ...prev,
+            key,
+            message: messageContent,
+          }));
 
           toast("Key Detected", {
             description: "Key automatically placed in the Encryption Key field",
           });
-        } else {
-          // If markers are not found, paste the text normally into the state
-          if (messageRef.current) {
-            const currentMessage = message; // Use state value
-            const cursorPosition = messageRef.current.selectionStart;
-            const newMessage =
-              currentMessage.substring(0, cursorPosition) +
-              pastedText +
-              currentMessage.substring(messageRef.current.selectionEnd);
+        } else if (messageRef.current) {
+          const cursorPosition = messageRef.current.selectionStart;
+          const newMessage =
+            formState.message.substring(0, cursorPosition) +
+            pastedText +
+            formState.message.substring(messageRef.current.selectionEnd);
 
-            setMessage(newMessage); // Update state
+          setFormState((prev) => ({ ...prev, message: newMessage }));
 
-            // Restore cursor position after state update
-            // Need a small delay or use a state variable for cursor position
-            // For simplicity, we'll just set it directly, might not be perfect
-            messageRef.current.selectionStart =
-              messageRef.current.selectionEnd =
-                cursorPosition + pastedText.length;
-          } else {
-            // Fallback if ref is not available, just append
-            setMessage((prevMessage) => prevMessage + pastedText);
-          }
+          // Update cursor position
+          requestAnimationFrame(() => {
+            if (messageRef.current) {
+              messageRef.current.selectionStart =
+                messageRef.current.selectionEnd =
+                  cursorPosition + pastedText.length;
+            }
+          });
         }
+      } catch (err) {
+        console.error("Failed to read clipboard contents: ", err);
+        toast.error("Paste Failed", {
+          description: "Could not read clipboard content.",
+        });
       }
-    } catch (err) {
-      console.error("Failed to read clipboard contents: ", err);
-      toast.error("Paste Failed", {
-        description: "Could not read clipboard content.",
-      });
-    }
-  };
+    },
+    [formState.message]
+  );
 
+  // Render UI
   return (
     <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
       <div className="fixed inset-0 -z-10 w-screen h-screen">
@@ -278,16 +312,15 @@ export default function Home() {
         />
       </div>
       <div className="w-full max-w-3xl relative z-20">
-        {/* Wrap the Card with motion.div */}
         <motion.div
-          initial={{ opacity: 0, y: -50 }} // Start slightly above and invisible
-          animate={{ opacity: 1, y: 0 }} // End at original position and fully visible
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{
             type: "spring",
             stiffness: 100,
             damping: 10,
             delay: 0.2,
-          }} // Spring animation
+          }}
           className="dark:border-white/10 backdrop-blur-md"
         >
           <Card className="w-full text-primary bg-primary/10">
@@ -338,17 +371,15 @@ export default function Home() {
             </CardHeader>
 
             <CardContent className="space-y-6">
-              {/* Message Input */}
-
               <div className="space-y-2">
                 <Label htmlFor="message">Message</Label>
                 <Textarea
                   id="message"
                   placeholder="Enter your message here or paste message with key..."
-                  ref={messageRef} // Keep ref for cursor position
-                  value={message} // Bind value to state
-                  onChange={(e) => setMessage(e.target.value)} // Update state on change
-                  onPaste={handlePaste} // Add paste handler
+                  ref={messageRef}
+                  value={formState.message}
+                  onChange={handleMessageChange}
+                  onPaste={handlePaste}
                   className="min-h-[120px]"
                 />
                 <span className="text-muted-foreground text-sm flex items-center gap-2">
@@ -373,7 +404,6 @@ export default function Home() {
                 </span>
               </div>
 
-              {/* Key Input */}
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
                   <Label htmlFor="key" className="whitespace-nowrap">
@@ -391,13 +421,12 @@ export default function Home() {
                 <Input
                   id="key"
                   placeholder="Enter a key or leave blank for auto-generation"
-                  value={key}
-                  onChange={(e) => setKey(e.target.value)}
+                  value={formState.key}
+                  onChange={handleKeyChange}
                   className="w-full"
                 />
               </div>
 
-              {/* Action Buttons */}
               <div className="flex flex-wrap gap-4 flex-row-reverse">
                 <Button onClick={handleEncrypt}>
                   Encrypt <Shield className="w-5 h-5" />
@@ -411,20 +440,19 @@ export default function Home() {
                 </Button>
               </div>
 
-              {/* Results Section */}
-              {encryptedResult && (
+              {formState.encryptedResult && (
                 <div className="space-y-2 p-4 border rounded-md bg-muted/50">
                   <div className="flex justify-between items-center">
                     <Label>Encrypted Result</Label>
                     <div className="flex gap-2">
-                      {" "}
-                      {/* Container for copy buttons */}
-                      {/* Original "Copy" button */}
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() =>
-                          copyToClipboard(encryptedResult, "encrypted")
+                          copyToClipboard(
+                            formState.encryptedResult,
+                            "encrypted"
+                          )
                         }
                         title="Copy Encrypted Message Only"
                       >
@@ -437,9 +465,8 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="p-3 bg-background rounded border break-all">
-                    {encryptedResult}
+                    {formState.encryptedResult}
                   </div>
-                  {/* New "Copy with key" button */}
                   <div className="w-full flex flex-row-reverse">
                     <Button
                       variant="ghost"
@@ -458,7 +485,7 @@ export default function Home() {
                 </div>
               )}
 
-              {decryptedResult && (
+              {formState.decryptedResult && (
                 <div className="space-y-2 p-4 border rounded-md bg-muted/50">
                   <div className="flex justify-between items-center">
                     <Label>Decrypted Result</Label>
@@ -466,7 +493,7 @@ export default function Home() {
                       variant="ghost"
                       size="sm"
                       onClick={() =>
-                        copyToClipboard(decryptedResult, "decrypted")
+                        copyToClipboard(formState.decryptedResult, "decrypted")
                       }
                     >
                       {copyStates.decrypted ? (
@@ -477,20 +504,21 @@ export default function Home() {
                     </Button>
                   </div>
                   <div className="p-3 bg-background rounded border break-all">
-                    {/* Example 2: Customized speed and characters */}
                     <DecryptedText
-                      text={decryptedResult}
+                      text={formState.decryptedResult}
                       animateOn="view"
                       revealDirection="start"
                       speed={200}
                       useOriginalCharsOnly={true}
                     />
                   </div>
-                  {decryptedResult.includes("https://") && (
+                  {formState.decryptedResult.includes("https://") && (
                     <div className="flex flex-row-reverse">
                       <Button
                         size="sm"
-                        onClick={() => window.open(decryptedResult, "_blank")}
+                        onClick={() =>
+                          window.open(formState.decryptedResult, "_blank")
+                        }
                         title="Open link in new tab"
                       >
                         <ExternalLink className="w-5 h-5" />
@@ -500,14 +528,16 @@ export default function Home() {
                 </div>
               )}
 
-              {lastUsedKey && (
+              {formState.lastUsedKey && (
                 <div className="space-y-2 p-4 border rounded-md bg-muted/50">
                   <div className="flex justify-between items-center">
                     <Label>Last Used Key</Label>
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => copyToClipboard(lastUsedKey, "key")}
+                      onClick={() =>
+                        copyToClipboard(formState.lastUsedKey, "key")
+                      }
                     >
                       {copyStates.key ? (
                         <Check className="w-5 h-5" />
@@ -517,7 +547,7 @@ export default function Home() {
                     </Button>
                   </div>
                   <div className="p-3 bg-background rounded border break-all">
-                    {lastUsedKey}
+                    {formState.lastUsedKey}
                   </div>
                 </div>
               )}
@@ -546,8 +576,7 @@ export default function Home() {
               </div>
             </CardFooter>
           </Card>
-        </motion.div>{" "}
-        {/* Close motion.div */}
+        </motion.div>
       </div>
     </div>
   );
