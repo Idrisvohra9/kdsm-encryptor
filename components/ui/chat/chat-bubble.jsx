@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import MessageLoading from "./message-loading";
 import { Button } from "../button";
+import { Eye, EyeOff, Shield, AlertTriangle, Lock } from "lucide-react";
 
 // ChatBubble
 const chatBubbleVariant = cva(
@@ -61,8 +62,8 @@ const ChatBubbleAvatar = ({
   </Avatar>
 );
 
-// ChatBubbleMessage
-const chatBubbleMessageVariants = cva("p-4", {
+// ChatBubbleMessage - Enhanced for encryption
+const chatBubbleMessageVariants = cva("p-4 relative", {
   variants: {
     variant: {
       received:
@@ -82,26 +83,145 @@ const chatBubbleMessageVariants = cva("p-4", {
 
 const ChatBubbleMessage = React.forwardRef(
   (
-    { className, variant, layout, isLoading = false, children, ...props },
+    { 
+      className, 
+      variant, 
+      layout, 
+      isLoading = false, 
+      children, 
+      encrypted = false,
+      encryptedContent,
+      onDecrypt,
+      isDecrypted = false,
+      decryptError = false,
+      autoDecrypt = false,
+      ...props 
+    },
     ref,
-  ) => (
-    <div
-      className={cn(
-        chatBubbleMessageVariants({ variant, layout, className }),
-        "break-words max-w-full whitespace-pre-wrap",
-      )}
-      ref={ref}
-      {...props}
-    >
-      {isLoading ? (
-        <div className="flex items-center space-x-2">
-          <MessageLoading />
+  ) => {
+    const [showDecrypted, setShowDecrypted] = React.useState(isDecrypted || autoDecrypt);
+    const [isDecrypting, setIsDecrypting] = React.useState(false);
+
+    const handleDecrypt = async () => {
+      if (!onDecrypt) return;
+      
+      setIsDecrypting(true);
+      try {
+        await onDecrypt();
+        setShowDecrypted(true);
+      } catch (error) {
+        console.error('Decryption failed:', error);
+      } finally {
+        setIsDecrypting(false);
+      }
+    };
+
+    const toggleDecryption = () => {
+      if (showDecrypted) {
+        setShowDecrypted(false);
+      } else {
+        handleDecrypt();
+      }
+    };
+
+    if (isLoading) {
+      return (
+        <div
+          className={cn(
+            chatBubbleMessageVariants({ variant, layout, className }),
+            "break-words max-w-full whitespace-pre-wrap",
+          )}
+          ref={ref}
+          {...props}
+        >
+          <div className="flex items-center space-x-2">
+            <MessageLoading />
+          </div>
         </div>
-      ) : (
-        children
-      )}
-    </div>
-  ),
+      );
+    }
+
+    if (encrypted) {
+      return (
+        <div
+          className={cn(
+            chatBubbleMessageVariants({ variant, layout, className }),
+            "break-words max-w-full whitespace-pre-wrap",
+          )}
+          ref={ref}
+          {...props}
+        >
+          {showDecrypted ? (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs opacity-70">
+                <Shield className="h-3 w-3" />
+                Decrypted
+              </div>
+              <div>{children}</div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowDecrypted(false)}
+                className="h-6 px-2 text-xs"
+              >
+                <EyeOff className="h-3 w-3 mr-1" />
+                Hide
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* <div className="flex items-center gap-2 text-xs opacity-70">
+                <Lock className="h-3 w-3" />
+                Encrypted Message
+              </div> */}
+              <div className="font-mono text-xs opacity-50 break-all">
+                {encryptedContent}
+              </div>
+              {decryptError ? (
+                <div className="flex items-center gap-2 text-destructive text-xs">
+                  <AlertTriangle className="h-3 w-3" />
+                  Failed to decrypt
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleDecryption}
+                  disabled={isDecrypting}
+                  className="h-6 px-2 text-xs"
+                >
+                  {isDecrypting ? (
+                    <>
+                      <MessageLoading />
+                      Decrypting...
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-3 w-3 mr-1" />
+                      Decrypt
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div
+        className={cn(
+          chatBubbleMessageVariants({ variant, layout, className }),
+          "break-words max-w-full whitespace-pre-wrap",
+        )}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  },
 );
 ChatBubbleMessage.displayName = "ChatBubbleMessage";
 

@@ -14,7 +14,7 @@ const databases = new Databases(client);
 export async function GET(request, { params }) {
   try {
     const sessionToken = request.cookies.get("kdsm-session")?.value;
-    
+
     if (!sessionToken) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -32,9 +32,8 @@ export async function GET(request, { params }) {
 
     return NextResponse.json({
       success: true,
-      room
+      room,
     });
-
   } catch (error) {
     console.error("Error fetching room:", error);
     return NextResponse.json(
@@ -44,11 +43,11 @@ export async function GET(request, { params }) {
   }
 }
 
-// Update room (join room)
+// Update room (join room / other room updates)
 export async function PATCH(request, { params }) {
   try {
     const sessionToken = request.cookies.get("kdsm-session")?.value;
-    
+
     if (!sessionToken) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
@@ -66,7 +65,7 @@ export async function PATCH(request, { params }) {
     const user = await account.get();
 
     const { roomId } = params;
-    const { action, pin } = await request.json();
+    const { action, data } = await request.json();
 
     // Get current room
     const room = await databases.getDocument(
@@ -76,26 +75,11 @@ export async function PATCH(request, { params }) {
     );
 
     if (action === "join") {
-      // Verify PIN if required
-      if (room.roomKeyHash && pin) {
-        // TODO: Fix
-        const hashedPin = Buffer.from(pin).toString('base64');
-        if (hashedPin !== room.roomKeyHash) {
-          return NextResponse.json(
-            { success: false, error: "Invalid PIN" },
-            { status: 403 }
-          );
-        }
-      } else if (room.roomKeyHash && !pin) {
-        return NextResponse.json(
-          { success: false, error: "PIN required" },
-          { status: 403 }
-        );
-      }
+      // Verify PIN is done in client side when accepting the invite request
 
       // Add user to room if not already a member
       const updatedMembers = [...new Set([...room.members, user.$id])];
-      
+
       const updatedRoom = await databases.updateDocument(
         config.database,
         collections.chatRooms,
@@ -105,7 +89,25 @@ export async function PATCH(request, { params }) {
 
       return NextResponse.json({
         success: true,
-        room: updatedRoom
+        room: updatedRoom,
+      });
+    } else if(action === "update-data"){
+      // Check if the room info is updating by creator or not
+      if(room.creator !== user.$id){
+        return NextResponse.json(
+          { success: false, error: "Unauthorized" },
+          { status: 401 }
+        );
+      }
+      const updatedRoom = await databases.updateDocument(
+        config.database,
+        collections.chatRooms,
+        roomId,
+        data
+      );
+      return NextResponse.json({
+        success: true,
+        room: updatedRoom,
       });
     }
 
@@ -113,7 +115,6 @@ export async function PATCH(request, { params }) {
       { success: false, error: "Invalid action" },
       { status: 400 }
     );
-
   } catch (error) {
     console.error("Error updating room:", error);
     return NextResponse.json(

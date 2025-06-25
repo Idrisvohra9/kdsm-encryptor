@@ -16,10 +16,10 @@
 
    - `EncryptBox`, `DecryptModal`, `MessageCard`
 
-4. Use `/components/ui/chat/` folder for atomic chat UI components.
+4. Use `/components/ui/chats/` folder for atomic chat UI components.
 5. Prepare **Folder Structure**:
 
-   - `hooks/`, `context/`, `lib/`, `app/chat/[roomId]/`, `utils/`
+   - `hooks/`, `context/`, `lib/`, `app/chats/[roomId]/`, `utils/`
 
 ---
 
@@ -46,13 +46,13 @@
 
 **Steps:**
 
-1. Build `/chatss/create/page.jsx` for room creation.
+1. Build `/chats/create/page.jsx` for room creation.
 2. Store room name, creatorId, and hashed Room Key in Appwrite.
 3. Add Room PIN for private access, stored as `roomKeyHash` (optional).
 4. Generate invite links:
 
    ```
-   https://yourdomain.com/app/chat/abc123?invite=true
+   https://yourdomain.com/app/chats/abc123?invite=true
    ```
 
    - If `invite=true`, auto-prompt user to enter PIN.

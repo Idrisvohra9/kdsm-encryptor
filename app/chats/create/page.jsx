@@ -43,13 +43,6 @@ export default function CreateChatRoom() {
 
     setLoading(true);
     try {
-      // Hash the room PIN if provided
-      let roomKeyHash = "";
-      if (formData.requiresPin && formData.roomPin) {
-        // Simple hash for demo - in production use crypto.subtle.digest
-        roomKeyHash = btoa(formData.roomPin);
-      }
-
       const room = await createChatRoom({
         name: formData.name,
         roomPin: formData.roomPin,
@@ -58,7 +51,7 @@ export default function CreateChatRoom() {
       });
 
       toast.success("Chat room created successfully!");
-      router.push(`/chat/${room.$id}`);
+      router.push(`/chats/${room.$id}`);
     } catch (error) {
       console.error("Error creating room:", error);
       toast.error("Failed to create chat room");
@@ -94,6 +87,8 @@ export default function CreateChatRoom() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
+                minLength={3}
+                maxLength={20}
                 required
               />
             </div>
@@ -152,7 +147,10 @@ export default function CreateChatRoom() {
               <div className="space-y-0.5">
                 <Label htmlFor="auto-decrypt">Auto Decrypt Messages</Label>
                 <p className="text-sm text-muted-foreground">
-                  Auto-decrypt messages after PIN verification
+                  Enable automatic message decryption upon successful PIN
+                  verification when entering the chat room. By default, each
+                  message requires individual PIN verification for maximum
+                  security.
                 </p>
               </div>
               <Switch

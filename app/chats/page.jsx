@@ -197,7 +197,7 @@ export default function ChatsPage() {
 
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {rooms.map((room, index) => (
-                  <Link key={room.$id} href={`/chat/${room.$id}`}>
+                  <Link key={room.$id} href={`/chats/${room.$id}`}>
                     <Card
                       className={`group relative overflow-hidden backdrop-blur-xl bg-gradient-to-br ${getGradientClass(
                         index
@@ -223,7 +223,7 @@ export default function ChatsPage() {
                                 {room.name}
                               </h3>
                               <p className="text-sm text-gray-400">
-                                Created {formatDate(room.createdAt)}
+                                Created {formatDate(room.$createdAt)}
                               </p>
                             </div>
                           </div>
