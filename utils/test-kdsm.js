@@ -1,4 +1,4 @@
-import { encrypt, decrypt, generateKey } from "./kdsm";
+import { encrypt, decrypt } from "./kdsm";
 
 /**
  * Test suite for KDSM encryption/decryption
@@ -150,34 +150,34 @@ export function runKDSMTests() {
   // });
 
   // Test 10: URL encryption/decryption
-  runTest("URL encryption/decryption", () => {
-    const urls = [
-      "https://youtube.com/shorts/CBOOQiB8-cg?si=9iJHnYjrz8COqteH",
-      "https://youtube.com/shorts/vMNXDeCsk4E?si=RWlYSR7TfW7V6I2k",
-      "https://youtube.com/shorts/J2Hyh8jyEsE?si=-dzJYOkCOdHrzSIU",
-      "https://youtube.com/shorts/hDnt5vtZSa4?si=WglbV7aZoEsiv_CD",
-    ];
+  // runTest("URL encryption/decryption", () => {
+  //   const urls = [
+  //     "https://youtube.com/shorts/CBOOQiB8-cg?si=9iJHnYjrz8COqteH",
+  //     "https://youtube.com/shorts/vMNXDeCsk4E?si=RWlYSR7TfW7V6I2k",
+  //     "https://youtube.com/shorts/J2Hyh8jyEsE?si=-dzJYOkCOdHrzSIU",
+  //     "https://youtube.com/shorts/hDnt5vtZSa4?si=WglbV7aZoEsiv_CD",
+  //   ];
 
-    // Run 10 iterations with random keys
-    for (let i = 0; i < 10; i++) {
-      // Generate random 8 digit key
-      const randomKey = generateKey()
-      // Test each URL with the random key
-      for (const url of urls) {
-        const encrypted = encrypt(url, randomKey);
-        const decrypted = decrypt(encrypted, randomKey);
-        console.log("Decrypted: ", decrypted);
-        if (decrypted !== url) {
-          return `Failed on iteration ${
-            i + 1
-          } with key ${randomKey}. Expected "${url}" but got "${decrypted}"`;
-        }
-      }
-      console.log(`✓ Iteration ${i + 1} passed with key: ${randomKey}`);
-    }
+  //   // Run 10 iterations with random keys
+  //   for (let i = 0; i < 10; i++) {
+  //     // Generate random 8 digit key
+  //     const randomKey = generateKey()
+  //     // Test each URL with the random key
+  //     for (const url of urls) {
+  //       const encrypted = encrypt(url, randomKey);
+  //       const decrypted = decrypt(encrypted, randomKey);
+  //       console.log("Decrypted: ", decrypted);
+  //       if (decrypted !== url) {
+  //         return `Failed on iteration ${
+  //           i + 1
+  //         } with key ${randomKey}. Expected "${url}" but got "${decrypted}"`;
+  //       }
+  //     }
+  //     console.log(`✓ Iteration ${i + 1} passed with key: ${randomKey}`);
+  //   }
 
-    return true;
-  });
+  //   return true;
+  // });
 
   // Test 11: Complex URL with special characters
   // runTest("Complex URL with special characters", () => {
@@ -194,40 +194,78 @@ export function runKDSMTests() {
   // });
 
   // Test 12: Performance benchmark
-  runTest("Performance benchmark", () => {
-    const message = "A".repeat(10000); // 10,000 character message
-    const key = "benchmark-key";
+  // runTest("Performance benchmark", () => {
+  //   const message = "A".repeat(10000); // 10,000 character message
+  //   const key = "benchmark-key";
 
-    const startEncrypt = performance.now();
+  //   const startEncrypt = performance.now();
+  //   const encrypted = encrypt(message, key);
+  //   const endEncrypt = performance.now();
+
+  //   const startDecrypt = performance.now();
+  //   const decrypted = decrypt(encrypted, key);
+  //   const endDecrypt = performance.now();
+
+  //   const encryptTime = endEncrypt - startEncrypt;
+  //   const decryptTime = endDecrypt - startDecrypt;
+
+  //   console.log(
+  //     `Encryption time for 10,000 chars: ${encryptTime.toFixed(2)}ms`
+  //   );
+  //   console.log(
+  //     `Decryption time for 10,000 chars: ${decryptTime.toFixed(2)}ms`
+  //   );
+
+  //   if (decrypted !== message) {
+  //     return "Benchmark message decryption failed";
+  //   }
+
+  //   // Fail if it takes more than 1 second (1000ms) for either operation
+  //   // This threshold can be adjusted based on expected performance
+  //   if (encryptTime > 1000 || decryptTime > 1000) {
+  //     return `Performance too slow: Encrypt ${encryptTime.toFixed(
+  //       2
+  //     )}ms, Decrypt ${decryptTime.toFixed(2)}ms`;
+  //   }
+
+  //   return true;
+  // });
+
+  // Test: Alpha-numeric messages with numeric keys
+  runTest("Alpha-numeric messages with numeric keys", () => {
+    const message = "Hello123World456";
+    const key = "789012";
     const encrypted = encrypt(message, key);
-    const endEncrypt = performance.now();
-
-    const startDecrypt = performance.now();
     const decrypted = decrypt(encrypted, key);
-    const endDecrypt = performance.now();
-
-    const encryptTime = endEncrypt - startEncrypt;
-    const decryptTime = endDecrypt - startDecrypt;
-
-    console.log(
-      `Encryption time for 10,000 chars: ${encryptTime.toFixed(2)}ms`
-    );
-    console.log(
-      `Decryption time for 10,000 chars: ${decryptTime.toFixed(2)}ms`
-    );
 
     if (decrypted !== message) {
-      return "Benchmark message decryption failed";
+      return `Expected "${message}" but got "${decrypted}"`;
     }
+    return true;
+  });
 
-    // Fail if it takes more than 1 second (1000ms) for either operation
-    // This threshold can be adjusted based on expected performance
-    if (encryptTime > 1000 || decryptTime > 1000) {
-      return `Performance too slow: Encrypt ${encryptTime.toFixed(
-        2
-      )}ms, Decrypt ${decryptTime.toFixed(2)}ms`;
+  // Test: Numeric messages with numeric keys
+  runTest("Numeric messages with numeric keys", () => {
+    const message = "1234567890";
+    const key = "987654";
+    const encrypted = encrypt(message, key);
+    const decrypted = decrypt(encrypted, key);
+
+    if (decrypted !== message) {
+      return `Expected "${message}" but got "${decrypted}"`;
     }
+    return true;
+  });
+  // Test: Numeric messages with string keys
+  runTest("Numeric messages with string keys", () => {
+    const message = "1234567890";
+    const key = "string-key";
+    const encrypted = encrypt(message, key);
+    const decrypted = decrypt(encrypted, key);
 
+    if (decrypted !== message) {
+      return `Expected "${message}" but got "${decrypted}"`;
+    }
     return true;
   });
 

@@ -36,7 +36,7 @@ import { unstable_ViewTransition as ViewTransition } from "react";
 const KEY_START_MARKER = "[KDSM_KEY_START]";
 const KEY_END_MARKER = "[KDSM_KEY_END]";
 const EMOJI_REGEX =
-  /(\p{Emoji_Modifier_Base}|\p{Emoji_Modifier}|\p{Emoji_Presentation}|\p{Emoji}\uFE0F?)/gu;
+  /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F900}-\u{1F9FF}]|[\u{1F018}-\u{1F270}]|[\u{238C}-\u{2454}]|[\u{20D0}-\u{20FF}]|[\u{FE00}-\u{FE0F}]|[\u{1F004}]|[\u{1F0CF}]|[\u{1F18E}]|[\u{3030}]|[\u{2B50}]|[\u{2B55}]|[\u{2934}-\u{2935}]|[\u{2B05}-\u{2B07}]|[\u{2B1B}-\u{2B1C}]|[\u{3297}]|[\u{3299}]|[\u{303D}]|[\u{00A9}]|[\u{00AE}]|[\u{2122}]|[\u{23F3}]|[\u{24C2}]|[\u{23E9}-\u{23F3}]|[\u{25AA}-\u{25AB}]|[\u{25B6}]|[\u{25C0}]|[\u{25FB}-\u{25FE}]/gu;
 const COPY_TIMEOUT = 2000;
 
 export default function Home() {
@@ -133,6 +133,7 @@ export default function Home() {
     const keyEndIndex = message.indexOf(KEY_END_MARKER);
 
     let textToDecrypt = message;
+    // Key detection logic for if the pasted message contains a key
     if (
       keyStartIndex !== -1 &&
       keyEndIndex !== -1 &&
@@ -156,9 +157,7 @@ export default function Home() {
       toast("Key Detected", {
         description: "Key automatically placed in the Encryption Key field",
       });
-    }
-
-    if (!key) {
+    } else if (!key) {
       toast.error("Oopsie!", {
         description: "A key is required for decryption",
       });

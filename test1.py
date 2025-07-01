@@ -50,7 +50,7 @@ client = KDSMClient("kdsm_7c16356850c8b5516f7a6602652baaa1")
 
 try:
     # Encrypt a message
-    result = client.encrypt("Idris Nigga!", "bruhh@@@")
+    result = client.encrypt("786", "110")
     print(f"Encrypted: {result['encryptedMessage']}")
     print(f"Key: {result['key']}")
     
