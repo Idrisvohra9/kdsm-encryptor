@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Key, Eye, EyeOff, Users, Wifi, WifiOff } from "lucide-react";
-// Things that are wrong: Decryption of messages, it should ask for the room pin to decrypt the sent and recieved messages, 
+import { Key, Eye, EyeOff, Users, Wifi, WifiOff, Settings } from "lucide-react";
+// Things that are wrong: Decryption of messages, it should ask for the room pin to decrypt the sent and recieved messages,
 // Import existing components
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
 import { ChatInput } from "@/components/ui/chat/chat-input";
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/chat/chat-bubble";
 import TypingIndicator from "@/components/ui/chat/typing-indicator";
 import RoomKeyModal from "./RoomKeyModal";
+import { Modal } from "./Modal";
 
 export default function ChatRoom({ room }) {
   const { user } = useAuth();
@@ -42,7 +43,8 @@ export default function ChatRoom({ room }) {
 
   const [showKeyModal, setShowKeyModal] = useState(!roomKey);
   const [decryptedMessages, setDecryptedMessages] = useState(new Map());
-
+  const [showRoomSettings, setShowRoomSettings] = useState(false);
+  const [showOtherOptions, setShowOtherOptions] = useState(false);
   // Handle message decryption
   const handleDecryptMessage = async (messageId, encryptedContent) => {
     if (!decrypt || !roomKey) {
@@ -139,60 +141,60 @@ export default function ChatRoom({ room }) {
   return (
     <div className="space-y-4">
       {/* Connection Status */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mt-5">
         <div className="flex items-center gap-2">
-          {isConnected ? (
-            <Badge variant="default" className="flex items-center gap-1">
-              <Wifi className="h-3 w-3" />
-              Connected
-            </Badge>
-          ) : (
-            <Badge variant="destructive" className="flex items-center gap-1">
-              <WifiOff className="h-3 w-3" />
-              Disconnected
-            </Badge>
-          )}
-
           <Badge variant="outline" className="flex items-center gap-1">
             <Users className="h-3 w-3" />
             {roomMembers.length} online
           </Badge>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowKeyModal(true)}
-          >
-            <Key className="h-4 w-4 mr-1" />
-            {roomKey ? "Change Key" : "Set Key"}
-          </Button>
-
-          {roomKey && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setAutoDecrypt(!autoDecrypt)}
-            >
-              {autoDecrypt ? (
-                <>
-                  <Eye className="h-4 w-4 mr-1" />
-                  Auto-decrypt ON
-                </>
-              ) : (
-                <>
-                  <EyeOff className="h-4 w-4 mr-1" />
-                  Auto-decrypt OFF
-                </>
-              )}
-            </Button>
-          )}
-        </div>
+        <Button
+        variant="icon"
+          onClick={() => setShowRoomSettings(!showRoomSettings)}
+          className="p-2"
+        >
+          <Settings className="h-4 w-4" />
+        </Button>
+        <Modal
+          isOpen={showRoomSettings}
+          onClose={() => setShowRoomSettings(false)}
+        >
+          <div className="p-4">
+            <h2 className="text-lg font-semibold mb-4">Room Settings</h2>
+            <div className="space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowKeyModal(true)}
+              >
+                <Key className="h-4 w-4 mr-1" />
+                Set Room Key
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAutoDecrypt(!autoDecrypt)}
+              >
+                {autoDecrypt ? (
+                  <>
+                    <Eye className="h-4 w-4 mr-1" />
+                    Disable Auto-decrypt
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="h-4 w-4 mr-1" />
+                    Enable Auto-decrypt
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </Modal>
       </div>
 
       {/* Chat Messages */}
-      <Card className="h-[600px] flex flex-col">
+      <Card className="bg-secondary/20 dark:border-white/10 backdrop-blur-md h-screen flex flex-col sm:mb-24 pb-0">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Messages</CardTitle>
         </CardHeader>

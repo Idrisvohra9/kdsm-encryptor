@@ -65,7 +65,7 @@ export default function CreateChatRoom() {
       <div className="absolute inset-0 overflow-hidden">
         <Balataro />
       </div>
-      <Card className="relative dark:border-white/10 backdrop-blur-md text-primary bg-primary/10 z-10">
+      <Card className="relative dark:border-white/10 backdrop-blur-md text-secondary dark:text-primary bg-primary/10 z-10">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />

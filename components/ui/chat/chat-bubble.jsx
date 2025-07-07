@@ -153,16 +153,11 @@ const ChatBubbleMessage = React.forwardRef(
         >
           {showDecrypted ? (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-xs opacity-70">
-                <Shield className="h-3 w-3" />
-                Decrypted
-              </div>
-              <div>{children}</div>
+              <div className="font-mono text-xs break-all">{children}</div>
               <Button
-                variant="ghost"
                 size="sm"
+                className="w-20 text-xs"
                 onClick={() => setShowDecrypted(false)}
-                className="h-6 px-2 text-xs"
               >
                 <EyeOff className="h-3 w-3 mr-1" />
                 Hide
@@ -170,11 +165,7 @@ const ChatBubbleMessage = React.forwardRef(
             </div>
           ) : (
             <div className="space-y-2">
-              {/* <div className="flex items-center gap-2 text-xs opacity-70">
-                <Lock className="h-3 w-3" />
-                Encrypted Message
-              </div> */}
-              <div className="font-mono text-xs opacity-50 break-all">
+              <div className="font-mono text-xs break-all">
                 {encryptedContent}
               </div>
               {decryptError ? (
@@ -184,11 +175,10 @@ const ChatBubbleMessage = React.forwardRef(
                 </div>
               ) : (
                 <Button
-                  variant="outline"
                   size="sm"
+                  className="w-20 text-xs"
                   onClick={toggleDecryption}
                   disabled={isDecrypting}
-                  className="h-6 px-2 text-xs"
                 >
                   {isDecrypting ? (
                     <>

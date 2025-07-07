@@ -6,18 +6,25 @@ import { useAuth } from "@/context/AuthContext";
 import { ChatProvider } from "@/context/ChatContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "sonner";
 import { Loader2, Lock, Share2, LogIn, ArrowLeft } from "lucide-react";
 import { getChatRoom, joinChatRoom } from "@/lib/chatRooms";
 import ChatRoom from "@/components/ui/chats/ChatRoom";
+import ThemeToggle from "@/components/ui/theme-toggle";
 
 function ChatRoomPageContent() {
   const { roomId } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useAuth();
-  
+
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pinRequired, setPinRequired] = useState(false);
@@ -39,8 +46,6 @@ function ChatRoomPageContent() {
 
     if (user && roomId) {
       fetchRoom();
-    } else if (!user && !isInviteLink) {
-      router.push("/login");
     }
   }, [user, roomId, isInviteLink]);
 
@@ -133,7 +138,8 @@ function ChatRoomPageContent() {
             </div>
             <CardTitle className="text-xl">Login Required</CardTitle>
             <CardDescription>
-              You must be logged in to join this room. Please log in to continue.
+              You must be logged in to join this room. Please log in to
+              continue.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -142,8 +148,8 @@ function ChatRoomPageContent() {
               Login to Join Room
             </Button>
             <div className="text-center">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 onClick={() => router.push("/")}
                 className="text-sm text-muted-foreground"
               >
@@ -166,11 +172,16 @@ function ChatRoomPageContent() {
             </div>
             <CardTitle className="text-xl">Room Not Found</CardTitle>
             <CardDescription>
-              The chat room you're looking for doesn't exist or you don't have access.
+              The chat room you're looking for doesn't exist or you don't have
+              access.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button onClick={() => router.push("/chats/create")} className="w-full" size="lg">
+            <Button
+              onClick={() => router.push("/chats/create")}
+              className="w-full"
+              size="lg"
+            >
               Create New Room
             </Button>
             <Button onClick={goBack} variant="outline" className="w-full">
@@ -193,10 +204,9 @@ function ChatRoomPageContent() {
             </div>
             <CardTitle className="text-xl">Room Access Required</CardTitle>
             <CardDescription>
-              {isInviteLink 
+              {isInviteLink
                 ? `You've been invited to join "${room.name}". Enter the PIN to continue.`
-                : `Enter the PIN to access "${room.name}"`
-              }
+                : `Enter the PIN to access "${room.name}"`}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -210,9 +220,9 @@ function ChatRoomPageContent() {
                 className="text-center"
               />
             </div>
-            <Button 
-              onClick={verifyPin} 
-              className="w-full" 
+            <Button
+              onClick={verifyPin}
+              className="w-full"
               size="lg"
               disabled={!enteredPin || verifyingPin}
             >
@@ -252,28 +262,37 @@ function ChatRoomPageContent() {
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  
+
                   <div className="min-w-0">
-                    <h1 className="text-xl font-bold truncate">{room.name}</h1>
+                    <h1 className="text-xl font-bold truncate flex items-center gap-2">
+                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-primary to-secondary"></div>
+                      {room.name}
+                    </h1>
                     <p className="text-sm text-muted-foreground">
-                      {room.members.length} member{room.members.length !== 1 ? "s" : ""}
+                      {room.members.length} member
+                      {room.members.length !== 1 ? "s" : ""}
                       {isInviteLink && " • Joined via invite"}
                     </p>
                   </div>
                 </div>
-                
+
                 {room.creatorId === user.$id && (
-                  <Button variant="outline" onClick={copyInviteLink} className="shrink-0">
+                  <Button
+                    variant="outline"
+                    onClick={copyInviteLink}
+                    className="shrink-0"
+                  >
                     <Share2 className="mr-2 h-4 w-4" />
                     <span className="hidden sm:inline">Share Invite</span>
                   </Button>
                 )}
+                <ThemeToggle />
               </div>
             </div>
           </div>
 
           {/* Chat Interface */}
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <ChatRoom room={room} />
             </div>

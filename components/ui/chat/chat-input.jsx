@@ -65,7 +65,7 @@ const ChatInput = React.forwardRef(
     };
 
     return (
-      <div className="flex gap-2 p-4 border-t">
+      <div className="flex gap-2 items-center mx-5 mb-5 sticky bottom-5 z-10 ">
         <Textarea
           autoComplete="off"
           ref={ref}
@@ -75,7 +75,7 @@ const ChatInput = React.forwardRef(
           placeholder={placeholder || "Type your message..."}
           disabled={disabled}
           className={cn(
-            "max-h-12 px-4 py-3 bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full rounded-md flex items-center h-16 resize-none",
+            "max-h-12 px-4 py-3 bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full rounded-full flex items-center h-16 resize-none",
             className,
           )}
           {...props}
@@ -84,9 +84,9 @@ const ChatInput = React.forwardRef(
           onClick={handleSend}
           disabled={!message.trim() || disabled}
           size="icon"
-          className="shrink-0"
+          className="shrink-0 rounded-full"
         >
-          <Send className="h-4 w-4" />
+          <Send className="h-5 w-5" />
         </Button>
       </div>
     );
