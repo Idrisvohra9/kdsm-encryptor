@@ -1,14 +1,21 @@
-import * as React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { FilesIcon, Images, Plus, Send, Sticker } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { forwardRef, useRef, useState } from "react";
+import { KAOMOJIS } from "@/utils/constants";
 
-const ChatInput = React.forwardRef(
+const ChatInput = forwardRef(
   ({ className, onSend, onTyping, disabled, placeholder, ...props }, ref) => {
-    const [message, setMessage] = React.useState("");
-    const [isTyping, setIsTyping] = React.useState(false);
-    const typingTimeoutRef = React.useRef(null);
+    const [message, setMessage] = useState("");
+    const [isTyping, setIsTyping] = useState(false);
+    const typingTimeoutRef = useRef(null);
 
     const handleInputChange = (e) => {
       const value = e.target.value;
@@ -39,17 +46,17 @@ const ChatInput = React.forwardRef(
 
     const handleSend = () => {
       if (!message.trim() || disabled) return;
-      
+
       if (onSend) {
         onSend(message.trim());
         setMessage("");
-        
+
         // Stop typing
         if (isTyping) {
           setIsTyping(false);
           if (onTyping) onTyping(false);
         }
-        
+
         // Clear timeout
         if (typingTimeoutRef.current) {
           clearTimeout(typingTimeoutRef.current);
@@ -64,8 +71,57 @@ const ChatInput = React.forwardRef(
       }
     };
 
+    const handleKaomojiSelect = (kaomoji) => {
+      setMessage((prev) => prev + kaomoji);
+    };
+
     return (
-      <div className="flex gap-2 items-center mx-5 mb-5 sticky bottom-5 z-10 ">
+      <div className="flex gap-2 items-center px-5 sticky bottom-0 z-10 bg-gradient-to-t from-background/75 to-transparent py-5 rounded-xl">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size={"icon"} className="p-2">
+              <Plus className="h-6 w-6" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-56" align="start">
+            <DropdownMenuItem>
+              <FilesIcon className="mr-2 h-4 w-4" />
+              Documents
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Images className="mr-2 h-4 w-4" />
+              Photos & Videos
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size={"icon"} className="p-2">
+              <Sticker className="h-6 w-6" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-[600px] max-h-96 overflow-y-auto"
+            align="start"
+          >
+            <div className="p-2">
+              <div className="grid grid-cols-6 gap-1">
+                {KAOMOJIS.map((kaomoji, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleKaomojiSelect(kaomoji)}
+                    className="p-2 text-sm hover:bg-accent hover:text-accent-foreground rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-center min-h-[2rem] flex items-center justify-center"
+                    title={kaomoji}
+                  >
+                    {kaomoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
         <Textarea
           autoComplete="off"
           ref={ref}
@@ -76,7 +132,7 @@ const ChatInput = React.forwardRef(
           disabled={disabled}
           className={cn(
             "max-h-12 px-4 py-3 bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full rounded-full flex items-center h-16 resize-none",
-            className,
+            className
           )}
           {...props}
         />
@@ -90,7 +146,7 @@ const ChatInput = React.forwardRef(
         </Button>
       </div>
     );
-  },
+  }
 );
 ChatInput.displayName = "ChatInput";
 

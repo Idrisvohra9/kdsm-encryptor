@@ -15,16 +15,14 @@ export const useChatContext = () => {
   return context;
 };
 
-export const ChatProvider = ({ children, roomId }) => {
-  const { user } = useAuth();
+export const ChatProvider = ({ children, room, user }) => {
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [roomMembers, setRoomMembers] = useState([]);
   const [typingUsers, setTypingUsers] = useState([]);
   const [isConnected, setIsConnected] = useState(false);
-  const [roomKey, setRoomKey] = useState('');
-  const [autoDecrypt, setAutoDecrypt] = useState(false);
-  
+  const [autoDecrypt, setAutoDecrypt] = useState(room.autoDecrypt);
+  const roomId = room?.$id;
   const typingTimeoutRef = useRef(null);
   const socketRef = useRef(null);
 
@@ -161,9 +159,9 @@ export const ChatProvider = ({ children, roomId }) => {
   };
 
   // Set room encryption key
-  const setEncryptionKey = (key) => {
-    setRoomKey(key);
-  };
+  // const setEncryptionKey = (key) => {
+  //   setRoomKey(key);
+  // };
 
   const value = {
     socket,
@@ -171,12 +169,10 @@ export const ChatProvider = ({ children, roomId }) => {
     roomMembers,
     typingUsers,
     isConnected,
-    roomKey,
     autoDecrypt,
     sendMessage,
     startTyping,
     stopTyping,
-    setEncryptionKey,
     setAutoDecrypt,
     setMessages
   };

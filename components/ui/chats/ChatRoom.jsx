@@ -3,12 +3,22 @@
 import { useState, useEffect, useRef } from "react";
 import { useChatContext } from "@/context/ChatContext";
 import { useEncryption } from "@/hooks/useEncryption";
-import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Key, Eye, EyeOff, Users, Wifi, WifiOff, Settings } from "lucide-react";
+import {
+  Key,
+  Eye,
+  EyeOff,
+  Users,
+  Settings,
+  EllipsisVertical,
+  MessageSquareX,
+  LogOut,
+  Search,
+  Trash2,
+} from "lucide-react";
 // Things that are wrong: Decryption of messages, it should ask for the room pin to decrypt the sent and recieved messages,
 // Import existing components
 import { ChatMessageList } from "@/components/ui/chat/chat-message-list";
@@ -22,29 +32,37 @@ import {
 import TypingIndicator from "@/components/ui/chat/typing-indicator";
 import RoomKeyModal from "./RoomKeyModal";
 import { Modal } from "./Modal";
-
-export default function ChatRoom({ room }) {
-  const { user } = useAuth();
+import Balataro from "../Balataro";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { decrypt as decryptRoomKey } from "@/utils/kdsm";
+import Image from "next/image";
+export default function ChatRoom({ room, user }) {
   const {
     messages,
     roomMembers,
     typingUsers,
     isConnected,
-    roomKey,
     autoDecrypt,
     sendMessage,
     startTyping,
     stopTyping,
-    setEncryptionKey,
     setAutoDecrypt,
   } = useChatContext();
-
+  // De-hashing the room key will give us the encryption key
+  const roomKey = decryptRoomKey(room?.roomKeyHash, user?.$id);
+  // For encryption and decryption of messages
   const { encrypt, decrypt, sign } = useEncryption(roomKey);
-
-  const [showKeyModal, setShowKeyModal] = useState(!roomKey);
+// Initially
+  const [showKeyModal, setShowKeyModal] = useState(room.autoDecrypt);
   const [decryptedMessages, setDecryptedMessages] = useState(new Map());
   const [showRoomSettings, setShowRoomSettings] = useState(false);
-  const [showOtherOptions, setShowOtherOptions] = useState(false);
   // Handle message decryption
   const handleDecryptMessage = async (messageId, encryptedContent) => {
     if (!decrypt || !roomKey) {
@@ -119,7 +137,7 @@ export default function ChatRoom({ room }) {
 
   // Set room key and close modal
   const handleSetRoomKey = (key) => {
-    setEncryptionKey(key);
+    // setEncryptionKey(key);
     setShowKeyModal(false);
     toast.success("Room key set successfully!");
   };
@@ -139,9 +157,11 @@ export default function ChatRoom({ room }) {
   };
 
   return (
-    <div className="space-y-4">
-      {/* Connection Status */}
-      <div className="flex items-center justify-between mt-5">
+    <div className="space-y-4 w-full h-full">
+      <div className="fixed inset-0 w-full h-full">
+        <Balataro />
+      </div>
+      <div className="relative flex items-center justify-between mt-5">
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="flex items-center gap-1">
             <Users className="h-3 w-3" />
@@ -149,13 +169,6 @@ export default function ChatRoom({ room }) {
           </Badge>
         </div>
 
-        <Button
-        variant="icon"
-          onClick={() => setShowRoomSettings(!showRoomSettings)}
-          className="p-2"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
         <Modal
           isOpen={showRoomSettings}
           onClose={() => setShowRoomSettings(false)}
@@ -169,7 +182,7 @@ export default function ChatRoom({ room }) {
                 onClick={() => setShowKeyModal(true)}
               >
                 <Key className="h-4 w-4 mr-1" />
-                Set Room Key
+                Change Room Key
               </Button>
               <Button
                 variant="outline"
@@ -191,18 +204,64 @@ export default function ChatRoom({ room }) {
             </div>
           </div>
         </Modal>
-      </div>
+        <div className="flex items-center gap-2">
+          {room.creatorId === user.$id && (
+            <Button
+              variant="outline"
+              onClick={() => setShowRoomSettings(!showRoomSettings)}
+              className="p-2"
+            >
+              <Settings className="h-5 w-5" />
+            </Button>
+          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <EllipsisVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
 
+            <DropdownMenuContent className="w-56" align="start">
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <MessageSquareX className="mr-2 h-4 w-4" />
+                  Clear Chat
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Exit Room
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Search className="mr-2 h-4 w-4" />
+                  Find Messages
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Room
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
       {/* Chat Messages */}
-      <Card className="bg-secondary/20 dark:border-white/10 backdrop-blur-md h-screen flex flex-col sm:mb-24 pb-0">
+      <Card className="relative bg-secondary/60 dark:border-white/60 backdrop-blur-md flex flex-col sm:mb-24 pb-0 h-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Messages</CardTitle>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col p-0">
+        <CardContent className="flex-1 flex flex-col p-0 h-full">
           <ChatMessageList className="flex-1">
             {messages.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
+                <Image
+                  src="/assets/no-messages.png"
+                  alt="No messages"
+                  width={200}
+                  height={200}
+                  className="mx-auto mb-4"
+                />
                 <p>No messages yet. Start the conversation!</p>
                 {!roomKey && (
                   <p className="text-sm mt-2">
@@ -286,7 +345,6 @@ export default function ChatRoom({ room }) {
           />
         </CardContent>
       </Card>
-
       {/* Room Key Modal */}
       <RoomKeyModal
         isOpen={showKeyModal}

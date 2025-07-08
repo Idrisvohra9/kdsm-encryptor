@@ -53,10 +53,11 @@ function ChatRoomPageContent() {
     try {
       const roomData = await getChatRoom(roomId);
       setRoom(roomData);
-
+      // If already a member, set access
       if (roomData.members.includes(user.$id)) {
         setHasAccess(true);
       } else if (roomData.roomKeyHash) {
+        // For new joiners:
         setPinRequired(true);
       } else {
         await joinRoom();
@@ -247,7 +248,7 @@ function ChatRoomPageContent() {
 
   if (hasAccess) {
     return (
-      <ChatProvider roomId={roomId}>
+      <ChatProvider room={room} user={user}>
         <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
           {/* Header */}
           <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -275,18 +276,19 @@ function ChatRoomPageContent() {
                     </p>
                   </div>
                 </div>
-
-                {room.creatorId === user.$id && (
-                  <Button
-                    variant="outline"
-                    onClick={copyInviteLink}
-                    className="shrink-0"
-                  >
-                    <Share2 className="mr-2 h-4 w-4" />
-                    <span className="hidden sm:inline">Share Invite</span>
-                  </Button>
-                )}
-                <ThemeToggle />
+                <div className="flex items-center gap-2">
+                  {room.creatorId === user.$id && (
+                    <Button
+                      variant="outline"
+                      onClick={copyInviteLink}
+                      className="shrink-0"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" />
+                      <span className="hidden sm:inline">Share Invite</span>
+                    </Button>
+                  )}
+                  <ThemeToggle />
+                </div>
               </div>
             </div>
           </div>
@@ -294,7 +296,7 @@ function ChatRoomPageContent() {
           {/* Chat Interface */}
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <ChatRoom room={room} />
+              <ChatRoom room={room} user={user} />
             </div>
           </div>
         </div>

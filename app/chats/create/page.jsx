@@ -25,11 +25,14 @@ import { toast } from "sonner";
 import { Loader2, Lock, Users } from "lucide-react";
 import { createChatRoom } from "@/lib/chatRooms";
 import Balataro from "@/components/ui/Balataro";
+import { AlertDialog, AlertDialogDescription } from "@/components/ui/alert-dialog";
+import { AlertTriangle } from "lucide-react";
 
 export default function CreateChatRoom() {
   const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     name: "",
     roomPin: "",
@@ -40,7 +43,22 @@ export default function CreateChatRoom() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
+    if (!formData.roomPin.trim()) {
+      setError("Please enter a room PIN");
+      return;
+    }
 
+    if (formData.roomPin.length < 8) {
+      setError("Room PIN must be at least 8 digits long");
+      return;
+    }
+    if (formData.name.length < 3 || formData.name.length > 20) {
+      setError("Room name must be between 3 and 20 characters");
+      return;
+    }
+
+    setError("");
+    if (loading) return; // Prevent multiple submissions
     setLoading(true);
     try {
       const room = await createChatRoom({
@@ -161,7 +179,12 @@ export default function CreateChatRoom() {
                 }
               />
             </div>
-
+            {error && (
+              <AlertDialog variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDialogDescription>{error}</AlertDialogDescription>
+              </AlertDialog>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? (
                 <>
