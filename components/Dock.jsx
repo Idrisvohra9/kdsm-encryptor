@@ -65,6 +65,19 @@ export function Dock() {
       ) : null,
       href: "/chats",
     },
+    {
+      title: "Password Generator",
+      icon: mounted ? (
+        <Image
+          src={`/${theme || "light"}/6.png`}
+          width={55}
+          height={55}
+          alt="KDSM Password generator Logo"
+          className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300"
+        />
+      ) : null,
+      href: "/password-generator",
+    },
   ];
 
   if (!mounted) {

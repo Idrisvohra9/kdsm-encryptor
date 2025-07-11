@@ -1,15 +1,22 @@
-import { Inter, Roboto_Flex } from "next/font/google";
+import { Silkscreen, Tomorrow } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Dock } from "@/components/Dock";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/context/AuthContext";
-import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
-const robotoFlex = Roboto_Flex({
+const silkscreen = Silkscreen({ 
   subsets: ["latin"],
-  variable: "--font-roboto-flex",
+  weight: ["400", "700"],
+  variable: "--font-silkscreen",
+  display: 'swap', // Optimize font loading
+});
+
+const tomorrow = Tomorrow({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-tomorrow",
+  display: 'swap', // Optimize font loading
 });
 
 export const metadata = {
@@ -29,9 +36,8 @@ export const metadata = {
     "idris",
     "messaging",
     "messenger",
-  ], // Added relevant keywords
+  ],
   openGraph: {
-    // Added Open Graph metadata
     title: "KDSM Encryptor",
     description:
       "Secure your messages with Keyed Dynamic Shift Matrix encryption",
@@ -49,7 +55,6 @@ export const metadata = {
     type: "website",
   },
   twitter: {
-    // Added Twitter Card metadata
     card: "summary_large_image",
     title: "KDSM Encryptor",
     description:
@@ -63,7 +68,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.className} ${robotoFlex.className} antialiased bg-pimary`}
+        className={`${silkscreen.variable} ${tomorrow.variable} antialiased bg-primary font-tomorrow`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
           <AuthProvider>

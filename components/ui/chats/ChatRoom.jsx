@@ -115,11 +115,9 @@ export default function ChatRoom({ room, user }) {
     }
 
     try {
-      const timestamp = new Date().toISOString();
       const encryptedMessage = encrypt(messageText);
-      const signature = sign(messageText, timestamp);
 
-      sendMessage(encryptedMessage, signature);
+      sendMessage(encryptedMessage);
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message");

@@ -1,22 +1,27 @@
-import { forwardRef, useMemo, useRef, useEffect } from "react";
+import { forwardRef, useMemo, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 
+// Custom hook for animation frame with memoized callback
 function useAnimationFrame(callback) {
+  const memoizedCallback = useCallback(callback, [callback]);
+  
   useEffect(() => {
     let frameId;
     const loop = () => {
-      callback();
+      memoizedCallback();
       frameId = requestAnimationFrame(loop);
     };
     frameId = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(frameId);
-  }, [callback]);
+  }, [memoizedCallback]);
 }
 
+// Hook to track mouse position relative to container
 function useMousePositionRef(containerRef) {
   const positionRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
+    // Update mouse position relative to container or window
     const updatePosition = (x, y) => {
       if (containerRef?.current) {
         const rect = containerRef.current.getBoundingClientRect();
@@ -46,8 +51,8 @@ function useMousePositionRef(containerRef) {
 const VariableProximity = forwardRef((props, ref) => {
   const {
     label,
-    fromFontVariationSettings,
-    toFontVariationSettings,
+    fromFontVariationSettings = "'wght' 400", // Default weight for Tomorrow font
+    toFontVariationSettings = "'wght' 800",   // Hover weight for Tomorrow font
     containerRef,
     radius = 50,
     falloff = "linear",
@@ -62,16 +67,22 @@ const VariableProximity = forwardRef((props, ref) => {
   const mousePositionRef = useMousePositionRef(containerRef);
   const lastPositionRef = useRef({ x: null, y: null });
 
+  // Memoized font variation settings parser
   const parsedSettings = useMemo(() => {
-    const parseSettings = (settingsStr) =>
-      new Map(
-        settingsStr.split(",")
-          .map(s => s.trim())
-          .map(s => {
-            const [name, value] = s.split(" ");
-            return [name.replace(/['"]/g, ""), parseFloat(value)];
-          })
-      );
+    const parseSettings = (settingsStr) => {
+      const settings = new Map();
+      const pairs = settingsStr.split(",");
+      
+      pairs.forEach(pair => {
+        const trimmed = pair.trim();
+        const match = trimmed.match(/['"]?(\w+)['"]?\s+(\d+(?:\.\d+)?)/);
+        if (match) {
+          settings.set(match[1], parseFloat(match[2]));
+        }
+      });
+      
+      return settings;
+    };
 
     const fromSettings = parseSettings(fromFontVariationSettings);
     const toSettings = parseSettings(toFontVariationSettings);
@@ -83,10 +94,12 @@ const VariableProximity = forwardRef((props, ref) => {
     }));
   }, [fromFontVariationSettings, toFontVariationSettings]);
 
-  const calculateDistance = (x1, y1, x2, y2) =>
-    Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+  // Calculate distance between two points
+  const calculateDistance = useCallback((x1, y1, x2, y2) =>
+    Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2), []);
 
-  const calculateFalloff = (distance) => {
+  // Calculate falloff value based on distance and falloff type
+  const calculateFalloff = useCallback((distance) => {
     const norm = Math.min(Math.max(1 - distance / radius, 0), 1);
     switch (falloff) {
       case "exponential": return norm ** 2;
@@ -94,9 +107,10 @@ const VariableProximity = forwardRef((props, ref) => {
       case "linear":
       default: return norm;
     }
-  };
+  }, [radius, falloff]);
 
-  useAnimationFrame(() => {
+  // Animation frame callback for smooth font variation updates
+  const animationCallback = useCallback(() => {
     if (!containerRef?.current) return;
     const { x, y } = mousePositionRef.current;
     if (lastPositionRef.current.x === x && lastPositionRef.current.y === y) {
@@ -136,9 +150,12 @@ const VariableProximity = forwardRef((props, ref) => {
       interpolatedSettingsRef.current[index] = newSettings;
       letterRef.style.fontVariationSettings = newSettings;
     });
-  });
+  }, [containerRef, calculateDistance, calculateFalloff, fromFontVariationSettings, parsedSettings, radius]);
 
-  const words = label.split(" ");
+  useAnimationFrame(animationCallback);
+
+  // Memoized words array to prevent unnecessary re-renders
+  const words = useMemo(() => label.split(" "), [label]);
   let letterIndex = 0;
 
   return (
@@ -147,7 +164,8 @@ const VariableProximity = forwardRef((props, ref) => {
       onClick={onClick}
       style={{
         display: "inline",
-        fontFamily: '"Roboto Flex", sans-serif',
+        fontFamily: "var(--font-tomorrow), sans-serif",
+        fontVariationSettings: fromFontVariationSettings,
         ...style,
       }}
       className={className}
@@ -167,7 +185,7 @@ const VariableProximity = forwardRef((props, ref) => {
                 style={{
                   display: "inline-block",
                   fontVariationSettings:
-                    interpolatedSettingsRef.current[currentLetterIndex],
+                    interpolatedSettingsRef.current[currentLetterIndex] || fromFontVariationSettings,
                 }}
                 aria-hidden="true"
               >

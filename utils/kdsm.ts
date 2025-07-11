@@ -1,6 +1,6 @@
 /**
  * KDSM (Keyed Dynamic Shift Matrix) Encryption Algorithm
- * 
+ *
  * A custom encryption algorithm that uses a key to generate a seed,
  * which then determines character shifts in a dynamic pattern.
  */
@@ -27,7 +27,7 @@ export function deriveSeed(key: string): number {
   // Calculate weighted sum of character codes
   let seed = 0;
   const len = key.length;
-  
+
   // Unrolled loop for better performance with common key lengths
   if (len <= 16) {
     for (let i = 0; i < len; i++) {
@@ -45,17 +45,41 @@ export function deriveSeed(key: string): number {
 
   // Ensure seed is positive and reasonably sized
   const finalSeed = Math.abs(seed) % 10000;
-  
+
   // Cache the result for future use
   if (key) {
     seedCache.set(key, finalSeed);
   }
-  
+
   return finalSeed;
 }
 
 // URL-safe characters that need special handling
-const URL_CHARS = new Set([':', '/', '?', '#', '[', ']', '@', '!', '$', '&', "'", '(', ')', '*', '+', ',', ';', '=', '-', '.', '_', '~', '%']);
+const URL_CHARS = new Set([
+  ":",
+  "/",
+  "?",
+  "#",
+  "[",
+  "]",
+  "@",
+  "!",
+  "$",
+  "&",
+  "'",
+  "(",
+  ")",
+  "*",
+  "+",
+  ",",
+  ";",
+  "=",
+  "-",
+  ".",
+  "_",
+  "~",
+  "%",
+]);
 
 /**
  * Encrypts a message using the KDSM algorithm
@@ -64,30 +88,30 @@ const URL_CHARS = new Set([':', '/', '?', '#', '[', ']', '@', '!', '$', '&', "'"
  * @returns The encrypted message
  */
 export function encrypt(message: string, key?: string): string {
-  if (!message) return '';
-  
-  const seed = deriveSeed(key || '');
-  
+  if (!message) return "";
+
+  const seed = deriveSeed(key || "");
+
   // Pre-calculate common modulo values for performance
   const seedMod97 = seed % 97;
   const seedMod11 = seed % 11;
-  
+
   // Convert message to an array of character codes
-  const charCodes = Array.from(message).map(char => char.codePointAt(0) || 0);
-  
+  const charCodes = Array.from(message).map((char) => char.codePointAt(0) || 0);
+
   // Store character codes and their encrypted versions
   const encryptedCodes = new Array(charCodes.length);
-  
+
   // Process each character in the message
   for (let i = 0; i < charCodes.length; i++) {
     const charCode = charCodes[i];
     const char = message[i];
-    
+
     // Apply the dynamic shift based on seed and position
     const dynamicShift = seedMod97 + i * seedMod11;
-    
+
     // Special handling for backslash and pipe characters
-    if (char === '\\' || char === '|') {
+    if (char === "\\" || char === "|") {
       // Use a special range (300-399) to mark these characters
       encryptedCodes[i] = 300 + charCode;
     }
@@ -99,14 +123,14 @@ export function encrypt(message: string, key?: string): string {
     // For ASCII printable range (32-126), use our standard algorithm
     else if (charCode >= 32 && charCode <= 126) {
       let shiftedCode = charCode + dynamicShift;
-      
+
       // Wrap around within printable ASCII range (32-126)
       while (shiftedCode > 126) {
         shiftedCode = 31 + (shiftedCode - 126);
       }
-      
+
       encryptedCodes[i] = shiftedCode;
-    } 
+    }
     // For whitespace characters (tab, newline, carriage return)
     else if (charCode === 9 || charCode === 10 || charCode === 13) {
       // Special handling: add a marker (200 + original code) to identify these
@@ -121,20 +145,20 @@ export function encrypt(message: string, key?: string): string {
       encryptedCodes[i] = charCode ^ modShift;
     }
   }
-  
+
   // Convert encrypted codes back to a string
-  const result = encryptedCodes.map(code => String.fromCodePoint(code));
-  
+  const result = encryptedCodes.map((code) => String.fromCodePoint(code));
+
   // Optional: Reverse the string for additional security
-  let encrypted = result.reverse().join('');
-  
+  let encrypted = result.reverse().join("");
+
   // Optional: Swap 3rd and 4th characters if string is long enough
   if (encrypted.length >= 4) {
-    const chars = encrypted.split('');
+    const chars = encrypted.split("");
     [chars[2], chars[3]] = [chars[3], chars[2]];
-    encrypted = chars.join('');
+    encrypted = chars.join("");
   }
-  
+
   // Return the encrypted result
   return encrypted;
 }
@@ -146,41 +170,44 @@ export function encrypt(message: string, key?: string): string {
  * @returns The decrypted message
  */
 export function decrypt(encrypted: string, key?: string): string {
-  if (!encrypted) return '';
-  
-  const seed = deriveSeed(key || '');
-  
+  if (!encrypted) return "";
+
+  const seed = deriveSeed(key || "");
+
   // Pre-calculate common modulo values for performance
   const seedMod97 = seed % 97;
   const seedMod11 = seed % 11;
-  
+
   let decrypting = encrypted;
-  
+
   // Reverse the optional operations from encryption
-  
+
   // Swap back 3rd and 4th characters if string is long enough
   if (decrypting.length >= 4) {
-    const chars = decrypting.split('');
+    const chars = decrypting.split("");
     [chars[2], chars[3]] = [chars[3], chars[2]];
-    decrypting = chars.join('');
+    decrypting = chars.join("");
   }
-  
+
   // Reverse the string back
-  decrypting = decrypting.split('').reverse().join('');
-  
+  decrypting = decrypting.split("").reverse().join("");
+
   // Convert to array of character codes
-  const charCodes = Array.from(decrypting).map(char => char.codePointAt(0) || 0);
+  const charCodes = Array.from(decrypting).map(
+    (char) => char.codePointAt(0) || 0
+  );
   const decryptedCodes = new Array(charCodes.length);
-  
+
   // Process each character
   for (let i = 0; i < charCodes.length; i++) {
     const charCode = charCodes[i];
-    
+
     // Calculate the same dynamic shift used during encryption
     const dynamicShift = seedMod97 + i * seedMod11;
-    
+
     // Check if this is a URL character marker (300-426 range)
-    if (charCode >= 300 && charCode <= 426) { // Changed 399 to 426
+    if (charCode >= 300 && charCode <= 426) {
+      // Changed 399 to 426
       // Extract the original URL character
       decryptedCodes[i] = charCode - 300;
     }
@@ -193,12 +220,12 @@ export function decrypt(encrypted: string, key?: string): string {
     else if (charCode >= 32 && charCode <= 126) {
       // Reverse the shift operation with proper wrapping
       let unshiftedCode = charCode - dynamicShift;
-      
+
       // Ensure proper wrapping in the printable ASCII range (32-126)
       while (unshiftedCode < 32) {
         unshiftedCode = 127 - (32 - unshiftedCode);
       }
-      
+
       decryptedCodes[i] = unshiftedCode;
     }
     // For Unicode and other non-ASCII characters
@@ -208,42 +235,112 @@ export function decrypt(encrypted: string, key?: string): string {
       decryptedCodes[i] = charCode ^ modShift;
     }
   }
-  
+
   // Convert decrypted codes back to a string
-  return decryptedCodes.map(code => String.fromCodePoint(code)).join('');
+  return decryptedCodes.map((code) => String.fromCodePoint(code)).join("");
 }
 
 /**
- * Generates a random key that can be used for encryption/decryption
+ * Generates a random key that can be used for encryption/decryption or as a strong password
  * @param length - Length of the key to generate (default: 10)
+ * @param options - Configuration options for character inclusion
  * @returns A random string key
  */
-export function generateKey(length: number = 10): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+export async function generateKey(
+  length: number = 10,
+  options?: {
+    includeNumbers?: boolean;
+    includeSpecialChars?: boolean;
+    includeUppercase?: boolean;
+    includeLowercase?: boolean;
+    excludeSimilar?: boolean; // Exclude similar looking characters like 0, O, l, 1, I
+    customChars?: string; // Custom character set to use instead
+  }
+): Promise<string> {
+  // Default character sets
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  const specialChars = "!@#$%^&*()";
+  const similarChars = "0Ol1I"; // Characters that look similar
+
+  let chars = "";
+
+  // If custom characters are provided, use them exclusively
+  if (options?.customChars) {
+    chars = options.customChars;
+  } else {
+    // Build character set based on options (defaults to all types for encryption keys)
+    const includeNumbers = options?.includeNumbers ?? true;
+    const includeSpecialChars = options?.includeSpecialChars ?? true;
+    const includeUppercase = options?.includeUppercase ?? true;
+    const includeLowercase = options?.includeLowercase ?? true;
+    const excludeSimilar = options?.excludeSimilar ?? false;
+
+    // Build the character set
+    if (includeLowercase) chars += lowercase;
+    if (includeUppercase) chars += uppercase;
+    if (includeNumbers) chars += numbers;
+    if (includeSpecialChars) chars += specialChars;
+
+    // Remove similar characters if requested
+    if (excludeSimilar) {
+      chars = chars
+        .split("")
+        .filter((char) => !similarChars.includes(char))
+        .join("");
+    }
+
+    // Fallback to lowercase if no character types are selected
+    if (!chars) {
+      chars = lowercase;
+    }
+  }
+
   const charsLength = chars.length;
   const result = new Array(length);
-  
-  // Use Crypto API for better randomness if available
-  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+
+  // Check if we're in Node.js environment
+  if (typeof window === "undefined") {
+    try {
+      const { randomBytes } = await import("crypto");
+      const randomBytesArray = randomBytes(length * 4);
+
+      for (let i = 0; i < length; i++) {
+        const randomValue = randomBytesArray.readUInt32BE(i * 4);
+        result[i] = chars.charAt(randomValue % charsLength);
+      }
+
+      return result.join("");
+    } catch (error) {
+      // Fall through to browser crypto or Math.random
+    }
+  }
+
+  // Browser environment or Node.js crypto failed
+  if (
+    typeof window !== "undefined" &&
+    window.crypto &&
+    window.crypto.getRandomValues
+  ) {
     const randomValues = new Uint32Array(length);
     window.crypto.getRandomValues(randomValues);
-    
+
     for (let i = 0; i < length; i++) {
       result[i] = chars.charAt(randomValues[i] % charsLength);
     }
   } else {
-    // Fallback to Math.random
+    // Final fallback
     for (let i = 0; i < length; i++) {
-      const randomIndex = Math.floor(Math.random() * charsLength);
-      result[i] = chars.charAt(randomIndex);
+      result[i] = chars.charAt(Math.floor(Math.random() * charsLength));
     }
   }
-  
-  return result.join('');
+
+  return result.join("");
 }
 
 // Clear the seed cache when the module is hot reloaded (for development)
-if (typeof module !== 'undefined' && (module as any).hot) {
+if (typeof module !== "undefined" && (module as any).hot) {
   (module as any).hot?.dispose(() => {
     seedCache.clear();
   });

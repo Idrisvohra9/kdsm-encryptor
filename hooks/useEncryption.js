@@ -1,15 +1,17 @@
 import { useMemo } from 'react';
 import { encrypt, decrypt } from '@/utils/kdsm';
-import crypto from 'crypto';
-
+/**
+ * Custom hook to provide encryption and decryption utilities based on the room key.
+ * 
+ * @param {string} roomKey - The encryption key for the room.
+ * @returns {Object} An object containing `encrypt` and `decrypt` functions.
+ */
 export const useEncryption = (roomKey) => {
   const encryptionUtils = useMemo(() => {
     if (!roomKey) {
       return {
         encrypt: null,
         decrypt: null,
-        sign: null,
-        verify: null
       };
     }
 
@@ -31,28 +33,6 @@ export const useEncryption = (roomKey) => {
           throw new Error('Failed to decrypt message');
         }
       },
-
-      sign: (message, timestamp) => {
-        try {
-          const data = `${message}${timestamp}${roomKey}`;
-          return crypto.createHash('sha256').update(data).digest('hex');
-        } catch (error) {
-          console.error('Signing error:', error);
-          throw new Error('Failed to sign message');
-        }
-      },
-
-      verify: (message, timestamp, signature) => {
-        try {
-          const expectedSignature = crypto.createHash('sha256')
-            .update(`${message}${timestamp}${roomKey}`)
-            .digest('hex');
-          return expectedSignature === signature;
-        } catch (error) {
-          console.error('Verification error:', error);
-          return false;
-        }
-      }
     };
   }, [roomKey]);
 

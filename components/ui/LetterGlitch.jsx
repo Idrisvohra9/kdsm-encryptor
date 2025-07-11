@@ -1,13 +1,9 @@
 import { useRef, useEffect, memo } from 'react'; // Import memo
-import { useTheme } from 'next-themes';
 
 const LetterGlitch = ({
   glitchSpeed = 50,
-  centerVignette = false,
-  outerVignette = true,
   smooth = true,
 }) => {
-  const { theme, systemTheme } = useTheme();
   
   const glitchColors = ['#2f2f2f', '#4a4a4a', '#666666'];
 
@@ -104,7 +100,7 @@ const LetterGlitch = ({
     const ctx = context.current;
     const rect = canvasRef.current.getBoundingClientRect();
     ctx.clearRect(0, 0, rect.width, rect.height);
-    ctx.font = `${fontSize}px monospace`;
+    ctx.font = `${fontSize}px Silkscreen, sans-serif`;
     ctx.textBaseline = 'top';
 
     letters.current.forEach((letter, index) => {
@@ -180,7 +176,7 @@ const LetterGlitch = ({
         drawLetters();
       }
     }
-  }, [theme, systemTheme]);
+  }, []);
 
   const interpolateColor = (start, end, factor) => {
     const result = {
@@ -248,16 +244,6 @@ const LetterGlitch = ({
   return (
     <div className="relative w-full h-full bg-background overflow-hidden">
       <canvas ref={canvasRef} className="block w-full h-full" />
-      {outerVignette && (
-        <div
-          className="absolute top-0 left-0 w-full h-full pointer-events-none dark:bg-[radial-gradient(circle,_rgba(0,0,0,0)_60%,_rgba(0,0,0,1)_100%)] bg-[radial-gradient(circle,_rgba(255,255,255,0)_0%,_rgba(200,200,200,0.32)_60%)]"
-        ></div>
-      )}
-      {centerVignette && (
-        <div
-          className="absolute top-0 left-0 w-full h-full pointer-events-none dark:bg-[radial-gradient(circle,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0)_60%)] bg-[radial-gradient(circle,_rgba(255,255,255,0.6)_0%,_rgba(200,200,200,0)_60%)]"
-        ></div>
-      )}
     </div>
   );
 };

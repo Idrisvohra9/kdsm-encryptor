@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
-import { useAuth } from './AuthContext';
 import { toast } from 'sonner';
 
 const ChatContext = createContext();
@@ -98,7 +97,7 @@ export const ChatProvider = ({ children, room, user }) => {
   }, [user, roomId]);
 
   // Send message function
-  const sendMessage = (encryptedMessage, signature) => {
+  const sendMessage = (encryptedMessage) => {
     if (!socket || !user) return;
 
     const messageData = {
@@ -107,7 +106,6 @@ export const ChatProvider = ({ children, room, user }) => {
       senderId: user.$id,
       senderName: user.name || user.email,
       timestamp: new Date().toISOString(),
-      signature
     };
 
     // Add to local messages immediately
@@ -158,10 +156,6 @@ export const ChatProvider = ({ children, room, user }) => {
     }
   };
 
-  // Set room encryption key
-  // const setEncryptionKey = (key) => {
-  //   setRoomKey(key);
-  // };
 
   const value = {
     socket,

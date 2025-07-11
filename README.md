@@ -10,6 +10,5 @@
 
 - Start the messaging development
 - Make the background components lazy load
-- Fix the room creation and go to phase 4
-- add and optimize https://www.reactbits.dev/backgrounds/shape-blur | https://www.reactbits.dev/backgrounds/beams
 - Think of a pricing plan and implement it
+- Fix the encrypt-decrypt of messages and update the Development plan and start phase 5

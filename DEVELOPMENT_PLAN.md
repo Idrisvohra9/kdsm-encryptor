@@ -95,19 +95,15 @@
 1. Create `useEncryption(roomKey)` hook:
 
    ```tsx
-   const { encrypt, decrypt, sign } = useEncryption(roomKey);
+   const { encrypt, decrypt } = useEncryption(roomKey);
    ```
 
    - Separates cryptographic logic from UI.
 
 2. Encrypt messages using `encrypt()` before sending to socket.
-3. Store encrypted message + signature in Appwrite `messages` collection.
-4. Show messages blurred with a **Decryption Preview Mode**:
+3. Store encrypted message in Appwrite `messages` collection.
 
-   - Hover to show decrypted message (if allowed).
    - Optional “Decrypt All” toggle on room entry.
-
-5. Add message **signature hash**: `SHA256(message + timestamp + roomKey)` to verify integrity.
 
 ---
 

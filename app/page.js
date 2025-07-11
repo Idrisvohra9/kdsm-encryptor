@@ -1,38 +1,24 @@
 "use client";
 
 import { useRef, useState, useCallback, useMemo } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { encrypt, decrypt, generateKey } from "@/utils/kdsm";
 import VariableProximity from "@/components/ui/VariableProximity";
 import LetterGlitch from "@/components/ui/LetterGlitch";
 import ShinyText from "@/components/ui/ShinyText";
+import DecryptedText from "@/components/ui/DecryptedText";
 import Image from "next/image";
-import {
-  BrushCleaning,
-  Check,
-  Copy,
-  ExternalLink,
-  Shield,
-  ShieldOff,
-} from "lucide-react";
+import { BrushCleaning, Check, Copy, ExternalLink, Shield, ShieldOff } from "lucide-react";
 import ThemeToggle from "@/components/ui/theme-toggle";
 import { motion } from "framer-motion";
 import Carousel from "@/components/ui/Carousel";
-import DecryptedText from "@/components/ui/DecryptedText";
-import { unstable_ViewTransition as ViewTransition } from "react";
 
-// Define constants
+// Define constants with corrected emoji regex
 const KEY_START_MARKER = "[KDSM_KEY_START]";
 const KEY_END_MARKER = "[KDSM_KEY_END]";
 const EMOJI_REGEX =
@@ -48,7 +34,7 @@ export default function Home() {
     decryptedResult: "",
     lastUsedKey: "",
   });
-
+  
   const [copyStates, setCopyStates] = useState({
     encrypted: false,
     decrypted: false,
@@ -56,59 +42,99 @@ export default function Home() {
     encryptedWithKey: false,
   });
 
-  // Refs
+  // Refs for DOM elements
   const containerRef = useRef(null);
   const messageRef = useRef(null);
 
-  // Memoized functions
+  // Memoized function to check if string contains emojis
   const containsEmoji = useMemo(() => (str) => EMOJI_REGEX.test(str), []);
 
+  // Memoized function to remove emojis from string
+  const removeEmojis = useMemo(() => (str) => str.replace(EMOJI_REGEX, ""), []);
+
+  // Handle message input changes with emoji detection
   const handleMessageChange = useCallback((e) => {
-    setFormState((prev) => ({ ...prev, message: e.target.value }));
-  }, []);
+    const newMessage = e.target.value;
+    if (containsEmoji(newMessage)) {
+      toast.warning("Emojis Detected", {
+        description: "Emojis will be automatically removed during encryption for security reasons",
+      });
+    }
+    setFormState(prev => ({ ...prev, message: newMessage }));
+  }, [containsEmoji]);
 
+  // Handle key input changes
   const handleKeyChange = useCallback((e) => {
-    setFormState((prev) => ({ ...prev, key: e.target.value }));
+    setFormState(prev => ({ ...prev, key: e.target.value }));
   }, []);
 
-  const handleEncrypt = useCallback(() => {
-    const { message, key } = formState;
+  // Handle paste events with automatic key extraction
+  const handlePaste = useCallback((e) => {
+    const pastedText = e.clipboardData.getData("text");
+    const keyStartIndex = pastedText.indexOf(KEY_START_MARKER);
+    const keyEndIndex = pastedText.indexOf(KEY_END_MARKER);
 
-    if (!message) {
-      toast.error("Oopsie!", {
+    if (keyStartIndex !== -1 && keyEndIndex !== -1) {
+      const extractedKey = pastedText.substring(
+        keyStartIndex + KEY_START_MARKER.length,
+        keyEndIndex
+      );
+      const messageWithoutKey = pastedText
+        .replace(KEY_START_MARKER + extractedKey + KEY_END_MARKER, "")
+        .trim();
+
+      setFormState(prev => ({
+        ...prev,
+        message: messageWithoutKey,
+        key: extractedKey,
+      }));
+
+      toast.success("Key Extracted", {
+        description: "Encryption key was automatically extracted from the pasted message",
+      });
+      e.preventDefault();
+    }
+  }, []);
+
+  // Generate a random encryption key
+  const generateRandomKey = useCallback(async () => {
+    try {
+      const randomKey = await generateKey(12);
+      setFormState(prev => ({ ...prev, key: randomKey }));
+      toast.success("Key Generated", {
+        description: "A new random encryption key has been generated",
+      });
+    } catch (error) {
+      console.error("Key generation error:", error);
+      toast.error("Generation Failed", {
+        description: "Could not generate a random key",
+      });
+    }
+  }, []);
+
+  // Handle encryption process
+  const handleEncrypt = useCallback(async () => {
+    if (!formState.message.trim()) {
+      toast.error("Empty Message", {
         description: "Please enter a message to encrypt",
       });
       return;
     }
 
-    let messageToEncrypt = message;
-    if (!message.startsWith("http://") && !message.startsWith("https://")) {
-      const messageWithoutEmojis = message.replace(EMOJI_REGEX, "");
-
-      if (containsEmoji(message)) {
-        toast.warning("Emojis Removed", {
-          description:
-            "Emojis were detected and removed from the message before encryption.",
-        });
-        messageToEncrypt = messageWithoutEmojis;
-      }
-    }
-
     try {
-      const usedKey = key || generateKey();
-      const result = encrypt(messageToEncrypt, usedKey);
+      const cleanMessage = removeEmojis(formState.message);
+      const encryptedMessage = encrypt(cleanMessage, formState.key || undefined);
+      const keyUsed = formState.key || "Auto-generated";
 
-      setFormState((prev) => ({
+      setFormState(prev => ({
         ...prev,
-        encryptedResult: result,
-        lastUsedKey: usedKey,
-        key: key || usedKey,
+        encryptedResult: encryptedMessage,
+        lastUsedKey: keyUsed,
+        decryptedResult: "",
       }));
 
-      toast.success(key ? "Success" : "Key Generated", {
-        description: key
-          ? "Message encrypted successfully"
-          : "A random key was generated for encryption",
+      toast.success("Message Encrypted", {
+        description: "Your message has been encrypted successfully",
       });
     } catch (error) {
       console.error("Encryption error:", error);
@@ -116,68 +142,70 @@ export default function Home() {
         description: error.message || "An error occurred during encryption",
       });
     }
-  }, [formState, containsEmoji]);
+  }, [formState.message, formState.key, removeEmojis]);
 
-  const handleDecrypt = useCallback(() => {
-    const { message, key } = formState;
-
-    if (!message) {
-      toast.error("Oopsie!", {
-        description: "Please enter encrypted text to decrypt",
+  // Handle decryption process
+  const handleDecrypt = useCallback(async () => {
+    if (!formState.message.trim()) {
+      toast.error("Empty Message", {
+        description: "Please enter a message to decrypt",
       });
       return;
     }
 
-    // Extract key from message if present
-    const keyStartIndex = message.indexOf(KEY_START_MARKER);
-    const keyEndIndex = message.indexOf(KEY_END_MARKER);
-
-    let textToDecrypt = message;
-    // Key detection logic for if the pasted message contains a key
-    if (
-      keyStartIndex !== -1 &&
-      keyEndIndex !== -1 &&
-      keyEndIndex > keyStartIndex
-    ) {
-      const extractedKey = message.substring(
-        keyStartIndex + KEY_START_MARKER.length,
-        keyEndIndex
-      );
-      const messageContent = message.substring(
-        keyEndIndex + KEY_END_MARKER.length
-      );
-
-      setFormState((prev) => ({
-        ...prev,
-        key: extractedKey,
-        message: messageContent,
-      }));
-
-      textToDecrypt = messageContent;
-      toast("Key Detected", {
-        description: "Key automatically placed in the Encryption Key field",
-      });
-    } else if (!key) {
-      toast.error("Oopsie!", {
-        description: "A key is required for decryption",
+    if (!formState.key.trim()) {
+      toast.error("Missing Key", {
+        description: "Please enter the decryption key",
       });
       return;
     }
 
     try {
-      const result = decrypt(textToDecrypt, key);
-      setFormState((prev) => ({ ...prev, decryptedResult: result }));
-      toast.success("Success", {
-        description: "Message decrypted successfully",
+      const decryptedMessage = decrypt(formState.message, formState.key);
+      setFormState(prev => ({
+        ...prev,
+        decryptedResult: decryptedMessage,
+        encryptedResult: "",
+      }));
+
+      toast.success("Message Decrypted", {
+        description: "Your message has been decrypted successfully",
       });
     } catch (error) {
       console.error("Decryption error:", error);
       toast.error("Decryption Failed", {
-        description: error.message || "An error occurred during decryption",
+        description: error.message || "An error occurred during decryption. Please check your key.",
       });
     }
-  }, [formState]);
+  }, [formState.message, formState.key]);
 
+  // Copy text to clipboard with feedback
+  const copyToClipboard = useCallback((text, type) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopyStates(prev => ({ ...prev, [type]: true }));
+        setTimeout(() => {
+          setCopyStates(prev => ({ ...prev, [type]: false }));
+        }, COPY_TIMEOUT);
+        toast.success("Copied", {
+          description: `${type.charAt(0).toUpperCase() + type.slice(1)} copied to clipboard`,
+        });
+      })
+      .catch(() => {
+        toast.error("Copy Failed", {
+          description: "Could not copy to clipboard",
+        });
+      });
+  }, []);
+
+  // Copy encrypted message with key
+  const copyEncryptedWithKey = useCallback(() => {
+    const textWithKey = `${formState.encryptedResult}${KEY_START_MARKER}${formState.lastUsedKey}${KEY_END_MARKER}`;
+    copyToClipboard(textWithKey, "encryptedWithKey");
+  }, [formState.encryptedResult, formState.lastUsedKey, copyToClipboard]);
+
+  // Clear all form data
   const handleClear = useCallback(() => {
     setFormState({
       key: "",
@@ -197,117 +225,14 @@ export default function Home() {
     });
   }, []);
 
-  const copyToClipboard = useCallback((text, type) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        setCopyStates((prev) => ({ ...prev, [type]: true }));
-        setTimeout(() => {
-          setCopyStates((prev) => ({ ...prev, [type]: false }));
-        }, COPY_TIMEOUT);
-      })
-      .catch(() => {
-        toast.error("Copy Failed", {
-          description: "Could not copy to clipboard",
-        });
-      });
-  }, []);
-
-  const copyEncryptedWithKey = useCallback(() => {
-    const { encryptedResult, lastUsedKey } = formState;
-
-    if (!encryptedResult || !lastUsedKey) {
-      toast.error("Oopsie!", {
-        description: "No encrypted message or key available to copy",
-      });
-      return;
-    }
-
-    const textToCopy = `${KEY_START_MARKER}${lastUsedKey}${KEY_END_MARKER}${encryptedResult}`;
-    copyToClipboard(textToCopy, "encryptedWithKey");
-    toast("Copied", {
-      description: "Encrypted message and key copied to clipboard",
-    });
-  }, [formState, copyToClipboard]);
-
-  const generateRandomKey = useCallback(() => {
-    const newKey = generateKey();
-    setFormState((prev) => ({ ...prev, key: newKey }));
-    toast("Key Generated", {
-      description: "A new random key has been generated",
-    });
-  }, []);
-
-  const handlePaste = useCallback(
-    async (event) => {
-      event.preventDefault();
-
-      try {
-        const pastedText = await navigator.clipboard.readText();
-        if (!pastedText) return;
-
-        const keyStartIndex = pastedText.indexOf(KEY_START_MARKER);
-        const keyEndIndex = pastedText.indexOf(KEY_END_MARKER);
-
-        if (
-          keyStartIndex !== -1 &&
-          keyEndIndex !== -1 &&
-          keyEndIndex > keyStartIndex
-        ) {
-          const key = pastedText.substring(
-            keyStartIndex + KEY_START_MARKER.length,
-            keyEndIndex
-          );
-          const messageContent = pastedText.substring(
-            keyEndIndex + KEY_END_MARKER.length
-          );
-
-          setFormState((prev) => ({
-            ...prev,
-            key,
-            message: messageContent,
-          }));
-
-          toast("Key Detected", {
-            description: "Key automatically placed in the Encryption Key field",
-          });
-        } else if (messageRef.current) {
-          const cursorPosition = messageRef.current.selectionStart;
-          const newMessage =
-            formState.message.substring(0, cursorPosition) +
-            pastedText +
-            formState.message.substring(messageRef.current.selectionEnd);
-
-          setFormState((prev) => ({ ...prev, message: newMessage }));
-
-          // Update cursor position
-          requestAnimationFrame(() => {
-            if (messageRef.current) {
-              messageRef.current.selectionStart =
-                messageRef.current.selectionEnd =
-                  cursorPosition + pastedText.length;
-            }
-          });
-        }
-      } catch (err) {
-        console.error("Failed to read clipboard contents: ", err);
-        toast.error("Paste Failed", {
-          description: "Could not read clipboard content.",
-        });
-      }
-    },
-    [formState.message]
-  );
-
-  // Render UI
   return (
     <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
       <div className="fixed inset-0 -z-10 w-screen h-screen">
-        <LetterGlitch
-          glitchSpeed={50}
-          centerVignette={true}
-          outerVignette={true}
-          smooth={true}
+        <LetterGlitch 
+          glitchSpeed={50} 
+          centerVignette={true} 
+          outerVignette={true} 
+          smooth={true} 
         />
       </div>
       <div className="w-full max-w-3xl relative z-20">
@@ -332,20 +257,18 @@ export default function Home() {
                   alignItems: "center",
                 }}
               >
-                <ViewTransition name="kdsm-logo">
-                  <Image
-                    src="/dark/1.png"
-                    width={48}
-                    height={48}
-                    className="me-2 object-cover"
-                    alt="KDSM Logo"
-                  />
-                </ViewTransition>
+                <Image
+                  src="/dark/1.png"
+                  width={48}
+                  height={48}
+                  className="me-2 object-cover"
+                  alt="KDSM Logo"
+                />
                 <VariableProximity
                   label={"KDSM Encryptor V - 0.2"}
                   className={"sm:text-2xl text-lg"}
-                  fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                  toFontVariationSettings="'wght' 1000, 'opsz' 40"
+                  fromFontVariationSettings="'wght' 400"
+                  toFontVariationSettings="'wght' 900"
                   containerRef={containerRef}
                   radius={100}
                   falloff="gaussian"
@@ -360,8 +283,8 @@ export default function Home() {
                     "Secure your messages with Keyed Dynamic Shift Matrix encryption"
                   }
                   className={"text-base"}
-                  fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                  toFontVariationSettings="'wght' 1000, 'opsz' 40"
+                  fromFontVariationSettings="'wght' 300"
+                  toFontVariationSettings="'wght' 700"
                   containerRef={containerRef}
                   radius={100}
                   falloff="gaussian"

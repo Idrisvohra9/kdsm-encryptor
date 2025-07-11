@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
 
   // Handle sending messages
   socket.on('send-message', (data) => {
-    const { roomId, message, senderId, senderName, timestamp, signature } = data;
+    const { roomId, message, senderId, senderName, timestamp } = data;
     
     // Broadcast message to all users in the room except sender
     socket.to(roomId).emit('receive-message', {
