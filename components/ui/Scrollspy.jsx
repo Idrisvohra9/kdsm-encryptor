@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { unstable_ViewTransition as ViewTransition } from "react";
 import Image from "next/image";
 import { Menu, X } from "lucide-react"; // Import an icon for the toggle button
 
@@ -81,40 +80,46 @@ const Scrollspy = ({ sections }) => {
       >
         <nav className="p-4">
           <div className="flex justify-between items-center w-full mb-5 lg:hidden">
-             <ViewTransition name="kdsm-logo">
-              <Image
-                src="/dark/1.png"
-                width={48}
-                height={48}
-                className="me-2 object-cover"
-                alt="KDSM Logo"
-              />
-            </ViewTransition>
+            <Image
+              src="/dark/1.png"
+              width={48}
+              height={48}
+              className="me-2 object-cover"
+              alt="KDSM Logo"
+            />
             <button onClick={toggleSidebar} className="p-2 rounded-md">
-               <X className="h-6 w-6" />
+              <X className="h-6 w-6" />
             </button>
           </div>
-           <div className="justify-center w-full mb-5 hidden lg:flex">
-              <Image
-                src="/dark/1.png"
-                width={48}
-                height={48}
-                className="me-2 object-cover"
-                alt="KDSM Logo"
-              />
+          <div className="justify-center w-full mb-5 hidden lg:flex">
+            <Image
+              src="/dark/1.png"
+              width={48}
+              height={48}
+              className="me-2 object-cover"
+              alt="KDSM Logo"
+            />
           </div>
           <ul className="space-y-2">
             {sections.map((section) => (
               <li key={section.id}>
                 <button
                   onClick={() => handleClick(section.id)}
-                  className={`text-sm transition-all duration-300 cursor-pointer ${activeSection === section.id ? "text-primary font-medium" : "text-muted-foreground hover:text-primary"}`}
+                  className={`text-sm transition-all duration-300 cursor-pointer ${
+                    activeSection === section.id
+                      ? "text-primary font-medium"
+                      : "text-muted-foreground hover:text-primary"
+                  }`}
                 >
                   {activeSection === section.id && (
                     <motion.span
                       layoutId="indicator"
                       className="absolute left-0 w-1 h-5 bg-primary rounded-full"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30,
+                      }}
                     />
                   )}
                   <span className="relative pl-4">{section.title}</span>

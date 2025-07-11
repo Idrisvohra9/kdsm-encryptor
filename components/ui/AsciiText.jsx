@@ -1,3 +1,4 @@
+"use client";
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
 
@@ -51,19 +52,18 @@ const PX_RATIO = typeof window !== "undefined" ? window.devicePixelRatio : 1;
 class AsciiFilter {
   constructor(renderer, { fontSize, fontFamily, charset, invert } = {}) {
     this.renderer = renderer;
-    // container for ASCII overlay
     this.domElement = document.createElement("div");
     this.domElement.style.position = "absolute";
     this.domElement.style.top = "0";
     this.domElement.style.left = "0";
     this.domElement.style.width = "100%";
-    this.domElement.style.height = "100vh";
+    this.domElement.style.height = "100%";
 
     this.pre = document.createElement("pre");
     this.domElement.appendChild(this.pre);
 
     this.canvas = document.createElement("canvas");
-    this.context = this.canvas.getContext("2d", { willReadFrequently: true });
+    this.context = this.canvas.getContext("2d");
     this.domElement.appendChild(this.canvas);
 
     this.deg = 0;
@@ -110,9 +110,8 @@ class AsciiFilter {
     this.pre.style.padding = "0";
     this.pre.style.lineHeight = "1em";
     this.pre.style.position = "absolute";
-    this.pre.style.left = "50%";
-    this.pre.style.top = "50%";
-    this.pre.style.transform = "translate(-50%, -50%)";
+    this.pre.style.left = "0";
+    this.pre.style.top = "0";
     this.pre.style.zIndex = "9";
     this.pre.style.backgroundAttachment = "fixed";
     this.pre.style.mixBlendMode = "difference";
@@ -191,9 +190,7 @@ class CanvasTxt {
     { fontSize = 200, fontFamily = "Arial", color = "#fdf9f3" } = {}
   ) {
     this.canvas = document.createElement("canvas");
-    this.context = this.canvas.getContext("2d", {
-      willReadFrequently: true,
-    });
+    this.context = this.canvas.getContext("2d");
     this.txt = txt;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
@@ -351,7 +348,6 @@ class CanvAscii {
 
   onMouseMove(evt) {
     const e = evt.touches ? evt.touches[0] : evt;
-    // container coords
     const bounds = this.container.getBoundingClientRect();
     const x = e.clientX - bounds.left;
     const y = e.clientY - bounds.top;
@@ -421,9 +417,8 @@ class CanvAscii {
   }
 }
 
-// =========== React component ===========
 export default function ASCIIText({
-  text = "Idris!",
+  text = "David!",
   asciiFontSize = 8,
   textFontSize = 200,
   textColor = "#fdf9f3",
@@ -436,10 +431,49 @@ export default function ASCIIText({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // measure container
     const { width, height } = containerRef.current.getBoundingClientRect();
 
-    // create the ASCII scene
+    if (width === 0 || height === 0) {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (
+            entry.isIntersecting &&
+            entry.boundingClientRect.width > 0 &&
+            entry.boundingClientRect.height > 0
+          ) {
+            const { width: w, height: h } = entry.boundingClientRect;
+
+            asciiRef.current = new CanvAscii(
+              {
+                text,
+                asciiFontSize,
+                textFontSize,
+                textColor,
+                planeBaseHeight,
+                enableWaves,
+              },
+              containerRef.current,
+              w,
+              h
+            );
+            asciiRef.current.load();
+
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1 }
+      );
+
+      observer.observe(containerRef.current);
+
+      return () => {
+        observer.disconnect();
+        if (asciiRef.current) {
+          asciiRef.current.dispose();
+        }
+      };
+    }
+
     asciiRef.current = new CanvAscii(
       {
         text,
@@ -456,9 +490,11 @@ export default function ASCIIText({
     asciiRef.current.load();
 
     const ro = new ResizeObserver((entries) => {
-      if (!entries[0]) return;
+      if (!entries[0] || !asciiRef.current) return;
       const { width: w, height: h } = entries[0].contentRect;
-      asciiRef.current.setSize(w, h);
+      if (w > 0 && h > 0) {
+        asciiRef.current.setSize(w, h);
+      }
     });
     ro.observe(containerRef.current);
 
@@ -478,20 +514,57 @@ export default function ASCIIText({
   ]);
 
   return (
-    <div>
-      <div
-        ref={containerRef}
-        style={{
-          position: "absolute",
-          width: "100%",
-          height: "100vh",
-          top: -100,
-          zIndex: 1,
-        }}
-        className="bg-[radial-gradient(circle,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0)_60%)]"
-      >
-        {/* <div className="absolute top-0 left-0 w-full h-full pointer-events-none bg-[radial-gradient(circle,_rgba(0,0,0,0.8)_0%,_rgba(0,0,0,0)_60%)]"></div> */}
-      </div>
+    <div
+      ref={containerRef}
+      className="ascii-text-container"
+      style={{
+        position: "absolute",
+        width: "100%",
+        height: "100vh",
+        top: -100,
+        zIndex: 1,
+      }}
+    >
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&display=swap');
+
+        body {
+          margin: 0;
+          padding: 0;
+        }
+
+        .ascii-text-container canvas {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          image-rendering: optimizeSpeed;
+          image-rendering: -moz-crisp-edges;
+          image-rendering: -o-crisp-edges;
+          image-rendering: -webkit-optimize-contrast;
+          image-rendering: optimize-contrast;
+          image-rendering: crisp-edges;
+          image-rendering: pixelated;
+        }
+
+        .ascii-text-container pre {
+          margin: 0;
+          user-select: none;
+          padding: 0;
+          line-height: 1em;
+          text-align: left;
+          position: absolute;
+          left: 0;
+          top: 0;
+          background-image: radial-gradient(circle, #ff6188 0%, #fc9867 50%, #ffd866 100%);
+          background-attachment: fixed;
+          -webkit-text-fill-color: transparent;
+          -webkit-background-clip: text;
+          z-index: 9;
+          mix-blend-mode: difference;
+        }
+      `}</style>
     </div>
   );
 }

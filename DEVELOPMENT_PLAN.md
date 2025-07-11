@@ -12,9 +12,6 @@
 
 1. Install and configure **Appwrite SDK**, `socket.io-client` in ('/socket-server'), `clsx`, and `zod`.
 2. Setup environment file (`.env.local`) with Appwrite credentials.
-3. Build reusable base UI components:
-
-   - `EncryptBox`, `DecryptModal`, `MessageCard`
 
 4. Use `/components/ui/chats/` folder for atomic chat UI components.
 5. Prepare **Folder Structure**:
@@ -250,13 +247,6 @@ You can show a "This message expired" warning box.
 
 Why? Gives room for recovery for premium plans or debugging.
 
-Message Integrity Signature:
-
-Generate a simple hash from message + timestamp + roomKey.
-
-Useful to verify the decrypted message hasn't been tampered with.
-
-Use case: Detect MITM attacks or corrupted messages.
 
 🛎 Notification & Status Enhancements
 Encrypted Typing Indicators & Read Receipts:
@@ -273,126 +263,3 @@ For larger file support, especially for premium users.
 Encrypt files in 1MB chunks, and reconstruct on download/decrypt.
 
 Why? Scales better and avoids frontend/browser crashes on huge files.
-
-Awesome! Here's the ready-to-use `Appwrite.createDocument()` code snippets for each collection you’ll use: `chatRooms`, `messages`, and `sharedFiles`.
-
----
-
-## ✅ 1. Create a `chatRooms` Document
-
-```ts
-import { ID, databases } from "@/lib/appwrite"; // assuming alias path setup
-
-export async function createChatRoom({
-  name,
-  creatorId,
-  roomKeyHash = "",
-  members = [],
-  retention = "3days",
-  autoDecrypt = false,
-}) {
-  return await databases.createDocument(
-    "yourDatabaseId",
-    "chatRooms",
-    ID.unique(),
-    {
-      name,
-      creatorId,
-      roomKeyHash,
-      members,
-      retention,
-      autoDecrypt,
-      createdAt: new Date().toISOString(),
-    }
-  );
-}
-```
-
----
-
-## 💬 2. Create a `messages` Document
-
-```ts
-import { ID, databases } from "@/lib/appwrite";
-
-export async function sendEncryptedMessage({
-  roomId,
-  senderId,
-  contentEncrypted,
-  signature,
-  expiresAt,
-}) {
-  return await databases.createDocument(
-    "yourDatabaseId",
-    "messages",
-    ID.unique(),
-    {
-      roomId,
-      senderId,
-      contentEncrypted,
-      signature,
-      timestamp: new Date().toISOString(),
-      isExpired: false,
-      expiresAt,
-    }
-  );
-}
-```
-
----
-
-## 📎 3. Create a `sharedFiles` Document
-
-```ts
-import { ID, databases } from "@/lib/appwrite";
-
-export async function uploadEncryptedFileMeta({
-  roomId,
-  uploaderId,
-  fileId,
-  fileName,
-  fileSize,
-  expiresAt,
-}) {
-  return await databases.createDocument(
-    "yourDatabaseId",
-    "sharedFiles",
-    ID.unique(),
-    {
-      roomId,
-      uploaderId,
-      fileId,
-      fileName,
-      fileSize,
-      expiresAt,
-      requiresKey: true,
-    }
-  );
-}
-```
-
----
-
-## 🛠️ Quick Setup Notes
-
-### 🔑 Database ID
-
-Replace `"yourDatabaseId"` with your actual Appwrite database ID.
-
-### 📄 Collection IDs
-
-- `chatRooms`
-- `messages`
-- `sharedFiles`
-
-Use matching IDs in Appwrite Dashboard when creating these collections.
-
----
-
-Let me know if you want:
-
-- Code for deleting expired messages/files
-- Retrieval hooks (`useChatRoom`, `useMessages`, etc.)
-- File encryption logic examples
-
-Your private chat empire is rising 🚀

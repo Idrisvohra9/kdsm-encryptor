@@ -73,7 +73,7 @@ export default function ReadmePage() {
   );
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative min-h-screen font-tomorrow">
       <Silk
         speed={5}
         scale={1}
@@ -103,8 +103,6 @@ export default function ReadmePage() {
             <VariableProximity
               label={"• Keyed Dynamic Shift Matrix •"}
               className={"sm:text-2xl text-lg"}
-              fromFontVariationSettings="'wght' 400, 'opsz' 9"
-              toFontVariationSettings="'wght' 1000, 'opsz' 40"
               containerRef={containerRef}
               radius={100}
               falloff="gaussian"
@@ -315,7 +313,7 @@ export default function ReadmePage() {
                 <h3 className="text-xl font-semibold mb-4">Rate Limits</h3>
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-4 rounded-lg mb-4">
                   <h4 className="font-medium mb-3">Tier-based Rate Limiting</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                     <div className="flex items-center gap-2 p-3 bg-white/70 dark:bg-gray-800/70 rounded">
                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                       <div>
@@ -333,9 +331,6 @@ export default function ReadmePage() {
                           100 calls per day
                         </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2 p-3 bg-white/70 dark:bg-gray-800/70 rounded">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                     </div>
                   </div>
                 </div>
