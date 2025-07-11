@@ -51,8 +51,8 @@ function useMousePositionRef(containerRef) {
 const VariableProximity = forwardRef((props, ref) => {
   const {
     label,
-    fromFontVariationSettings = "'wght' 400", // Default weight for Tomorrow font
-    toFontVariationSettings = "'wght' 800",   // Hover weight for Tomorrow font
+    fromFontWeight = 400, // Use regular font weight instead of font variation settings
+    toFontWeight = 800,   // Target font weight for proximity effect
     containerRef,
     radius = 50,
     falloff = "linear",
@@ -63,36 +63,9 @@ const VariableProximity = forwardRef((props, ref) => {
   } = props;
 
   const letterRefs = useRef([]);
-  const interpolatedSettingsRef = useRef([]);
+  const interpolatedWeightsRef = useRef([]);
   const mousePositionRef = useMousePositionRef(containerRef);
   const lastPositionRef = useRef({ x: null, y: null });
-
-  // Memoized font variation settings parser
-  const parsedSettings = useMemo(() => {
-    const parseSettings = (settingsStr) => {
-      const settings = new Map();
-      const pairs = settingsStr.split(",");
-      
-      pairs.forEach(pair => {
-        const trimmed = pair.trim();
-        const match = trimmed.match(/['"]?(\w+)['"]?\s+(\d+(?:\.\d+)?)/);
-        if (match) {
-          settings.set(match[1], parseFloat(match[2]));
-        }
-      });
-      
-      return settings;
-    };
-
-    const fromSettings = parseSettings(fromFontVariationSettings);
-    const toSettings = parseSettings(toFontVariationSettings);
-
-    return Array.from(fromSettings.entries()).map(([axis, fromValue]) => ({
-      axis,
-      fromValue,
-      toValue: toSettings.get(axis) ?? fromValue,
-    }));
-  }, [fromFontVariationSettings, toFontVariationSettings]);
 
   // Calculate distance between two points
   const calculateDistance = useCallback((x1, y1, x2, y2) =>
@@ -109,7 +82,7 @@ const VariableProximity = forwardRef((props, ref) => {
     }
   }, [radius, falloff]);
 
-  // Animation frame callback for smooth font variation updates
+  // Animation frame callback for smooth font weight updates
   const animationCallback = useCallback(() => {
     if (!containerRef?.current) return;
     const { x, y } = mousePositionRef.current;
@@ -135,22 +108,21 @@ const VariableProximity = forwardRef((props, ref) => {
       );
 
       if (distance >= radius) {
-        letterRef.style.fontVariationSettings = fromFontVariationSettings;
+        letterRef.style.fontWeight = fromFontWeight.toString();
+        letterRef.style.transform = 'scale(1)';
         return;
       }
 
       const falloffValue = calculateFalloff(distance);
-      const newSettings = parsedSettings
-        .map(({ axis, fromValue, toValue }) => {
-          const interpolatedValue = fromValue + (toValue - fromValue) * falloffValue;
-          return `'${axis}' ${interpolatedValue}`;
-        })
-        .join(", ");
-
-      interpolatedSettingsRef.current[index] = newSettings;
-      letterRef.style.fontVariationSettings = newSettings;
+      const interpolatedWeight = fromFontWeight + (toFontWeight - fromFontWeight) * falloffValue;
+      const scale = 1 + (falloffValue * 0.1); // Add subtle scale effect
+      
+      interpolatedWeightsRef.current[index] = interpolatedWeight;
+      letterRef.style.fontWeight = Math.round(interpolatedWeight).toString();
+      letterRef.style.transform = `scale(${scale})`;
+      letterRef.style.transition = 'transform 0.1s ease-out';
     });
-  }, [containerRef, calculateDistance, calculateFalloff, fromFontVariationSettings, parsedSettings, radius]);
+  }, [containerRef, calculateDistance, calculateFalloff, fromFontWeight, toFontWeight, radius]);
 
   useAnimationFrame(animationCallback);
 
@@ -165,7 +137,7 @@ const VariableProximity = forwardRef((props, ref) => {
       style={{
         display: "inline",
         fontFamily: "var(--font-tomorrow), sans-serif",
-        fontVariationSettings: fromFontVariationSettings,
+        fontWeight: fromFontWeight,
         ...style,
       }}
       className={className}
@@ -184,8 +156,8 @@ const VariableProximity = forwardRef((props, ref) => {
                 ref={(el) => { letterRefs.current[currentLetterIndex] = el; }}
                 style={{
                   display: "inline-block",
-                  fontVariationSettings:
-                    interpolatedSettingsRef.current[currentLetterIndex] || fromFontVariationSettings,
+                  fontWeight: interpolatedWeightsRef.current[currentLetterIndex] || fromFontWeight,
+                  transformOrigin: 'center',
                 }}
                 aria-hidden="true"
               >

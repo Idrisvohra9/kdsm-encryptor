@@ -1,7 +1,13 @@
 "use client";
 
 import { useRef, useState, useCallback, useMemo } from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +19,14 @@ import LetterGlitch from "@/components/ui/LetterGlitch";
 import ShinyText from "@/components/ui/ShinyText";
 import DecryptedText from "@/components/ui/DecryptedText";
 import Image from "next/image";
-import { BrushCleaning, Check, Copy, ExternalLink, Shield, ShieldOff } from "lucide-react";
+import {
+  BrushCleaning,
+  Check,
+  Copy,
+  ExternalLink,
+  Shield,
+  ShieldOff,
+} from "lucide-react";
 import ThemeToggle from "@/components/ui/theme-toggle";
 import { motion } from "framer-motion";
 import Carousel from "@/components/ui/Carousel";
@@ -34,7 +47,7 @@ export default function Home() {
     decryptedResult: "",
     lastUsedKey: "",
   });
-  
+
   const [copyStates, setCopyStates] = useState({
     encrypted: false,
     decrypted: false,
@@ -53,19 +66,23 @@ export default function Home() {
   const removeEmojis = useMemo(() => (str) => str.replace(EMOJI_REGEX, ""), []);
 
   // Handle message input changes with emoji detection
-  const handleMessageChange = useCallback((e) => {
-    const newMessage = e.target.value;
-    if (containsEmoji(newMessage)) {
-      toast.warning("Emojis Detected", {
-        description: "Emojis will be automatically removed during encryption for security reasons",
-      });
-    }
-    setFormState(prev => ({ ...prev, message: newMessage }));
-  }, [containsEmoji]);
+  const handleMessageChange = useCallback(
+    (e) => {
+      const newMessage = e.target.value;
+      if (containsEmoji(newMessage)) {
+        toast.warning("Emojis Detected", {
+          description:
+            "Emojis will be automatically removed during encryption for security reasons",
+        });
+      }
+      setFormState((prev) => ({ ...prev, message: newMessage }));
+    },
+    [containsEmoji]
+  );
 
   // Handle key input changes
   const handleKeyChange = useCallback((e) => {
-    setFormState(prev => ({ ...prev, key: e.target.value }));
+    setFormState((prev) => ({ ...prev, key: e.target.value }));
   }, []);
 
   // Handle paste events with automatic key extraction
@@ -83,14 +100,15 @@ export default function Home() {
         .replace(KEY_START_MARKER + extractedKey + KEY_END_MARKER, "")
         .trim();
 
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         message: messageWithoutKey,
         key: extractedKey,
       }));
 
       toast.success("Key Extracted", {
-        description: "Encryption key was automatically extracted from the pasted message",
+        description:
+          "Encryption key was automatically extracted from the pasted message",
       });
       e.preventDefault();
     }
@@ -100,7 +118,7 @@ export default function Home() {
   const generateRandomKey = useCallback(async () => {
     try {
       const randomKey = await generateKey(12);
-      setFormState(prev => ({ ...prev, key: randomKey }));
+      setFormState((prev) => ({ ...prev, key: randomKey }));
       toast.success("Key Generated", {
         description: "A new random encryption key has been generated",
       });
@@ -123,10 +141,13 @@ export default function Home() {
 
     try {
       const cleanMessage = removeEmojis(formState.message);
-      const encryptedMessage = encrypt(cleanMessage, formState.key || undefined);
+      const encryptedMessage = encrypt(
+        cleanMessage,
+        formState.key || undefined
+      );
       const keyUsed = formState.key || "Auto-generated";
 
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         encryptedResult: encryptedMessage,
         lastUsedKey: keyUsed,
@@ -162,7 +183,7 @@ export default function Home() {
 
     try {
       const decryptedMessage = decrypt(formState.message, formState.key);
-      setFormState(prev => ({
+      setFormState((prev) => ({
         ...prev,
         decryptedResult: decryptedMessage,
         encryptedResult: "",
@@ -174,7 +195,9 @@ export default function Home() {
     } catch (error) {
       console.error("Decryption error:", error);
       toast.error("Decryption Failed", {
-        description: error.message || "An error occurred during decryption. Please check your key.",
+        description:
+          error.message ||
+          "An error occurred during decryption. Please check your key.",
       });
     }
   }, [formState.message, formState.key]);
@@ -184,12 +207,14 @@ export default function Home() {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        setCopyStates(prev => ({ ...prev, [type]: true }));
+        setCopyStates((prev) => ({ ...prev, [type]: true }));
         setTimeout(() => {
-          setCopyStates(prev => ({ ...prev, [type]: false }));
+          setCopyStates((prev) => ({ ...prev, [type]: false }));
         }, COPY_TIMEOUT);
         toast.success("Copied", {
-          description: `${type.charAt(0).toUpperCase() + type.slice(1)} copied to clipboard`,
+          description: `${
+            type.charAt(0).toUpperCase() + type.slice(1)
+          } copied to clipboard`,
         });
       })
       .catch(() => {
@@ -228,11 +253,11 @@ export default function Home() {
   return (
     <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
       <div className="fixed inset-0 -z-10 w-screen h-screen">
-        <LetterGlitch 
-          glitchSpeed={50} 
-          centerVignette={true} 
-          outerVignette={true} 
-          smooth={true} 
+        <LetterGlitch
+          glitchSpeed={50}
+          centerVignette={true}
+          outerVignette={true}
+          smooth={true}
         />
       </div>
       <div className="w-full max-w-3xl relative z-20">
@@ -267,11 +292,9 @@ export default function Home() {
                 <VariableProximity
                   label={"KDSM Encryptor V - 0.2"}
                   className={"sm:text-2xl text-lg"}
-                  fromFontVariationSettings="'wght' 400"
-                  toFontVariationSettings="'wght' 900"
                   containerRef={containerRef}
-                  radius={100}
-                  falloff="gaussian"
+                  radius={50}
+                  falloff="linear"
                 />
                 <div className="ms-auto">
                   <ThemeToggle />
@@ -283,11 +306,9 @@ export default function Home() {
                     "Secure your messages with Keyed Dynamic Shift Matrix encryption"
                   }
                   className={"text-base"}
-                  fromFontVariationSettings="'wght' 300"
-                  toFontVariationSettings="'wght' 700"
                   containerRef={containerRef}
-                  radius={100}
-                  falloff="gaussian"
+                  radius={50}
+                  falloff="linear"
                 />
               </CardDescription>
             </CardHeader>

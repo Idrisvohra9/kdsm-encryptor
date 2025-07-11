@@ -53,22 +53,14 @@ export const metadata = {
     ],
     locale: "en_US",
     type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "KDSM Encryptor",
-    description:
-      "Secure your messages with Keyed Dynamic Shift Matrix encryption",
-    images: ["https://kdsm.vercel.app/dark/1.png"],
-    creator: "@your-twitter-handle",
-  },
+  }
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${silkscreen.variable} ${tomorrow.variable} antialiased bg-primary font-tomorrow`}
+        className={`${silkscreen.variable} ${tomorrow.variable} antialiased font-silkscreen`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
           <AuthProvider>

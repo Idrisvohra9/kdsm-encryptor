@@ -74,7 +74,6 @@ io.on('connection', (socket) => {
       senderId,
       senderName,
       timestamp,
-      signature
     });
 
     console.log(`Message sent in room ${roomId} by ${senderName}`);

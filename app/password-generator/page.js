@@ -214,11 +214,9 @@ export default function PasswordGenerator() {
                 <VariableProximity
                   label={"Password Generator"}
                   className={"sm:text-2xl text-lg"}
-                  fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                  toFontVariationSettings="'wght' 1000, 'opsz' 40"
                   containerRef={containerRef}
-                  radius={100}
-                  falloff="gaussian"
+                  radius={50}
+                  falloff="linear"
                 />
                 <div className="ms-auto">
                   <ThemeToggle />
@@ -230,11 +228,9 @@ export default function PasswordGenerator() {
                     "Generate secure passwords with customizable options using KDSM encryption"
                   }
                   className={"text-base"}
-                  fromFontVariationSettings="'wght' 400, 'opsz' 9"
-                  toFontVariationSettings="'wght' 1000, 'opsz' 40"
                   containerRef={containerRef}
-                  radius={100}
-                  falloff="gaussian"
+                  radius={50}
+                  falloff="linear"
                 />
               </CardDescription>
             </CardHeader>

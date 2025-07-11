@@ -98,7 +98,7 @@ const FloatingDockDesktop = ({ items, className }) => {
           mouseX={mouseX}
           key={item.title}
           {...item}
-          isActive={item.href === pathname}
+          isActive={item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)}
         />
       ))}
     </motion.div>

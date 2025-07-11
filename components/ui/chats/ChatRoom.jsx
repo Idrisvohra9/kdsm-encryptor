@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { decrypt as decryptRoomKey } from "@/utils/kdsm";
 import Image from "next/image";
+import MessageDecryptModal from "./MessageDecryptModal";
 export default function ChatRoom({ room, user }) {
   const {
     messages,
@@ -56,13 +57,19 @@ export default function ChatRoom({ room, user }) {
     setAutoDecrypt,
   } = useChatContext();
   // De-hashing the room key will give us the encryption key
-  const roomKey = decryptRoomKey(room?.roomKeyHash, user?.$id);
+  const [roomKey, setRoomKey] = useState(
+    decryptRoomKey(room?.roomKeyHash, room?.creatorId)
+  );
   // For encryption and decryption of messages
-  const { encrypt, decrypt, sign } = useEncryption(roomKey);
-// Initially
-  const [showKeyModal, setShowKeyModal] = useState(room.autoDecrypt);
+  const { encrypt, decrypt } = useEncryption(roomKey);
+  // Initially if the room has auto-decrypt enabled, show the key modal
+  const [showEnterKeyModal, setShowEnterKeyModal] = useState(room.autoDecrypt);
+  // For creator to show the change key modal
+  const [showChangeKeyModal, setShowChangeKeyModal] = useState(false);
   const [decryptedMessages, setDecryptedMessages] = useState(new Map());
   const [showRoomSettings, setShowRoomSettings] = useState(false);
+  const [selectedMessageToDecrypt, setSelectedMessageToDecrypt] =
+    useState(null);
   // Handle message decryption
   const handleDecryptMessage = async (messageId, encryptedContent) => {
     if (!decrypt || !roomKey) {
@@ -109,7 +116,7 @@ export default function ChatRoom({ room, user }) {
 
   // Handle sending messages
   const handleSendMessage = async (messageText) => {
-    if (!encrypt || !sign) {
+    if (!encrypt) {
       toast.error("Room key not set");
       return;
     }
@@ -135,8 +142,8 @@ export default function ChatRoom({ room, user }) {
 
   // Set room key and close modal
   const handleSetRoomKey = (key) => {
-    // setEncryptionKey(key);
-    setShowKeyModal(false);
+    setRoomKey(key);
+    setShowChangeKeyModal(false);
     toast.success("Room key set successfully!");
   };
 
@@ -173,11 +180,11 @@ export default function ChatRoom({ room, user }) {
         >
           <div className="p-4">
             <h2 className="text-lg font-semibold mb-4">Room Settings</h2>
-            <div className="space-x-2">
+            <div className="space-x-2 space-y-3">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowKeyModal(true)}
+                onClick={() => setShowChangeKeyModal(true)}
               >
                 <Key className="h-4 w-4 mr-1" />
                 Change Room Key
@@ -244,7 +251,7 @@ export default function ChatRoom({ room, user }) {
         </div>
       </div>
       {/* Chat Messages */}
-      <Card className="relative bg-secondary/60 dark:border-white/60 backdrop-blur-md flex flex-col sm:mb-24 pb-0 h-full">
+      <Card className="relative bg-secondary/60 backdrop-blur-md flex flex-col sm:mb-24 pb-0 h-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Messages</CardTitle>
         </CardHeader>
@@ -303,9 +310,10 @@ export default function ChatRoom({ room, user }) {
                           isDecrypted={isDecrypted || autoDecrypt}
                           decryptError={decryptError}
                           autoDecrypt={autoDecrypt}
-                          onDecrypt={() =>
-                            handleDecryptMessage(message.id, message.message)
-                          }
+                          onDecrypt={() => {
+                            setShowEnterKeyModal(true);
+                            setSelectedMessageToDecrypt(message);
+                          }}
                         >
                           {isDecrypted
                             ? decryptedData.content
@@ -345,10 +353,23 @@ export default function ChatRoom({ room, user }) {
       </Card>
       {/* Room Key Modal */}
       <RoomKeyModal
-        isOpen={showKeyModal}
-        onClose={() => setShowKeyModal(false)}
+        isOpen={showChangeKeyModal}
+        onClose={() => setShowChangeKeyModal(false)}
         onSetKey={handleSetRoomKey}
         room={room}
+      />
+      {/* Enter Key Modal */}
+      <MessageDecryptModal
+        isOpen={showEnterKeyModal}
+        onClose={() => setShowEnterKeyModal(false)}
+        onCorrectKey={() =>
+          handleDecryptMessage(
+            selectedMessageToDecrypt.id,
+            selectedMessageToDecrypt.message
+          )
+        }
+        roomKey={roomKey}
+        type={room.autoDecrypt ? "all" : "single"}
       />
     </div>
   );

@@ -131,7 +131,7 @@ const ChatInput = forwardRef(
           placeholder={placeholder || "Type your message..."}
           disabled={disabled}
           className={cn(
-            "max-h-12 px-4 py-3 bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full rounded-full flex items-center h-16 resize-none",
+            "max-h-12 px-4 py-3 bg-background text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 w-full rounded-full flex items-center h-16 resize-none font-tomorrow",
             className
           )}
           {...props}

@@ -201,13 +201,13 @@ export default function ChatsPage() {
                     <Card
                       className={`group relative overflow-hidden backdrop-blur-xl bg-gradient-to-br ${getGradientClass(
                         index
-                      )} border border-border hover:border-border/60 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20 cursor-pointer`}
+                      )} border border-border hover:border-border/60 transition-all duration-500 ease-linear hover:shadow-2xl hover:shadow-purple-500/20 cursor-pointer`}
                     >
                       {/* Glow Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                       {/* Content */}
-                      <CardContent className="relative p-6">
+                      <CardContent className="relative p-4">
                         {/* Header */}
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center space-x-3">
@@ -228,12 +228,6 @@ export default function ChatsPage() {
                             </div>
                           </div>
 
-                          {room.roomKeyHash && (
-                            <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 backdrop-blur-sm dark:bg-amber-500/30 dark:text-amber-200">
-                              <Lock className="h-3 w-3 mr-1" />
-                              PIN
-                            </Badge>
-                          )}
                         </div>
 
                         {/* Stats */}

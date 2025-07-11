@@ -64,7 +64,7 @@ export async function PATCH(request, { params }) {
     const account = new Account(sessionClient);
     const user = await account.get();
 
-    const { roomId } = params;
+    const { roomId } = await params;
     const { action, data } = await request.json();
 
     // Get current room
@@ -93,7 +93,7 @@ export async function PATCH(request, { params }) {
       });
     } else if(action === "update-data"){
       // Check if the room info is updating by creator or not
-      if(room.creator !== user.$id){
+      if(room.creatorId !== user.$id){
         return NextResponse.json(
           { success: false, error: "Unauthorized" },
           { status: 401 }

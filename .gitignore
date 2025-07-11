@@ -2,6 +2,7 @@
 
 # dependencies
 /socket-server/node_modules
+/socket-server
 /node_modules
 /.pnp
 .pnp.*
