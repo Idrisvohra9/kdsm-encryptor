@@ -211,11 +211,11 @@ export default function ProfilePage() {
   const getTierColor = (tier) => {
     switch (tier) {
       case "admin":
-        return "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300";
+        return "bg-red-100 text-red-800 dark:text-red-300";
       case "premium":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300";
+        return "bg-yellow-100 text-yellow-800 dark:text-yellow-300";
       default:
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300";
+        return "bg-blue-100 text-blue-800 dark:text-blue-300";
     }
   };
 
@@ -237,7 +237,7 @@ export default function ProfilePage() {
       <div className="absolute inset-0">
         <LiquidChrome />
       </div>
-      <Card className="w-full text-primary bg-secondary/20 dark:border-white/10 backdrop-blur-md min-h-screen">
+      <Card className="w-full text-primary bg-secondary/20 backdrop-blur-md min-h-screen">
         <CardHeader>
           <div className="flex items-center space-x-4">
             <InitialsAvatar user={user} />
@@ -558,30 +558,30 @@ export default function ProfilePage() {
                 </div>
               )}
 
-              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+              <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">
                   📚 API Documentation
                 </h4>
-                <p className="text-sm text-blue-800 dark:text-blue-200 mb-2">
+                <p className="text-sm text-blue-800 mb-2">
                   Learn how to integrate KDSM encryption into your applications.
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => router.push("/readme#api-documentation")}
-                  className="text-blue-700 border-blue-300 hover:bg-blue-100 dark:text-blue-300 dark:border-blue-700 dark:hover:bg-blue-900/20"
+                  className="text-blue-700 border-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/20"
                 >
                   View Documentation
                 </Button>
               </div>
 
               {/* Rate Limit Tiers Info */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-4 rounded-lg">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
                 <h4 className="font-medium mb-3 text-gray-900 dark:text-gray-100">
                   🚀 API Rate Limits
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                  <div className="flex items-center gap-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
+                  <div className="flex items-center gap-2 p-2 bg-white/50 rounded">
                     <Zap className="w-4 h-4 text-blue-500" />
                     <div>
                       <div className="font-medium">Free</div>
@@ -590,7 +590,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
+                  <div className="flex items-center gap-2 p-2 bg-white/50 rounded">
                     <Crown className="w-4 h-4 text-yellow-500" />
                     <div>
                       <div className="font-medium">Premium</div>
@@ -599,7 +599,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/50 dark:bg-gray-800/50 rounded">
+                  <div className="flex items-center gap-2 p-2 bg-white/50 rounded">
                     <Shield className="w-4 h-4 text-red-500" />
                     <div>
                       <div className="font-medium">Admin</div>

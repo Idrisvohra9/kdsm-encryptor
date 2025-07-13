@@ -2,21 +2,20 @@ import { Silkscreen, Tomorrow } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { Dock } from "@/components/Dock";
-import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/context/AuthContext";
 
-const silkscreen = Silkscreen({ 
+const silkscreen = Silkscreen({
   subsets: ["latin"],
   weight: ["400", "700"],
   variable: "--font-silkscreen",
-  display: 'swap', // Optimize font loading
+  display: "swap", // Optimize font loading
 });
 
 const tomorrow = Tomorrow({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-tomorrow",
-  display: 'swap', // Optimize font loading
+  display: "swap", // Optimize font loading
 });
 
 export const metadata = {
@@ -53,7 +52,7 @@ export const metadata = {
     ],
     locale: "en_US",
     type: "website",
-  }
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -62,13 +61,11 @@ export default function RootLayout({ children }) {
       <body
         className={`${silkscreen.variable} ${tomorrow.variable} antialiased font-silkscreen`}
       >
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <AuthProvider>
-            <main>{children}</main>
-            <Dock />
-            <Toaster />
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <main>{children}</main>
+          <Dock />
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

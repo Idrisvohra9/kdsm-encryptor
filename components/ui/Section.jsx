@@ -16,7 +16,7 @@ const Section = ({ id, title, children }) => {
           #{title}
         </a>
       </h2>
-      <div className="prose prose-lg dark:prose-invert max-w-none">
+      <div className="prose prose-lg max-w-none">
         {children}
       </div>
     </motion.section>

@@ -29,7 +29,6 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import ThemeToggle from "@/components/ui/theme-toggle";
 import { motion } from "framer-motion";
 import Carousel from "@/components/ui/Carousel";
 
@@ -177,10 +176,7 @@ export default function PasswordGenerator() {
   return (
     <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
       <div className="fixed inset-0 -z-10 w-screen h-screen">
-        <LetterGlitch
-          glitchSpeed={50}
-          smooth={true}
-        />
+        <LetterGlitch glitchSpeed={50} smooth={true} />
       </div>
       <div className="w-full max-w-3xl relative z-20">
         <motion.div
@@ -192,7 +188,7 @@ export default function PasswordGenerator() {
             damping: 10,
             delay: 0.2,
           }}
-          className="dark:border-white/10 backdrop-blur-md"
+          className="backdrop-blur-md"
         >
           <Card className="w-full text-primary bg-primary/10">
             <CardHeader>
@@ -204,13 +200,13 @@ export default function PasswordGenerator() {
                   alignItems: "center",
                 }}
               >
-                  <Image
-                    src="/dark/6.png"
-                    width={48}
-                    height={48}
-                    className="me-2 object-cover"
-                    alt="KDSM Logo"
-                  />
+                <Image
+                  src="/dark/6.png"
+                  width={48}
+                  height={48}
+                  className="me-2 object-cover"
+                  alt="KDSM Logo"
+                />
                 <VariableProximity
                   label={"Password Generator"}
                   className={"sm:text-2xl text-lg"}
@@ -218,9 +214,6 @@ export default function PasswordGenerator() {
                   radius={50}
                   falloff="linear"
                 />
-                <div className="ms-auto">
-                  <ThemeToggle />
-                </div>
               </div>
               <CardDescription>
                 <VariableProximity

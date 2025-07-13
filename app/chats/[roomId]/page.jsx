@@ -17,7 +17,6 @@ import { toast } from "sonner";
 import { Loader2, Lock, Share2, LogIn, ArrowLeft } from "lucide-react";
 import { getChatRoom, joinChatRoom } from "@/lib/chatRooms";
 import ChatRoom from "@/components/ui/chats/ChatRoom";
-import ThemeToggle from "@/components/ui/theme-toggle";
 
 function ChatRoomPageContent() {
   const { roomId } = useParams();
@@ -287,7 +286,6 @@ function ChatRoomPageContent() {
                       <span className="hidden sm:inline">Share Invite</span>
                     </Button>
                   )}
-                  <ThemeToggle />
                 </div>
               </div>
             </div>

@@ -52,7 +52,7 @@ export default function RegisterPage() {
   return (
     <div className="flex justify-center items-center min-h-screen p-4">
       <LiquidChrome/>
-      <Card className="w-full max-w-md dark:border-white/10 backdrop-blur-md text-primary-foreground bg-primary/50">
+      <Card className="w-full max-w-md backdrop-blur-md text-primary-foreground bg-primary/50">
         <CardHeader>
           <CardTitle>Create an Account</CardTitle>
           <CardDescription className="text-muted">

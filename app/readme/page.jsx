@@ -5,7 +5,6 @@ import VariableProximity from "@/components/ui/VariableProximity";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import Scrollspy from "@/components/ui/Scrollspy";
 import Section from "@/components/ui/Section";
-import { useTheme } from "next-themes";
 import { useRef, useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
@@ -13,7 +12,6 @@ import { toast } from "sonner";
 import Image from "next/image";
 
 export default function ReadmePage() {
-  const { theme } = useTheme();
   const containerRef = useRef(null);
   const [planeBaseHeight, setPlaneBaseHeight] = useState(5);
 
@@ -77,7 +75,7 @@ export default function ReadmePage() {
       <Silk
         speed={5}
         scale={1}
-        color={theme === "dark" ? "#1d1d1b" : "#fefefe"}
+        color={"#1d1d1b"}
         noiseIntensity={1.5}
         rotation={0}
       />
@@ -87,7 +85,7 @@ export default function ReadmePage() {
           text="KDSM"
           enableWaves={true}
           planeBaseHeight={planeBaseHeight}
-          textColor={theme === "dark" ? "#fdf9f3" : "#1d1d1b"}
+          textColor={"#fdf9f3"}
         />
       </div>
 
@@ -284,7 +282,7 @@ export default function ReadmePage() {
               />
             </div>
             <div className="space-y-6">
-              <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+              <div className="bg-blue-50 p-4 rounded-lg">
                 <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">
                   🚀 Getting Started
                 </h4>
@@ -311,10 +309,10 @@ export default function ReadmePage() {
 
               <div>
                 <h3 className="text-xl font-semibold mb-4">Rate Limits</h3>
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 p-4 rounded-lg mb-4">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-4">
                   <h4 className="font-medium mb-3">Tier-based Rate Limiting</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2 p-3 bg-white/70 dark:bg-gray-800/70 rounded">
+                    <div className="flex items-center gap-2 p-3 bg-white/70 rounded">
                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                       <div>
                         <div className="font-medium">Free Users</div>
@@ -323,7 +321,7 @@ export default function ReadmePage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 p-3 bg-white/70 dark:bg-gray-800/70 rounded">
+                    <div className="flex items-center gap-2 p-3 bg-white/70 rounded">
                       <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                       <div>
                         <div className="font-medium">Premium Users</div>
@@ -608,11 +606,11 @@ except Exception as e:
                 </ul>
               </div>
 
-              <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg">
+              <div className="bg-yellow-50 p-4 rounded-lg">
                 <h4 className="font-medium mb-2 text-yellow-900 dark:text-yellow-100">
                   ⚠️ Important Notes
                 </h4>
-                <ul className="text-sm text-yellow-800 dark:text-yellow-200 space-y-1">
+                <ul className="text-sm text-yellow-800 space-y-1">
                   <li>
                     • API keys cannot be recovered if lost - store them securely
                   </li>

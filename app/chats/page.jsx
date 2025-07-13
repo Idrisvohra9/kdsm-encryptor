@@ -249,12 +249,12 @@ export default function ChatsPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               {room.autoDecrypt ? (
-                                <Badge className="bg-green-500/20 text-green-300 border-green-500/30 backdrop-blur-sm text-xs dark:bg-green-500/30 dark:text-green-200">
+                                <Badge className="bg-green-500/20 text-green-300 border-green-500/30 backdrop-blur-sm text-xs dark:text-green-200">
                                   <Zap className="h-3 w-3 mr-1" />
                                   Auto-decrypt
                                 </Badge>
                               ) : (
-                                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 backdrop-blur-sm text-xs dark:bg-blue-500/30 dark:text-blue-200">
+                                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 backdrop-blur-sm text-xs dark:text-blue-200">
                                   <Shield className="h-3 w-3 mr-1" />
                                   Manual
                                 </Badge>

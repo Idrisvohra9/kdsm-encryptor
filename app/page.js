@@ -27,9 +27,10 @@ import {
   Shield,
   ShieldOff,
 } from "lucide-react";
-import ThemeToggle from "@/components/ui/theme-toggle";
 import { motion } from "framer-motion";
 import Carousel from "@/components/ui/Carousel";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
 
 // Define constants with corrected emoji regex
 const KEY_START_MARKER = "[KDSM_KEY_START]";
@@ -270,47 +271,42 @@ export default function Home() {
             damping: 10,
             delay: 0.2,
           }}
-          className="dark:border-white/10 backdrop-blur-md"
+          className="backdrop-blur-md"
         >
           <Card className="w-full text-primary bg-primary/10">
-            <CardHeader>
+            <CardHeader
+              className={"flex flex-row-reverse items-center"}
+            >
+              <Image
+                src="/dark/1.png"
+                width={86}
+                height={86}
+                className="me-2 object-cover"
+                alt="KDSM Logo"
+              />
               <div
                 ref={containerRef}
-                style={{
-                  position: "relative",
-                  display: "flex",
-                  alignItems: "center",
-                }}
+                className="flex-1 flex flex-col text-left space-y-4"
               >
-                <Image
-                  src="/dark/1.png"
-                  width={48}
-                  height={48}
-                  className="me-2 object-cover"
-                  alt="KDSM Logo"
-                />
                 <VariableProximity
-                  label={"KDSM Encryptor V - 0.2"}
+                  label={"KDSM Encryptor V - 0.5"}
                   className={"sm:text-2xl text-lg"}
                   containerRef={containerRef}
                   radius={50}
                   falloff="linear"
                 />
-                <div className="ms-auto">
-                  <ThemeToggle />
-                </div>
+                <CardDescription>
+                  <VariableProximity
+                    label={
+                      "Secure your messages with Keyed Dynamic Shift Matrix encryption"
+                    }
+                    className={"text-base"}
+                    containerRef={containerRef}
+                    radius={50}
+                    falloff="linear"
+                  />
+                </CardDescription>
               </div>
-              <CardDescription>
-                <VariableProximity
-                  label={
-                    "Secure your messages with Keyed Dynamic Shift Matrix encryption"
-                  }
-                  className={"text-base"}
-                  containerRef={containerRef}
-                  radius={50}
-                  falloff="linear"
-                />
-              </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">
@@ -325,26 +321,13 @@ export default function Home() {
                   onPaste={handlePaste}
                   className="min-h-[120px]"
                 />
-                <span className="text-muted-foreground text-sm flex items-center gap-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-yellow-500"
-                  >
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                    <line x1="12" y1="9" x2="12" y2="13" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
-                  </svg>
-                  For security reasons, emojis (if there are) will be
-                  automatically removed from your message during encryption
-                </span>
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Security Notice</AlertTitle>
+                  <AlertDescription>
+                    For security reasons, emojis will be automatically removed from your message during encryption
+                  </AlertDescription>
+                </Alert>
               </div>
 
               <div className="space-y-2">
