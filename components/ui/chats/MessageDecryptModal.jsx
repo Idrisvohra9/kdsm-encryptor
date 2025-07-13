@@ -20,6 +20,7 @@ export default function MessageDecryptModal({
   roomKey,
   onCorrectKey,
   type = "single",
+  setHasEnteredCorrectKey,
 }) {
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
@@ -39,10 +40,18 @@ export default function MessageDecryptModal({
 
     // Perform a check to see if the key is correct
     if (roomKey === key.trim()) {
-      onCorrectKey(key.trim());
-      // If correct, close the modal
+      // Set the flag that correct key has been entered
+      if (setHasEnteredCorrectKey) {
+        setHasEnteredCorrectKey(true);
+      }
+
+      onCorrectKey();
+
+      // Clear form state
       setKey("");
       setError("");
+
+      // Close the modal for both single and all types
       onClose();
     } else {
       setError("Incorrect key. Please try again.");
@@ -57,7 +66,7 @@ export default function MessageDecryptModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" showCloseButton={type === "single"}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
@@ -93,11 +102,13 @@ export default function MessageDecryptModal({
           )}
 
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancel
-            </Button>
+            {type === "single" && (
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+            )}
             <Button type="submit" disabled={!key.trim()}>
-              Decrypt Message
+              Decrypt Message{type === "all" ? "s" : ""}
             </Button>
           </div>
         </form>

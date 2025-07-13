@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useChatContext } from "@/context/ChatContext";
 import { useEncryption } from "@/hooks/useEncryption";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import {
   LogOut,
   Search,
   Trash2,
+  BrickWallFire,
 } from "lucide-react";
 // Things that are wrong: Decryption of messages, it should ask for the room pin to decrypt the sent and recieved messages,
 // Import existing components
@@ -44,6 +45,8 @@ import {
 import { decrypt as decryptRoomKey } from "@/utils/kdsm";
 import Image from "next/image";
 import MessageDecryptModal from "./MessageDecryptModal";
+import { updateChatRoom } from "@/lib/chatRooms";
+
 export default function ChatRoom({ room, user }) {
   const {
     messages,
@@ -56,6 +59,7 @@ export default function ChatRoom({ room, user }) {
     stopTyping,
     setAutoDecrypt,
   } = useChatContext();
+
   // De-hashing the room key will give us the encryption key
   const [roomKey, setRoomKey] = useState(
     decryptRoomKey(room?.roomKeyHash, room?.creatorId)
@@ -68,98 +72,116 @@ export default function ChatRoom({ room, user }) {
   const [showChangeKeyModal, setShowChangeKeyModal] = useState(false);
   const [decryptedMessages, setDecryptedMessages] = useState(new Map());
   const [showRoomSettings, setShowRoomSettings] = useState(false);
+  const [hasEnteredCorrectKey, setHasEnteredCorrectKey] = useState(
+    autoDecrypt === true ? false : true
+  );
   const [selectedMessageToDecrypt, setSelectedMessageToDecrypt] =
     useState(null);
+  const [autoEncryptEnabled, setAutoEncryptEnabled] = useState(false); // New state for auto-encryption
+
   // Handle message decryption
-  const handleDecryptMessage = async (messageId, encryptedContent) => {
-    if (!decrypt || !roomKey) {
-      toast.error("Room key not set");
-      return;
-    }
+  const handleDecryptMessage = useCallback(
+    async (messageId, encryptedContent) => {
+      if (!decrypt || !roomKey) {
+        toast.error("Room key not set");
+        return;
+      }
 
-    try {
-      const decrypted = decrypt(encryptedContent);
-      setDecryptedMessages(
-        (prev) =>
-          new Map(
-            prev.set(messageId, {
-              content: decrypted,
-              error: false,
-            })
-          )
-      );
-    } catch (error) {
-      console.error("Decryption error:", error);
-      setDecryptedMessages(
-        (prev) =>
-          new Map(
-            prev.set(messageId, {
-              content: "",
-              error: true,
-            })
-          )
-      );
-      toast.error("Failed to decrypt message");
-    }
-  };
-
-  // Auto-decrypt messages when auto-decrypt is enabled
-  useEffect(() => {
-    if (autoDecrypt && decrypt && roomKey) {
-      messages.forEach((message) => {
-        if (!decryptedMessages.has(message.id)) {
-          handleDecryptMessage(message.id, message.message);
-        }
-      });
-    }
-  }, [messages, autoDecrypt, decrypt, roomKey]);
+      try {
+        const decrypted = decrypt(encryptedContent);
+        setDecryptedMessages(
+          (prev) =>
+            new Map(
+              prev.set(messageId, {
+                content: decrypted,
+                error: false,
+              })
+            )
+        );
+      } catch (error) {
+        console.error("Decryption error:", error);
+        setDecryptedMessages(
+          (prev) =>
+            new Map(
+              prev.set(messageId, {
+                content: "",
+                error: true,
+              })
+            )
+        );
+        toast.error("Failed to decrypt message");
+      }
+    },
+    [decrypt, roomKey]
+  );
 
   // Handle sending messages
-  const handleSendMessage = async (messageText) => {
-    if (!encrypt) {
-      toast.error("Room key not set");
-      return;
-    }
+  const handleSendMessage = useCallback(
+    async (messageText) => {
+      if (!encrypt) {
+        toast.error("Room key not set");
+        return;
+      }
 
-    try {
-      const encryptedMessage = encrypt(messageText);
-
-      sendMessage(encryptedMessage);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      toast.error("Failed to send message");
-    }
-  };
+      try {
+        const encryptedMessage = encrypt(messageText);
+        sendMessage(encryptedMessage);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        toast.error("Failed to send message");
+      }
+    },
+    [encrypt, sendMessage]
+  );
 
   // Handle typing indicators
-  const handleTyping = (isTyping) => {
-    if (isTyping) {
-      startTyping();
-    } else {
-      stopTyping();
-    }
-  };
+  const handleTyping = useCallback(
+    (isTyping) => {
+      if (isTyping) {
+        startTyping();
+      } else {
+        stopTyping();
+      }
+    },
+    [startTyping, stopTyping]
+  );
 
   // Set room key and close modal
-  const handleSetRoomKey = (key) => {
-    setRoomKey(key);
-    setShowChangeKeyModal(false);
-    toast.success("Room key set successfully!");
-  };
+  const handleSetRoomKey = useCallback(
+    (key) => {
+      setRoomKey(key);
+      setShowChangeKeyModal(false);
+      toast.success("Room key set successfully!");
+    },
+    []
+  );
 
   // Get user initials for avatar
-  const getUserInitials = (senderId, senderName) => {
-    if (senderId === user?.$id) return user.name?.[0] || user.email?.[0] || "Y";
-    return senderName?.[0] || "U";
-  };
+  const getUserInitials = useCallback(
+    (senderId, senderName) => {
+      if (senderId === user?.$id) return user.name?.[0] || user.email?.[0] || "Y";
+      return senderName?.[0] || "U";
+    },
+    [user]
+  );
 
   // Format timestamp
-  const formatTime = (timestamp) => {
-    return new Date(timestamp).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatTime = useCallback(
+    (timestamp) => {
+      return new Date(timestamp).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    },
+    []
+  );
+
+  // Memoized placeholder text for chat input
+  const chatInputPlaceholder = useMemo(() => {
+    if (!roomKey) return "Set room key to send messages";
+    if (!isConnected) return "Connecting...";
+    return "Type your message...";
+  }, [roomKey, isConnected]);
 
   return (
     <div className="space-y-4 w-full h-full">
@@ -192,7 +214,14 @@ export default function ChatRoom({ room, user }) {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setAutoDecrypt(!autoDecrypt)}
+                onClick={async () => {
+                  await updateChatRoom(
+                    room.$id,
+                    { autoDecrypt: !autoDecrypt },
+                    "update-data"
+                  );
+                  setAutoDecrypt(!autoDecrypt);
+                }}
               >
                 {autoDecrypt ? (
                   <>
@@ -205,6 +234,31 @@ export default function ChatRoom({ room, user }) {
                     Enable Auto-decrypt
                   </>
                 )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAutoEncryptEnabled(!autoEncryptEnabled)}
+              >
+                {autoEncryptEnabled ? (
+                  <>
+                    <Eye className="h-4 w-4 mr-1" />
+                    Disable Auto-encrypt
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="h-4 w-4 mr-1" />
+                    Enable Auto-encrypt
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                // onClick={() => setAutoDecrypt(!autoDecrypt)}
+              >
+                <BrickWallFire className="h-4 w-4 mr-1" />
+                Change Background
               </Button>
             </div>
           </div>
@@ -310,6 +364,7 @@ export default function ChatRoom({ room, user }) {
                           isDecrypted={isDecrypted || autoDecrypt}
                           decryptError={decryptError}
                           autoDecrypt={autoDecrypt}
+                          autoEncryptEnabled={autoEncryptEnabled}
                           onDecrypt={() => {
                             setShowEnterKeyModal(true);
                             setSelectedMessageToDecrypt(message);
@@ -340,14 +395,8 @@ export default function ChatRoom({ room, user }) {
           <ChatInput
             onSend={handleSendMessage}
             onTyping={handleTyping}
-            disabled={!roomKey || !isConnected}
-            placeholder={
-              !roomKey
-                ? "Set room key to send messages"
-                : !isConnected
-                ? "Connecting..."
-                : "Type your message..."
-            }
+            disabled={!roomKey || !isConnected || !hasEnteredCorrectKey}
+            placeholder={chatInputPlaceholder}
           />
         </CardContent>
       </Card>
@@ -361,15 +410,34 @@ export default function ChatRoom({ room, user }) {
       {/* Enter Key Modal */}
       <MessageDecryptModal
         isOpen={showEnterKeyModal}
-        onClose={() => setShowEnterKeyModal(false)}
-        onCorrectKey={() =>
-          handleDecryptMessage(
-            selectedMessageToDecrypt.id,
-            selectedMessageToDecrypt.message
-          )
-        }
+        onClose={() => {
+          // Close the modal and clear selected message
+          setShowEnterKeyModal(false);
+          setSelectedMessageToDecrypt(null);
+        }}
+        onCorrectKey={() => {
+          if (selectedMessageToDecrypt) {
+            // Handle single message decryption with timer
+            handleDecryptMessage(
+              selectedMessageToDecrypt.id,
+              selectedMessageToDecrypt.message
+            );
+            // Only enable auto-encrypt if autoDecrypt is false and we're decrypting a specific message
+            if (!autoDecrypt) {
+              setAutoEncryptEnabled(true);
+            }
+          } else if (room.autoDecrypt) {
+            // Auto-decrypt all messages when auto-decrypt is enabled - no timer needed
+            messages.forEach((message) => {
+              if (!decryptedMessages.has(message.id)) {
+                handleDecryptMessage(message.id, message.message);
+              }
+            });
+          }
+        }}
         roomKey={roomKey}
         type={room.autoDecrypt ? "all" : "single"}
+        setHasEnteredCorrectKey={setHasEnteredCorrectKey}
       />
     </div>
   );

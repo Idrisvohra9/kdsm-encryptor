@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const useAutoScroll = ({ smooth = false, content }) => {
   const scrollRef = useRef(null);
