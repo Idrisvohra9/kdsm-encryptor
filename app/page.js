@@ -278,7 +278,7 @@ export default function Home() {
               className={"flex flex-row-reverse items-center"}
             >
               <Image
-                src="/dark/1.png"
+                src="/icons/1.png"
                 width={86}
                 height={86}
                 className="me-2 object-cover"

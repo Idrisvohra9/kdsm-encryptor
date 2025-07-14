@@ -58,7 +58,7 @@ const FloatingDockMobile = ({ items, className }) => {
                 <Link
                   href={item.href}
                   key={item.title}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50/80 backdrop-blur-md border border-white/20 shadow-lg dark:border-white/10"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50/80 backdrop-blur-md border border-white/20 shadow-lg"
                 >
                   <div className="h-8 w-8">{item.icon}</div>
                 </Link>
@@ -69,12 +69,12 @@ const FloatingDockMobile = ({ items, className }) => {
       </AnimatePresence>
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50/80 backdrop-blur-md border border-white/20 shadow-lg dark:border-white/10"
+        className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50/80 backdrop-blur-md border border-white/20 shadow-lg"
       >
         {open ? (
-          <X className="h-5 w-5 text-primary dark:text-primary" />
+          <X className="h-5 w-5 text-primary" />
         ) : (
-          <ChevronUp className="h-5 w-5 text-primary dark:text-primary" />
+          <ChevronUp className="h-5 w-5 text-primary" />
         )}
       </button>
     </div>
@@ -165,7 +165,7 @@ function IconContainer({ mouseX, title, icon, href, isActive }) {
               initial={{ opacity: 0, y: 10, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: 2, x: "-50%" }}
-              className="absolute -top-8 left-1/2 w-fit rounded-md border border-gray-200/50 bg-gray-100/80 backdrop-blur-md px-2 py-0.5 text-xs whitespace-pre text-primary shadow-sm dark:text-white"
+              className="absolute -top-8 left-1/2 w-fit rounded-md border border-gray-200/50 bg-secondary/80 backdrop-blur-md px-2 py-0.5 text-xs whitespace-pre text-primary shadow-sm"
             >
               {title}
             </motion.div>

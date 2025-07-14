@@ -215,8 +215,7 @@
 | `roomId`           | string   | Linked room                   |
 | `senderId`         | string   | Auth user ID                  |
 | `contentEncrypted` | string   | KDSM encrypted message        |
-| `signature`        | string   | Hash for message verification |
-| `timestamp`        | datetime | Sent time                     |
+| `replyToId`        | string   | Message ID being replied to   |
 | `isExpired`        | boolean  | Soft delete flag              |
 | `expiresAt`        | datetime | When to expire message        |
 

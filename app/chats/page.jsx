@@ -20,6 +20,7 @@ import {
   Shield,
   Zap,
 } from "lucide-react";
+import Image from "next/image";
 
 export default function ChatsPage() {
   const { user } = useAuth();
@@ -62,24 +63,24 @@ export default function ChatsPage() {
 
   const getGradientClass = (index) => {
     const gradients = [
-      "from-purple-500/20 via-pink-500/20 to-red-500/20",
-      "from-blue-500/20 via-cyan-500/20 to-teal-500/20",
-      "from-green-500/20 via-emerald-500/20 to-lime-500/20",
-      "from-orange-500/20 via-amber-500/20 to-yellow-500/20",
-      "from-indigo-500/20 via-purple-500/20 to-pink-500/20",
-      "from-rose-500/20 via-pink-500/20 to-fuchsia-500/20",
+      "from-slate-500/20 via-zinc-400/20 to-gray-500/20",
+      "from-stone-500/20 via-neutral-400/20 to-slate-500/20",
+      "from-gray-500/20 via-zinc-400/20 to-stone-500/20",
+      "from-zinc-500/20 via-slate-400/20 to-gray-500/20",
+      "from-neutral-500/20 via-stone-400/20 to-zinc-500/20",
+      "from-slate-600/20 via-gray-400/20 to-neutral-500/20",
     ];
     return gradients[index % gradients.length];
   };
 
   const getIconGradient = (index) => {
     const iconGradients = [
-      "from-purple-400 to-pink-400",
-      "from-blue-400 to-cyan-400",
-      "from-green-400 to-emerald-400",
-      "from-orange-400 to-amber-400",
-      "from-indigo-400 to-purple-400",
-      "from-rose-400 to-pink-400",
+      "from-slate-400 to-zinc-400",
+      "from-stone-400 to-neutral-400",
+      "from-gray-400 to-slate-400",
+      "from-zinc-400 to-stone-400",
+      "from-neutral-400 to-gray-400",
+      "from-slate-500 to-zinc-500",
     ];
     return iconGradients[index % iconGradients.length];
   };
@@ -99,9 +100,9 @@ export default function ChatsPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob dark:opacity-10"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000 dark:opacity-10"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000 dark:opacity-10"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-slate-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-zinc-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-stone-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Top Navigation Bar */}
@@ -111,16 +112,15 @@ export default function ChatsPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/25">
-                      <MessageCircle className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full flex items-center justify-center">
-                      <Sparkles className="h-2 w-2 text-white" />
-                    </div>
-                  </div>
+                  <Image
+                    src="/icons/2.png"
+                    width={65}
+                    height={65}
+                    className="me-2 object-cover"
+                    alt="KDSM Messaging Logo"
+                  />
                   <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-500 to-zinc-500 bg-clip-text text-transparent">
                       KDSM Chats
                     </h1>
                     <p className="text-sm text-muted-foreground">
@@ -136,7 +136,7 @@ export default function ChatsPage() {
                   <span>{rooms.length} Rooms</span>
                 </div>
                 <Link href="/chats/create">
-                  <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300">
+                  <Button className="bg-gradient-to-r from-slate-600 to-zinc-600 hover:from-slate-700 hover:to-zinc-700 text-white border-0 shadow-lg shadow-slate-500/25 hover:shadow-slate-500/40 transition-all duration-300">
                     <Plus className="mr-2 h-4 w-4" />
                     Create Room
                   </Button>
@@ -165,8 +165,8 @@ export default function ChatsPage() {
             </div>
           ) : rooms.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
-              <div className="backdrop-blur-xl bg-card/50 rounded-3xl border border-border p-12 text-center max-w-md mx-auto shadow-2xl shadow-purple-500/10">
-                <div className="w-20 h-20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-border">
+              <div className="backdrop-blur-xl bg-card/50 rounded-3xl border border-border p-12 text-center max-w-md mx-auto shadow-2xl shadow-slate-500/10">
+                <div className="w-20 h-20 bg-gradient-to-r from-slate-500/20 to-zinc-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-border">
                   <MessageCircle className="h-10 w-10 text-muted-foreground" />
                 </div>
                 <h3 className="text-2xl font-bold text-foreground mb-3">
@@ -177,7 +177,7 @@ export default function ChatsPage() {
                   conversations with end-to-end KDSM encryption
                 </p>
                 <Link href="/chats/create">
-                  <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300">
+                  <Button className="bg-gradient-to-r from-slate-600 to-zinc-600 hover:from-slate-700 hover:to-zinc-700 text-white border-0 shadow-lg shadow-slate-500/25 hover:shadow-slate-500/40 transition-all duration-300">
                     <Plus className="mr-2 h-4 w-4" />
                     Create Your First Room
                   </Button>
@@ -201,10 +201,10 @@ export default function ChatsPage() {
                     <Card
                       className={`group relative overflow-hidden backdrop-blur-xl bg-gradient-to-br ${getGradientClass(
                         index
-                      )} border border-border hover:border-border/60 transition-all duration-500 ease-linear hover:shadow-2xl hover:shadow-purple-500/20 cursor-pointer`}
+                      )} border border-border hover:border-border/60 transition-all duration-500 ease-linear hover:shadow-2xl hover:shadow-slate-500/20 cursor-pointer`}
                     >
                       {/* Glow Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 via-purple-500/5 to-pink-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-r from-slate-500/0 via-slate-500/5 to-zinc-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                       {/* Content */}
                       <CardContent className="relative p-4">
@@ -219,7 +219,7 @@ export default function ChatsPage() {
                               <MessageCircle className="h-6 w-6 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-foreground text-lg truncate group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-500 group-hover:to-pink-500 group-hover:bg-clip-text transition-all duration-300">
+                              <h3 className="font-semibold text-foreground text-lg truncate group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-slate-500 group-hover:to-zinc-500 group-hover:bg-clip-text transition-all duration-300">
                                 {room.name}
                               </h3>
                               <p className="text-sm text-muted-foreground">
@@ -227,7 +227,6 @@ export default function ChatsPage() {
                               </p>
                             </div>
                           </div>
-
                         </div>
 
                         {/* Stats */}
@@ -249,12 +248,12 @@ export default function ChatsPage() {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
                               {room.autoDecrypt ? (
-                                <Badge className="bg-green-500/20 text-green-300 border-green-500/30 backdrop-blur-sm text-xs dark:text-green-200">
+                                <Badge className="bg-green-500/20 text-green-300 border-green-500/30 backdrop-blur-sm text-xs">
                                   <Zap className="h-3 w-3 mr-1" />
                                   Auto-decrypt
                                 </Badge>
                               ) : (
-                                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 backdrop-blur-sm text-xs dark:text-blue-200">
+                                <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30 backdrop-blur-sm text-xs">
                                   <Shield className="h-3 w-3 mr-1" />
                                   Manual
                                 </Badge>

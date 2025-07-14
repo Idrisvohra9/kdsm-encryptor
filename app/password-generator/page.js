@@ -191,22 +191,18 @@ export default function PasswordGenerator() {
           className="backdrop-blur-md"
         >
           <Card className="w-full text-primary bg-primary/10">
-            <CardHeader>
+            <CardHeader className={"flex flex-row-reverse items-center"}>
+              <Image
+                src="/icons/6.png"
+                width={86}
+                height={86}
+                className="me-2 object-cover"
+                alt="KDSM Logo"
+              />
               <div
                 ref={containerRef}
-                style={{
-                  position: "relative",
-                  display: "flex",
-                  alignItems: "center",
-                }}
+                className="flex-1 flex flex-col text-left space-y-4"
               >
-                <Image
-                  src="/dark/6.png"
-                  width={48}
-                  height={48}
-                  className="me-2 object-cover"
-                  alt="KDSM Logo"
-                />
                 <VariableProximity
                   label={"Password Generator"}
                   className={"sm:text-2xl text-lg"}
@@ -214,18 +210,18 @@ export default function PasswordGenerator() {
                   radius={50}
                   falloff="linear"
                 />
+                <CardDescription>
+                  <VariableProximity
+                    label={
+                      "Generate secure passwords with customizable options using KDSM encryption"
+                    }
+                    className={"text-base"}
+                    containerRef={containerRef}
+                    radius={50}
+                    falloff="linear"
+                  />
+                </CardDescription>
               </div>
-              <CardDescription>
-                <VariableProximity
-                  label={
-                    "Generate secure passwords with customizable options using KDSM encryption"
-                  }
-                  className={"text-base"}
-                  containerRef={containerRef}
-                  radius={50}
-                  falloff="linear"
-                />
-              </CardDescription>
             </CardHeader>
 
             <CardContent className="space-y-6">

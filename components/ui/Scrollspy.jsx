@@ -81,7 +81,7 @@ const Scrollspy = ({ sections }) => {
         <nav className="p-4">
           <div className="flex justify-between items-center w-full mb-5 lg:hidden">
             <Image
-              src="/dark/1.png"
+              src="/icons/1.png"
               width={48}
               height={48}
               className="me-2 object-cover"
@@ -93,7 +93,7 @@ const Scrollspy = ({ sections }) => {
           </div>
           <div className="justify-center w-full mb-5 hidden lg:flex">
             <Image
-              src="/dark/1.png"
+              src="/icons/1.png"
               width={48}
               height={48}
               className="me-2 object-cover"

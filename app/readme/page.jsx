@@ -55,7 +55,7 @@ export default function ReadmePage() {
   };
 
   const CodeBlock = ({ children }) => (
-    <div className="relative bg-gray-900 rounded-lg p-4">
+    <div className="relative bg-secondary rounded-lg p-4">
       <pre className="text-gray-100 text-sm">
         <code>{children}</code>
       </pre>
@@ -274,7 +274,7 @@ export default function ReadmePage() {
           <Section id="api-documentation" title="API Documentation">
             <div className="flex justify-center items-center w-full mb-5">
               <Image
-                src="/dark/5.png"
+                src="/icons/5.png"
                 width={120}
                 height={120}
                 className="me-2 object-cover"
@@ -283,10 +283,10 @@ export default function ReadmePage() {
             </div>
             <div className="space-y-6">
               <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">
+                <h4 className="font-medium mb-2 text-blue-900">
                   🚀 Getting Started
                 </h4>
-                <p className="text-sm text-blue-800 dark:text-blue-200">
+                <p className="text-sm text-blue-800">
                   To use the KDSM API, you'll need to create an API key from
                   your profile page. Navigate to Profile → Developer tab to
                   generate your API keys.
@@ -309,10 +309,10 @@ export default function ReadmePage() {
 
               <div>
                 <h3 className="text-xl font-semibold mb-4">Rate Limits</h3>
-                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg mb-4">
+                <div className="bg-secondary p-4 rounded-lg mb-4">
                   <h4 className="font-medium mb-3">Tier-based Rate Limiting</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center gap-2 p-3 bg-white/70 rounded">
+                    <div className="flex items-center gap-2 p-3 bg-gray-600 rounded">
                       <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                       <div>
                         <div className="font-medium">Free Users</div>
@@ -321,7 +321,7 @@ export default function ReadmePage() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 p-3 bg-white/70 rounded">
+                    <div className="flex items-center gap-2 p-3 bg-gray-600 rounded">
                       <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                       <div>
                         <div className="font-medium">Premium Users</div>
@@ -606,11 +606,11 @@ except Exception as e:
                 </ul>
               </div>
 
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 text-yellow-900 dark:text-yellow-100">
+              <div className="bg-accent p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-primary">
                   ⚠️ Important Notes
                 </h4>
-                <ul className="text-sm text-yellow-800 space-y-1">
+                <ul className="text-sm text-primary space-y-1">
                   <li>
                     • API keys cannot be recovered if lost - store them securely
                   </li>

@@ -52,6 +52,7 @@ import {
   Crown,
   Shield,
   Zap,
+  LogOut,
 } from "lucide-react";
 import Image from "next/image";
 
@@ -211,11 +212,11 @@ export default function ProfilePage() {
   const getTierColor = (tier) => {
     switch (tier) {
       case "admin":
-        return "bg-red-100 text-red-800 dark:text-red-300";
+        return "bg-red-100 text-red-800";
       case "premium":
-        return "bg-yellow-100 text-yellow-800 dark:text-yellow-300";
+        return "bg-yellow-100 text-yellow-800";
       default:
-        return "bg-blue-100 text-blue-800 dark:text-blue-300";
+        return "bg-blue-100 text-blue-800";
     }
   };
 
@@ -237,7 +238,7 @@ export default function ProfilePage() {
       <div className="absolute inset-0">
         <LiquidChrome />
       </div>
-      <Card className="w-full text-primary bg-secondary/20 backdrop-blur-md min-h-screen">
+      <Card className="w-full text-primary bg-secondary/50 backdrop-blur-md min-h-screen">
         <CardHeader>
           <div className="flex items-center space-x-4">
             <InitialsAvatar user={user} />
@@ -248,18 +249,24 @@ export default function ProfilePage() {
                   <Badge
                     className={`${getTierColor(
                       rateLimitStatus.tier
-                    )} flex items-center gap-1`}
+                    )} flex items-center gap-1 capitalize font-tomorrow`}
                   >
                     {getTierIcon(rateLimitStatus.tier)}
-                    {rateLimitStatus.tier.charAt(0).toUpperCase() +
-                      rateLimitStatus.tier.slice(1)}
+                    {rateLimitStatus.tier}
                   </Badge>
                 )}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="font-tomorrow text-sm">
                 {user?.email || "user@example.com"}
               </CardDescription>
             </div>
+            <Image
+              src="/icons/3.png"
+              width={86}
+              height={86}
+              className="ml-auto object-cover"
+              alt="KDSM Logo"
+            />
           </div>
         </CardHeader>
 
@@ -295,7 +302,7 @@ export default function ProfilePage() {
             <TabsContent value="developer" className="space-y-4">
               <div className="flex justify-center items-center w-full mb-5">
                 <Image
-                  src="/dark/5.png"
+                  src="/icons/5.png"
                   width={120}
                   height={120}
                   className="me-2 object-cover"
@@ -332,7 +339,7 @@ export default function ProfilePage() {
                     {rateLimitStatus.limit === "unlimited" ? (
                       <div className="text-center py-4">
                         <Shield className="w-8 h-8 mx-auto mb-2 text-red-500" />
-                        <p className="font-medium text-red-600 dark:text-red-400">
+                        <p className="font-medium text-red-600">
                           Unlimited API Access
                         </p>
                         <p className="text-sm text-muted-foreground">
@@ -382,7 +389,7 @@ export default function ProfilePage() {
                       disabled={apiKeys.length >= 3}
                     >
                       <Plus className="w-4 h-4 mr-2" />
-                      New Key
+                      New Key ({apiKeys.length}/3)
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -540,49 +547,34 @@ export default function ProfilePage() {
                       </Card>
                     ))
                   )}
-
-                  {apiKeys.length > 0 && apiKeys.length < 3 && (
-                    <Card className="bg-background/50 border-dashed">
-                      <CardContent className="pt-6 pb-6 text-center">
-                        <Button
-                          variant="ghost"
-                          onClick={() => setShowCreateDialog(true)}
-                          className="w-full"
-                        >
-                          <Plus className="w-4 h-4 mr-2" />
-                          Add Another API Key ({apiKeys.length}/3)
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )}
                 </div>
               )}
 
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2 text-blue-900 dark:text-blue-100">
+              <div className="bg-blue-800 p-4 rounded-lg">
+                <h4 className="font-medium mb-2 text-blue-50">
                   📚 API Documentation
                 </h4>
-                <p className="text-sm text-blue-800 mb-2">
+                <p className="text-sm text-blue-50 mb-2">
                   Learn how to integrate KDSM encryption into your applications.
                 </p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => router.push("/readme#api-documentation")}
-                  className="text-blue-700 border-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/20"
+                  className="text-blue-50 border-blue-300 hover:bg-blue-900"
                 >
                   View Documentation
                 </Button>
               </div>
 
               {/* Rate Limit Tiers Info */}
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-3 text-gray-900 dark:text-gray-100">
+              <div className="bg-gray-600 p-4 rounded-lg">
+                <h4 className="font-medium mb-3 text-gray-50">
                   🚀 API Rate Limits
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                  <div className="flex items-center gap-2 p-2 bg-white/50 rounded">
-                    <Zap className="w-4 h-4 text-blue-500" />
+                  <div className="flex items-center gap-2 p-2 bg-blue-500/50 rounded">
+                    <Zap className="w-4 h-4 text-blue-900" />
                     <div>
                       <div className="font-medium">Free</div>
                       <div className="text-xs text-muted-foreground">
@@ -590,7 +582,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/50 rounded">
+                  <div className="flex items-center gap-2 p-2 bg-blue-500/50 rounded">
                     <Crown className="w-4 h-4 text-yellow-500" />
                     <div>
                       <div className="font-medium">Premium</div>
@@ -599,7 +591,7 @@ export default function ProfilePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 p-2 bg-white/50 rounded">
+                  <div className="flex items-center gap-2 p-2 bg-blue-500/50 rounded">
                     <Shield className="w-4 h-4 text-red-500" />
                     <div>
                       <div className="font-medium">Admin</div>
@@ -618,8 +610,9 @@ export default function ProfilePage() {
           </Tabs>
         </CardContent>
 
-        <CardFooter>
-          <Button onClick={handleLogout} variant="outline" className="w-full">
+        <CardFooter className={"flex items-center"}>
+          <Button onClick={handleLogout} variant="outline" className="ml-auto">
+            <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>
         </CardFooter>
