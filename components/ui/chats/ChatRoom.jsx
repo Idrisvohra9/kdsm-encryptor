@@ -46,7 +46,14 @@ import { decrypt as decryptRoomKey } from "@/utils/kdsm";
 import Image from "next/image";
 import MessageDecryptModal from "./MessageDecryptModal";
 import { updateChatRoom } from "@/lib/chatRooms";
-
+import { Label } from "../label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 export default function ChatRoom({ room, user }) {
   const {
     messages,
@@ -64,6 +71,7 @@ export default function ChatRoom({ room, user }) {
   const [roomKey, setRoomKey] = useState(
     decryptRoomKey(room?.roomKeyHash, room?.creatorId)
   );
+  const [retention, setRetention] = useState(room.retention || "3days");
   // For encryption and decryption of messages
   const { encrypt, decrypt } = useEncryption(roomKey);
   // Initially if the room has auto-decrypt enabled, show the key modal
@@ -147,34 +155,29 @@ export default function ChatRoom({ room, user }) {
   );
 
   // Set room key and close modal
-  const handleSetRoomKey = useCallback(
-    (key) => {
-      setRoomKey(key);
-      setShowChangeKeyModal(false);
-      toast.success("Room key set successfully!");
-    },
-    []
-  );
+  const handleSetRoomKey = useCallback((key) => {
+    setRoomKey(key);
+    setShowChangeKeyModal(false);
+    toast.success("Room key set successfully!");
+  }, []);
 
   // Get user initials for avatar
   const getUserInitials = useCallback(
     (senderId, senderName) => {
-      if (senderId === user?.$id) return user.name?.[0] || user.email?.[0] || "Y";
+      if (senderId === user?.$id)
+        return user.name?.[0] || user.email?.[0] || "Y";
       return senderName?.[0] || "U";
     },
     [user]
   );
 
   // Format timestamp
-  const formatTime = useCallback(
-    (timestamp) => {
-      return new Date(timestamp).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    },
-    []
-  );
+  const formatTime = useCallback((timestamp) => {
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }, []);
 
   // Memoized placeholder text for chat input
   const chatInputPlaceholder = useMemo(() => {
@@ -202,7 +205,27 @@ export default function ChatRoom({ room, user }) {
         >
           <div className="p-4">
             <h2 className="text-lg font-semibold mb-4">Room Settings</h2>
-            <div className="space-x-2 space-y-3">
+            <div className="flex flex-wrap space-x-2 space-y-3">
+              <Label>Message Retention</Label>
+              <Select
+                value={retention}
+                onValueChange={(value) => setRetention(value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="instant">
+                    Instant (gets deleted immediately after exiting room)
+                  </SelectItem>
+                  <SelectItem value="3days">
+                    3 Days (gets deleted after 3 days)
+                  </SelectItem>
+                  <SelectItem value="7days">7 Days (Pro)</SelectItem>
+                  <SelectItem value="30days">30 Days (Pro)</SelectItem>
+                  <SelectItem value="forever">Forever (Pro)</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 variant="outline"
                 size="sm"
@@ -235,23 +258,7 @@ export default function ChatRoom({ room, user }) {
                   </>
                 )}
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAutoEncryptEnabled(!autoEncryptEnabled)}
-              >
-                {autoEncryptEnabled ? (
-                  <>
-                    <Eye className="h-4 w-4 mr-1" />
-                    Disable Auto-encrypt
-                  </>
-                ) : (
-                  <>
-                    <EyeOff className="h-4 w-4 mr-1" />
-                    Enable Auto-encrypt
-                  </>
-                )}
-              </Button>
+
               <Button
                 variant="outline"
                 size="sm"

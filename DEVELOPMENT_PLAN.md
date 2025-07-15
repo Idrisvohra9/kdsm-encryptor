@@ -13,8 +13,8 @@
 1. Install and configure **Appwrite SDK**, `socket.io-client` in ('/socket-server'), `clsx`, and `zod`.
 2. Setup environment file (`.env.local`) with Appwrite credentials.
 
-4. Use `/components/ui/chats/` folder for atomic chat UI components.
-5. Prepare **Folder Structure**:
+3. Use `/components/ui/chats/` folder for atomic chat UI components.
+4. Prepare **Folder Structure**:
 
    - `hooks/`, `context/`, `lib/`, `app/chats/[roomId]/`, `utils/`
 
@@ -132,7 +132,7 @@
 2. Let room creators:
 
    - Toggle auto-decrypt
-   - Choose retention (3 or 7 days)
+   - Choose retention (instant, 3, 7, 30 days, forever)
    - Manage members
 
 3. On joining a room:
@@ -210,14 +210,14 @@
 
 ### 💬 `messages`
 
-| Field              | Type     | Description                   |
-| ------------------ | -------- | ----------------------------- |
-| `roomId`           | string   | Linked room                   |
-| `senderId`         | string   | Auth user ID                  |
-| `contentEncrypted` | string   | KDSM encrypted message        |
-| `replyToId`        | string   | Message ID being replied to   |
-| `isExpired`        | boolean  | Soft delete flag              |
-| `expiresAt`        | datetime | When to expire message        |
+| Field              | Type                        | Description                 |
+| ------------------ | --------------------------- | --------------------------- |
+| `room`             | relationship with chatRooms | Linked room                 |
+| `senderId`         | string                      | Auth user ID                |
+| `contentEncrypted` | string                      | KDSM encrypted message      |
+| `replyToId`        | string                      | Message ID being replied to |
+| `isExpired`        | boolean                     | Soft delete flag            |
+| `expiresAt`        | datetime                    | When to expire message      |
 
 ---
 
@@ -245,7 +245,6 @@ Instead of hard deleting messages, flag them as expired and hide in UI.
 You can show a "This message expired" warning box.
 
 Why? Gives room for recovery for premium plans or debugging.
-
 
 🛎 Notification & Status Enhancements
 Encrypted Typing Indicators & Read Receipts:

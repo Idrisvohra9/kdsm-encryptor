@@ -51,11 +51,11 @@ export default function RegisterPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen p-4">
-      <LiquidChrome/>
-      <Card className="w-full max-w-md backdrop-blur-md text-primary-foreground bg-primary/50">
+      <LiquidChrome />
+      <Card className="w-full max-w-md text-primary bg-secondary/40 backdrop-blur-md shadow-lg">
         <CardHeader>
           <CardTitle>Create an Account</CardTitle>
-          <CardDescription className="text-muted">
+          <CardDescription>
             Register to start using encrypted messaging
           </CardDescription>
         </CardHeader>
@@ -122,9 +122,9 @@ export default function RegisterPage() {
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <p className="text-sm text-muted">
+          <p className="text-sm">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-primary hover:underline">
+            <Link href="/auth/login" className="text-primary underline">
               Login
             </Link>
           </p>

@@ -174,11 +174,11 @@ export default function PasswordGenerator() {
   const passwordStrength = getPasswordStrength(formState.generatedPassword);
 
   return (
-    <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
+    <div className="flex min-h-screen h-full flex-col items-center justify-between p-2 sm:p-4 md:p-8 lg:p-12 xl:p-24">
       <div className="fixed inset-0 -z-10 w-screen h-screen">
         <LetterGlitch glitchSpeed={50} smooth={true} />
       </div>
-      <div className="w-full max-w-3xl relative z-20">
+      <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl relative z-20">
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -191,21 +191,21 @@ export default function PasswordGenerator() {
           className="backdrop-blur-md"
         >
           <Card className="w-full text-primary bg-primary/10">
-            <CardHeader className={"flex flex-row-reverse items-center"}>
+            <CardHeader className="flex flex-col sm:flex-row-reverse items-center gap-3 sm:gap-4">
               <Image
                 src="/icons/6.png"
                 width={86}
                 height={86}
-                className="me-2 object-cover"
+                className="me-2 object-cover w-16 h-16 sm:w-20 sm:h-20 md:w-[86px] md:h-[86px]"
                 alt="KDSM Logo"
               />
               <div
                 ref={containerRef}
-                className="flex-1 flex flex-col text-left space-y-4"
+                className="flex-1 flex flex-col text-center sm:text-left space-y-2 sm:space-y-4"
               >
                 <VariableProximity
                   label={"Password Generator"}
-                  className={"sm:text-2xl text-lg"}
+                  className="text-lg sm:text-xl md:text-2xl"
                   containerRef={containerRef}
                   radius={50}
                   falloff="linear"
@@ -215,7 +215,7 @@ export default function PasswordGenerator() {
                     label={
                       "Generate secure passwords with customizable options using KDSM encryption"
                     }
-                    className={"text-base"}
+                    className="text-sm sm:text-base"
                     containerRef={containerRef}
                     radius={50}
                     falloff="linear"
@@ -224,12 +224,12 @@ export default function PasswordGenerator() {
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
               {/* Password Length */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 <div className="flex justify-between items-center">
-                  <Label>Password Length</Label>
-                  <span className="text-sm font-medium">
+                  <Label className="text-sm sm:text-base">Password Length</Label>
+                  <span className="text-xs sm:text-sm font-medium">
                     {formState.length[0]} characters
                   </span>
                 </div>
@@ -244,9 +244,9 @@ export default function PasswordGenerator() {
               </div>
 
               {/* Character Options */}
-              <div className="space-y-4">
-                <Label>Character Types</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-3 sm:space-y-4">
+                <Label className="text-sm sm:text-base">Character Types</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="includeUppercase"
@@ -255,7 +255,9 @@ export default function PasswordGenerator() {
                         handleOptionChange("includeUppercase", checked)
                       }
                     />
-                    <Label htmlFor="includeUppercase">Uppercase (A-Z)</Label>
+                    <Label htmlFor="includeUppercase" className="text-xs sm:text-sm">
+                      Uppercase (A-Z)
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -265,7 +267,9 @@ export default function PasswordGenerator() {
                         handleOptionChange("includeLowercase", checked)
                       }
                     />
-                    <Label htmlFor="includeLowercase">Lowercase (a-z)</Label>
+                    <Label htmlFor="includeLowercase" className="text-xs sm:text-sm">
+                      Lowercase (a-z)
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -275,7 +279,9 @@ export default function PasswordGenerator() {
                         handleOptionChange("includeNumbers", checked)
                       }
                     />
-                    <Label htmlFor="includeNumbers">Numbers (0-9)</Label>
+                    <Label htmlFor="includeNumbers" className="text-xs sm:text-sm">
+                      Numbers (0-9)
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -285,7 +291,7 @@ export default function PasswordGenerator() {
                         handleOptionChange("includeSpecialChars", checked)
                       }
                     />
-                    <Label htmlFor="includeSpecialChars">
+                    <Label htmlFor="includeSpecialChars" className="text-xs sm:text-sm">
                       Special (!@#$%^&*())
                     </Label>
                   </div>
@@ -293,8 +299,8 @@ export default function PasswordGenerator() {
               </div>
 
               {/* Additional Options */}
-              <div className="space-y-4">
-                <Label>Additional Options</Label>
+              <div className="space-y-3 sm:space-y-4">
+                <Label className="text-sm sm:text-base">Additional Options</Label>
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="excludeSimilar"
@@ -303,7 +309,7 @@ export default function PasswordGenerator() {
                       handleOptionChange("excludeSimilar", checked)
                     }
                   />
-                  <Label htmlFor="excludeSimilar">
+                  <Label htmlFor="excludeSimilar" className="text-xs sm:text-sm">
                     Exclude similar characters (0, O, l, 1, I)
                   </Label>
                 </div>
@@ -311,7 +317,7 @@ export default function PasswordGenerator() {
 
               {/* Custom Characters */}
               <div className="space-y-2">
-                <Label htmlFor="customChars">
+                <Label htmlFor="customChars" className="text-sm sm:text-base">
                   Custom Characters (Optional)
                 </Label>
                 <Input
@@ -321,37 +327,46 @@ export default function PasswordGenerator() {
                   onChange={(e) =>
                     handleOptionChange("customChars", e.target.value)
                   }
+                  className="text-sm"
                 />
-                <span className="text-muted-foreground text-sm">
+                <span className="text-muted-foreground text-xs sm:text-sm">
                   If provided, only these characters will be used (overrides
                   other options)
                 </span>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-wrap gap-4 flex-row-reverse">
-                <Button onClick={generatePassword} disabled={isGenerating}>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Button 
+                  onClick={generatePassword} 
+                  disabled={isGenerating}
+                  className="w-full sm:w-auto text-sm sm:text-base"
+                >
                   {isGenerating ? (
-                    <RefreshCw className="w-5 h-5 animate-spin" />
+                    <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                   ) : (
-                    <Key className="w-5 h-5" />
+                    <Key className="w-4 h-4 sm:w-5 sm:h-5" />
                   )}
                   Generate Password
                 </Button>
-                <Button onClick={handleClear} variant="outline">
+                <Button 
+                  onClick={handleClear} 
+                  variant="outline"
+                  className="w-full sm:w-auto text-sm sm:text-base"
+                >
                   Clear
-                  <BrushCleaning className="w-5 h-5" />
+                  <BrushCleaning className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
 
               {/* Generated Password */}
               {formState.generatedPassword && (
-                <div className="space-y-4 p-4 border rounded-md bg-muted/50">
-                  <div className="flex justify-between items-center">
-                    <Label>Generated Password</Label>
+                <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border rounded-md bg-muted/50">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <Label className="text-sm sm:text-base">Generated Password</Label>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-sm font-medium ${passwordStrength.color}`}
+                        className={`text-xs sm:text-sm font-medium ${passwordStrength.color}`}
                       >
                         {passwordStrength.label}
                       </span>
@@ -366,9 +381,9 @@ export default function PasswordGenerator() {
                         }
                       >
                         {formState.showPassword ? (
-                          <EyeOff className="w-4 h-4" />
+                          <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
                         ) : (
-                          <Eye className="w-4 h-4" />
+                          <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
                         )}
                       </Button>
                       <Button
@@ -379,24 +394,24 @@ export default function PasswordGenerator() {
                         }
                       >
                         {copyState ? (
-                          <Check className="w-5 h-5" />
+                          <Check className="w-3 h-3 sm:w-4 sm:h-4" />
                         ) : (
-                          <Copy className="w-5 h-5" />
+                          <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
                         )}
                       </Button>
                     </div>
                   </div>
-                  <div className="p-3 bg-background rounded border break-all font-mono">
+                  <div className="p-2 sm:p-3 bg-background rounded border break-all font-mono text-xs sm:text-sm">
                     {formState.showPassword
                       ? formState.generatedPassword
                       : "•".repeat(formState.generatedPassword.length)}
                   </div>
-                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                     <span>
                       Length: {formState.generatedPassword.length} characters
                     </span>
                     <div className="flex items-center gap-2">
-                      <Shield className="w-4 h-4" />
+                      <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
                       <span>Strength: {passwordStrength.label}</span>
                     </div>
                   </div>
@@ -404,7 +419,7 @@ export default function PasswordGenerator() {
               )}
             </CardContent>
 
-            <CardFooter className="flex-col">
+            <CardFooter className="flex-col p-4 sm:p-6">
               <div className="flex justify-center items-center mb-3">
                 <Carousel
                   autoplay={true}
@@ -413,7 +428,7 @@ export default function PasswordGenerator() {
                   loop={true}
                 />
               </div>
-              <div className="flex justify-between text-sm text-muted-foreground w-full">
+              <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-muted-foreground w-full gap-2 sm:gap-0">
                 <ShinyText
                   text="KDSM Password Generator by - Idris Vohra"
                   disabled={false}

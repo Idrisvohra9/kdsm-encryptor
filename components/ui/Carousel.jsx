@@ -19,7 +19,7 @@ const BREAKPOINTS = {
 
 const CarouselItem = ({ item, width, isActive }) => (
   <motion.div
-    className={`relative shrink-0 flex flex-col items-start justify-between ${item.gradient} border border-cyan-400/30 rounded-lg overflow-hidden shadow-xl shadow-cyan-500/10 backdrop-blur-sm`}
+    className={`relative shrink-0 flex flex-col items-start justify-between ${item.gradient} border border-primary/30 rounded-lg overflow-hidden shadow-xl shadow-primary/10 backdrop-blur-sm w-full`}
     style={{ width }}
     initial={{ opacity: 0.7, scale: 0.95, y: 20 }}
     animate={{ 
@@ -32,22 +32,22 @@ const CarouselItem = ({ item, width, isActive }) => (
     whileHover={{ 
       scale: 1.02, 
       y: -3,
-      boxShadow: "0 20px 40px -10px rgba(34, 211, 238, 0.2)"
+      boxShadow: "0 20px 40px -10px rgba(var(--primary), 0.2)"
     }}
   >
     {/* Retro gradient overlay */}
-    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-transparent to-purple-500/5 pointer-events-none" />
+    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
     
     {/* Subtle animated glow */}
     <motion.div 
-      className="absolute inset-0 bg-gradient-to-br from-cyan-400/5 via-transparent to-purple-400/5 opacity-0"
+      className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0"
       animate={{ opacity: isActive ? [0, 0.2, 0] : 0 }}
       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
     />
 
-    <div className="mb-4 p-6 relative z-10">
+    <div className="mb-4 p-4 relative z-10">
       <motion.span 
-        className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-gray-900/60 border border-cyan-400/40 shadow-lg"
+        className="flex h-[48px] w-[48px] items-center justify-center rounded-lg bg-card/60 border border-primary/40 shadow-lg"
         whileHover={{ scale: 1.1 }}
         transition={SMOOTH_TRANSITION}
       >
@@ -61,9 +61,9 @@ const CarouselItem = ({ item, width, isActive }) => (
       </motion.span>
     </div>
 
-    <div className="p-6 w-full relative z-10">
+    <div className="p-4 w-full relative z-10">
       <motion.div 
-        className="mb-2 font-bold text-xl text-cyan-100 tracking-wide"
+        className="mb-2 font-bold text-xl text-secondary-foreground tracking-wide"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ ...SMOOTH_TRANSITION, delay: 0.2 }}
@@ -72,7 +72,7 @@ const CarouselItem = ({ item, width, isActive }) => (
       </motion.div>
       
       <motion.p 
-        className="text-sm text-gray-300 mb-6 leading-relaxed"
+        className="text-sm text-muted-foreground mb-6 leading-relaxed"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ ...SMOOTH_TRANSITION, delay: 0.3 }}
@@ -87,7 +87,7 @@ const CarouselItem = ({ item, width, isActive }) => (
       >
         <Link
           href={item.link}
-          className="inline-flex items-center px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-600/30 to-purple-600/30 hover:from-cyan-500/40 hover:to-purple-500/40 text-cyan-100 text-sm font-semibold transition-all duration-300 border border-cyan-400/40 hover:border-cyan-300/60 shadow-lg hover:shadow-xl backdrop-blur-sm"
+          className="inline-flex items-center px-6 py-3 rounded-lg bg-gradient-to-r from-primary/30 to-secondary/30 hover:from-primary/40 hover:to-secondary/40 text-primary-foreground text-sm font-semibold transition-all duration-300 border border-primary/40 hover:border-primary/60 shadow-lg hover:shadow-xl backdrop-blur-sm"
         >
           <span className="mr-2">→</span>
           Learn More
@@ -104,7 +104,7 @@ const ITEMS = [
     id: 1,
     imageNumber: "2",
     link: "/messaging",
-    gradient: "bg-gradient-to-br from-gray-900/80 via-black/90 to-cyan-900/40",
+    gradient: "bg-gradient-to-br from-background/80 via-card/90 to-primary/40",
   },
   {
     title: "KDSM Encryptor",
@@ -112,7 +112,7 @@ const ITEMS = [
     id: 2,
     imageNumber: "1",
     link: "/",
-    gradient: "bg-gradient-to-br from-purple-900/40 via-black/90 to-gray-900/80",
+    gradient: "bg-gradient-to-br from-secondary/40 via-card/90 to-background/80",
   },
   {
     title: "KDSM Developer API",
@@ -120,7 +120,7 @@ const ITEMS = [
     id: 3,
     imageNumber: "5",
     link: "/readme/developer",
-    gradient: "bg-gradient-to-br from-blue-900/40 via-black/90 to-cyan-900/40",
+    gradient: "bg-gradient-to-br from-accent/40 via-card/90 to-primary/40",
   },
   {
     title: "KDSM Profile Management",
@@ -128,7 +128,7 @@ const ITEMS = [
     id: 4,
     imageNumber: "3",
     link: "/profile",
-    gradient: "bg-gradient-to-br from-pink-900/40 via-black/90 to-purple-900/40",
+    gradient: "bg-gradient-to-br from-destructive/40 via-card/90 to-secondary/40",
   },
 ];
 
@@ -182,13 +182,13 @@ export default function Carousel({
   return (
     <div
       ref={containerRef}
-      className="relative overflow-hidden p-6 rounded-xl border border-gray-700/60 w-full bg-gradient-to-br from-gray-900/80 via-black/90 to-gray-800/80 backdrop-blur-md shadow-2xl shadow-black/50"
+      className="relative overflow-hidden rounded-xl border border-border/60  bg-gradient-to-br from-background/80 via-card/90 to-muted/80 backdrop-blur-md shadow-2xl shadow-background/50 w-full"
     >
       {/* Retro corner accents */}
-      <div className="absolute top-3 left-3 w-4 h-4 border-l border-t border-cyan-400/60 rounded-tl" />
-      <div className="absolute top-3 right-3 w-4 h-4 border-r border-t border-cyan-400/60 rounded-tr" />
-      <div className="absolute bottom-3 left-3 w-4 h-4 border-l border-b border-cyan-400/60 rounded-bl" />
-      <div className="absolute bottom-3 right-3 w-4 h-4 border-r border-b border-cyan-400/60 rounded-br" />
+      <div className="absolute top-3 left-3 w-4 h-4 border-l border-t border-primary/60 rounded-tl" />
+      <div className="absolute top-3 right-3 w-4 h-4 border-r border-t border-primary/60 rounded-tr" />
+      <div className="absolute bottom-3 left-3 w-4 h-4 border-l border-b border-primary/60 rounded-bl" />
+      <div className="absolute bottom-3 right-3 w-4 h-4 border-r border-b border-primary/60 rounded-br" />
 
       <AnimatePresence mode="wait">
         <motion.div
@@ -215,10 +215,10 @@ export default function Carousel({
           {ITEMS.map((_, index) => (
             <motion.button
               key={index}
-              className={`h-3 w-3 rounded-full transition-all duration-300 border border-gray-600/40 ${
+              className={`h-2 w-2 rounded-full transition-all duration-300 border border-border/40 ${
                 currentIndex === index 
-                  ? "bg-gradient-to-br from-cyan-400 to-purple-400 shadow-lg shadow-cyan-400/50 scale-110" 
-                  : "bg-gray-700/60 hover:bg-gray-600/80"
+                  ? "bg-gradient-to-br from-primary to-secondary shadow-lg shadow-primary/50 scale-110" 
+                  : "bg-muted/60 hover:bg-muted-foreground/20"
               }`}
               whileHover={{ scale: 1.3 }}
               whileTap={{ scale: 0.9 }}

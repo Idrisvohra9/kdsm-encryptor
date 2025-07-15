@@ -25,7 +25,10 @@ import { toast } from "sonner";
 import { Loader2, Lock, Users } from "lucide-react";
 import { createChatRoom } from "@/lib/chatRooms";
 import Balataro from "@/components/ui/Balataro";
-import { AlertDialog, AlertDialogDescription } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 import { AlertTriangle } from "lucide-react";
 
 export default function CreateChatRoom() {
@@ -80,10 +83,10 @@ export default function CreateChatRoom() {
 
   return (
     <div className="container max-w-2xl mx-auto py-8">
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="fixed inset-0 overflow-hidden">
         <Balataro />
       </div>
-      <Card className="relative backdrop-blur-md text-secondary bg-primary/10 z-10">
+      <Card className="relative text-primary bg-secondary/40 backdrop-blur-md shadow-lg z-10">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
@@ -151,12 +154,25 @@ export default function CreateChatRoom() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3days">3 Days</SelectItem>
-                  <SelectItem value="7days">7 Days (Pro)</SelectItem>
+                  <SelectItem value="instant">
+                    Instant (gets deleted immediately after exiting room)
+                  </SelectItem>
+                  <SelectItem value="3days">
+                    3 Days (gets deleted after 3 days)
+                  </SelectItem>
+                  <SelectItem value="7days">
+                    7 Days (Pro)
+                  </SelectItem>
+                  <SelectItem value="30days">
+                    30 Days (Pro)
+                  </SelectItem>
+                  <SelectItem value="forever">
+                    Forever (Pro)
+                  </SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-sm text-muted-foreground">
-                7 Days is available in the Pro plan.
+                Message retention above 7 Days is available in the Pro plan.
               </p>
             </div>
 
@@ -169,6 +185,9 @@ export default function CreateChatRoom() {
                   verification when entering the chat room. By default, each
                   message requires individual PIN verification for maximum
                   security.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  It is not recommended to enable this option unless you are sure that the room is secure.
                 </p>
               </div>
               <Switch

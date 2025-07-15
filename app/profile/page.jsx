@@ -279,7 +279,7 @@ export default function ProfilePage() {
 
             <TabsContent value="account" className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium">Account Details</h3>
+                <h3 className="text-base font-medium">Account Details</h3>
                 <p className="text-sm">
                   Subscription: {user?.subscriptionTier || "Free"}
                 </p>
@@ -292,7 +292,7 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <h3 className="text-sm font-medium">Session Information</h3>
+                <h3 className="text-base font-medium">Session Information</h3>
                 <p className="text-sm">
                   Your session will expire in 3 days from login.
                 </p>
@@ -455,9 +455,6 @@ export default function ProfilePage() {
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-2">
                                 <h4 className="font-medium">{key.keyName}</h4>
-                                <Badge variant="secondary" className="text-xs">
-                                  {key.apiKey.substring(0, 12)}...
-                                </Badge>
                               </div>
                               <div className="space-y-1 text-xs text-muted-foreground">
                                 <p>

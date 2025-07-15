@@ -10,7 +10,24 @@ import { Button } from "@/components/ui/button";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
-
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+function Faq({ question, answer }) {
+  return (
+    <AccordionItem value={question}>
+      <AccordionTrigger>
+        <h3>{question}</h3>
+      </AccordionTrigger>
+      <AccordionContent>
+        <p className="text-sm text-muted-foreground">{answer}</p>
+      </AccordionContent>
+    </AccordionItem>
+  );
+}
 export default function ReadmePage() {
   const containerRef = useRef(null);
   const [planeBaseHeight, setPlaneBaseHeight] = useState(5);
@@ -24,9 +41,50 @@ export default function ReadmePage() {
     { id: "usage", title: "Usage" },
     { id: "technical", title: "Technical Details" },
     { id: "api-documentation", title: "API Documentation" },
-    { id: "faq", title: "FAQ" },
+    { id: "faqs", title: "FAQs" },
   ];
-
+  const FAQs = [
+    {
+      question: "Can I recover my message if I lose the key?",
+      answer:
+        "No. Without the exact key used for encryption, it's not possible to decrypt the message. There is no recovery mechanism by design for security reasons.",
+    },
+    {
+      question: "How do I get an API key?",
+      answer:
+        "Sign up for an account, navigate to your Profile page, click on the Developer tab, and create a new API key. You can create up to 3 API keys per account.",
+    },
+    {
+      question: "What happens if I exceed the rate limit?",
+      answer:
+        "If you exceed your daily API call limit (10 for free users, 100 for premium), you'll receive a 429 error response. Rate limits reset daily at midnight UTC.",
+    },
+    {
+      question: "Can I use the API for commercial projects?",
+      answer:
+        "Yes, you can use the KDSM API for both personal and commercial projects. However, please respect the rate limits and terms of service.",
+    },
+    {
+      question: "Is KDSM encryption secure?",
+      answer:
+        "KDSM provides solid security for everyday communication needs. The encryption strength depends on key secrecy and proper implementation. For highly sensitive data, consider using established encryption standards.",
+    },
+    {
+      question: "What's the difference between API keys and encryption keys?",
+      answer:
+        "API keys authenticate your access to the KDSM service, while encryption keys are used to encrypt/decrypt your actual messages. Both are required but serve different purposes.",
+    },
+    {
+      question: "Is KDSM Open Source?",
+      answer:
+        "No, KDSM Encryptor is not an open-source project. The KDSM algorithm is proprietary and maintained by a select team to ensure security and integrity.",
+    },
+    {
+      question: "Can I delete my API keys?",
+      answer:
+        "Yes, you can delete API keys from your profile > developer tab. Once deleted, they are immediately revoked and cannot be restored. Make sure to update any applications using the deleted key.",
+    },
+  ];
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
@@ -628,45 +686,23 @@ except Exception as e:
             </div>
           </Section>
 
-          <Section id="faq" title="FAQ">
-            <h3>Is KDSM encryption secure?</h3>
-            <p>
-              KDSM provides good security for everyday communications. The
-              encryption strength depends on the complexity and secrecy of the
-              key used.
-            </p>
-
-            <h3>Can I recover my message if I lose the key?</h3>
-            <p>
-              No. Without the exact key used for encryption, it's not possible
-              to decrypt the message. There is no recovery mechanism by design.
-            </p>
-
-            <h3>How do I get an API key?</h3>
-            <p>
-              Sign up for an account, go to your Profile page, click on the
-              Developer tab, and create a new API key. You can create up to 3
-              API keys per account.
-            </p>
-
-            <h3>What happens if I exceed the rate limit?</h3>
-            <p>
-              If you exceed 10 API calls per day, you'll receive a 429 error
-              response. Rate limits reset daily at midnight UTC.
-            </p>
-
-            <h3>Can I use the API for commercial projects?</h3>
-            <p>
-              Yes, you can use the KDSM API for both personal and commercial
-              projects. However, please respect the rate limits and terms of
-              service.
-            </p>
-
-            <h3>Is the source code available?</h3>
-            <p>
-              Yes, KDSM Encryptor is an open-source project. You can view the
-              source code on GitHub to verify its security and functionality.
-            </p>
+          <Section id="faqs" title="FAQs">
+            <div className="space-y-4">
+              <Accordion
+                type="single"
+                collapsible
+                className="w-full"
+                defaultValue={FAQs[0].question}
+              >
+                {FAQs.map((faq, index) => (
+                  <Faq
+                    key={index}
+                    question={faq.question}
+                    answer={faq.answer}
+                  />
+                ))}
+              </Accordion>
+            </div>
           </Section>
         </main>
       </div>
