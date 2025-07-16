@@ -14,7 +14,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import LiquidChrome from "@/components/ui/LiquidChrome";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -43,61 +42,55 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
-      <LiquidChrome />
-      <Card className="w-full max-w-md text-primary bg-secondary/40 backdrop-blur-md shadow-lg">
-        <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription >
-            Enter your credentials to access your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <label htmlFor="email" className="text-sm font-medium">
-                Email
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your.email@example.com"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label htmlFor="password" className="text-sm font-medium">
-                Password
-              </label>
-              <Input
-                id="password"
-                type="password"
-                secured={true}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <p className="text-sm">
-            Don't have an account?{" "}
-            <Link
-              href="/auth/register"
-              className="underline"
-            >
-              Register
-            </Link>
-          </p>
-        </CardFooter>
-      </Card>
-    </div>
+    <Card className="w-full max-w-md text-primary bg-secondary/40 backdrop-blur-md shadow-lg">
+      <CardHeader>
+        <CardTitle>Login</CardTitle>
+        <CardDescription>
+          Enter your credentials to access your account
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="email" className="text-sm font-medium">
+              Email
+            </label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your.email@example.com"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label htmlFor="password" className="text-sm font-medium">
+              Password
+            </label>
+            <Input
+              id="password"
+              type="password"
+              secured={true}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? "Logging in..." : "Login"}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className="flex justify-center">
+        <p className="text-sm">
+          Don't have an account?{" "}
+          <Link href="/auth/register" className="underline">
+            Register
+          </Link>
+        </p>
+      </CardFooter>
+    </Card>
   );
 }

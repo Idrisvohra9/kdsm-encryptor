@@ -14,7 +14,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import LiquidChrome from "@/components/ui/LiquidChrome";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
@@ -50,8 +49,6 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
-      <LiquidChrome />
       <Card className="w-full max-w-md text-primary bg-secondary/40 backdrop-blur-md shadow-lg">
         <CardHeader>
           <CardTitle>Create an Account</CardTitle>
@@ -125,11 +122,10 @@ export default function RegisterPage() {
           <p className="text-sm">
             Already have an account?{" "}
             <Link href="/auth/login" className="text-primary underline">
-              Login
+              Register
             </Link>
           </p>
         </CardFooter>
       </Card>
-    </div>
   );
 }

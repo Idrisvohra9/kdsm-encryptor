@@ -5,7 +5,7 @@ const FuzzyText = ({
   children,
   fontSize = "clamp(2rem, 10vw, 10rem)",
   fontWeight = 900,
-  fontFamily = "inherit",
+  fontFamily = "Tomorrow, sans-serif",
   color = "#fff",
   enableHover = true,
   baseIntensity = 0.18,

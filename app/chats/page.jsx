@@ -13,10 +13,7 @@ import {
   MessageCircle,
   Users,
   Clock,
-  Lock,
   Share2,
-  Copy,
-  Sparkles,
   Shield,
   Zap,
 } from "lucide-react";

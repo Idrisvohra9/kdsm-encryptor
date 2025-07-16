@@ -1,6 +1,5 @@
 "use client";
 import ASCIIText from "@/components/ui/AsciiText";
-import Silk from "@/components/ui/Silk";
 import VariableProximity from "@/components/ui/VariableProximity";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import Scrollspy from "@/components/ui/Scrollspy";
@@ -129,15 +128,7 @@ export default function ReadmePage() {
   );
 
   return (
-    <div className="relative min-h-screen font-tomorrow">
-      <Silk
-        speed={5}
-        scale={1}
-        color={"#1d1d1b"}
-        noiseIntensity={1.5}
-        rotation={0}
-      />
-
+    <div>
       <div className="relative z-10">
         <ASCIIText
           text="KDSM"

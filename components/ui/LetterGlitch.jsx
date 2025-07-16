@@ -1,3 +1,4 @@
+"use client";
 import { useRef, useEffect, memo } from 'react'; // Import memo
 
 const LetterGlitch = ({
@@ -242,7 +243,7 @@ const LetterGlitch = ({
   }, [glitchSpeed, smooth, glitchColors]);
 
   return (
-    <div className="relative w-full h-full bg-background overflow-hidden">
+    <div className="fixed inset-0 w-full h-full bg-background overflow-hidden">
       <canvas ref={canvasRef} className="block w-full h-full" />
     </div>
   );

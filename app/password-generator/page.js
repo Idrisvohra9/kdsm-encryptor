@@ -16,7 +16,6 @@ import { Slider } from "@/components/ui/slider";
 import { toast } from "sonner";
 import { generateKey } from "@/utils/kdsm";
 import VariableProximity from "@/components/ui/VariableProximity";
-import LetterGlitch from "@/components/ui/LetterGlitch";
 import ShinyText from "@/components/ui/ShinyText";
 import Image from "next/image";
 import {
@@ -174,276 +173,287 @@ export default function PasswordGenerator() {
   const passwordStrength = getPasswordStrength(formState.generatedPassword);
 
   return (
-    <div className="flex min-h-screen h-full flex-col items-center justify-between p-2 sm:p-4 md:p-8 lg:p-12 xl:p-24">
-      <div className="fixed inset-0 -z-10 w-screen h-screen">
-        <LetterGlitch glitchSpeed={50} smooth={true} />
-      </div>
-      <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl relative z-20">
-        <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            type: "spring",
-            stiffness: 100,
-            damping: 10,
-            delay: 0.2,
-          }}
-          className="backdrop-blur-md"
-        >
-          <Card className="w-full text-primary bg-primary/10">
-            <CardHeader className="flex flex-col sm:flex-row-reverse items-center gap-3 sm:gap-4">
-              <Image
-                src="/icons/6.png"
-                width={86}
-                height={86}
-                className="me-2 object-cover w-16 h-16 sm:w-20 sm:h-20 md:w-[86px] md:h-[86px]"
-                alt="KDSM Logo"
+    <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl relative z-20">
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{
+          type: "spring",
+          stiffness: 100,
+          damping: 10,
+          delay: 0.2,
+        }}
+        className="backdrop-blur-md"
+      >
+        <Card className="w-full text-primary bg-primary/10">
+          <CardHeader className="flex flex-col sm:flex-row-reverse items-center gap-3 sm:gap-4">
+            <Image
+              src="/icons/6.png"
+              width={86}
+              height={86}
+              className="me-2 object-cover w-16 h-16 sm:w-20 sm:h-20 md:w-[86px] md:h-[86px]"
+              alt="KDSM Logo"
+            />
+            <div
+              ref={containerRef}
+              className="flex-1 flex flex-col text-center sm:text-left space-y-2 sm:space-y-4"
+            >
+              <VariableProximity
+                label={"Password Generator"}
+                className="text-lg sm:text-xl md:text-2xl"
+                containerRef={containerRef}
+                radius={50}
+                falloff="linear"
               />
-              <div
-                ref={containerRef}
-                className="flex-1 flex flex-col text-center sm:text-left space-y-2 sm:space-y-4"
-              >
+              <CardDescription>
                 <VariableProximity
-                  label={"Password Generator"}
-                  className="text-lg sm:text-xl md:text-2xl"
+                  label={
+                    "Generate secure passwords with customizable options using KDSM encryption"
+                  }
+                  className="text-sm sm:text-base"
                   containerRef={containerRef}
                   radius={50}
                   falloff="linear"
                 />
-                <CardDescription>
-                  <VariableProximity
-                    label={
-                      "Generate secure passwords with customizable options using KDSM encryption"
-                    }
-                    className="text-sm sm:text-base"
-                    containerRef={containerRef}
-                    radius={50}
-                    falloff="linear"
-                  />
-                </CardDescription>
-              </div>
-            </CardHeader>
+              </CardDescription>
+            </div>
+          </CardHeader>
 
-            <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
-              {/* Password Length */}
-              <div className="space-y-3 sm:space-y-4">
-                <div className="flex justify-between items-center">
-                  <Label className="text-sm sm:text-base">Password Length</Label>
-                  <span className="text-xs sm:text-sm font-medium">
-                    {formState.length[0]} characters
-                  </span>
-                </div>
-                <Slider
-                  value={formState.length}
-                  onValueChange={handleLengthChange}
-                  max={128}
-                  min={4}
-                  step={1}
-                  className="w-full"
-                />
+          <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
+            {/* Password Length */}
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex justify-between items-center">
+                <Label className="text-sm sm:text-base">Password Length</Label>
+                <span className="text-xs sm:text-sm font-medium">
+                  {formState.length[0]} characters
+                </span>
               </div>
+              <Slider
+                value={formState.length}
+                onValueChange={handleLengthChange}
+                max={128}
+                min={4}
+                step={1}
+                className="w-full"
+              />
+            </div>
 
-              {/* Character Options */}
-              <div className="space-y-3 sm:space-y-4">
-                <Label className="text-sm sm:text-base">Character Types</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="includeUppercase"
-                      checked={formState.includeUppercase}
-                      onCheckedChange={(checked) =>
-                        handleOptionChange("includeUppercase", checked)
-                      }
-                    />
-                    <Label htmlFor="includeUppercase" className="text-xs sm:text-sm">
-                      Uppercase (A-Z)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="includeLowercase"
-                      checked={formState.includeLowercase}
-                      onCheckedChange={(checked) =>
-                        handleOptionChange("includeLowercase", checked)
-                      }
-                    />
-                    <Label htmlFor="includeLowercase" className="text-xs sm:text-sm">
-                      Lowercase (a-z)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="includeNumbers"
-                      checked={formState.includeNumbers}
-                      onCheckedChange={(checked) =>
-                        handleOptionChange("includeNumbers", checked)
-                      }
-                    />
-                    <Label htmlFor="includeNumbers" className="text-xs sm:text-sm">
-                      Numbers (0-9)
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="includeSpecialChars"
-                      checked={formState.includeSpecialChars}
-                      onCheckedChange={(checked) =>
-                        handleOptionChange("includeSpecialChars", checked)
-                      }
-                    />
-                    <Label htmlFor="includeSpecialChars" className="text-xs sm:text-sm">
-                      Special (!@#$%^&*())
-                    </Label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Additional Options */}
-              <div className="space-y-3 sm:space-y-4">
-                <Label className="text-sm sm:text-base">Additional Options</Label>
+            {/* Character Options */}
+            <div className="space-y-3 sm:space-y-4">
+              <Label className="text-sm sm:text-base">Character Types</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="flex items-center space-x-2">
                   <Checkbox
-                    id="excludeSimilar"
-                    checked={formState.excludeSimilar}
+                    id="includeUppercase"
+                    checked={formState.includeUppercase}
                     onCheckedChange={(checked) =>
-                      handleOptionChange("excludeSimilar", checked)
+                      handleOptionChange("includeUppercase", checked)
                     }
                   />
-                  <Label htmlFor="excludeSimilar" className="text-xs sm:text-sm">
-                    Exclude similar characters (0, O, l, 1, I)
+                  <Label
+                    htmlFor="includeUppercase"
+                    className="text-xs sm:text-sm"
+                  >
+                    Uppercase (A-Z)
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="includeLowercase"
+                    checked={formState.includeLowercase}
+                    onCheckedChange={(checked) =>
+                      handleOptionChange("includeLowercase", checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="includeLowercase"
+                    className="text-xs sm:text-sm"
+                  >
+                    Lowercase (a-z)
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="includeNumbers"
+                    checked={formState.includeNumbers}
+                    onCheckedChange={(checked) =>
+                      handleOptionChange("includeNumbers", checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="includeNumbers"
+                    className="text-xs sm:text-sm"
+                  >
+                    Numbers (0-9)
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="includeSpecialChars"
+                    checked={formState.includeSpecialChars}
+                    onCheckedChange={(checked) =>
+                      handleOptionChange("includeSpecialChars", checked)
+                    }
+                  />
+                  <Label
+                    htmlFor="includeSpecialChars"
+                    className="text-xs sm:text-sm"
+                  >
+                    Special (!@#$%^&*())
                   </Label>
                 </div>
               </div>
+            </div>
 
-              {/* Custom Characters */}
-              <div className="space-y-2">
-                <Label htmlFor="customChars" className="text-sm sm:text-base">
-                  Custom Characters (Optional)
-                </Label>
-                <Input
-                  id="customChars"
-                  placeholder="Enter custom characters to use instead of default sets"
-                  value={formState.customChars}
-                  onChange={(e) =>
-                    handleOptionChange("customChars", e.target.value)
+            {/* Additional Options */}
+            <div className="space-y-3 sm:space-y-4">
+              <Label className="text-sm sm:text-base">Additional Options</Label>
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="excludeSimilar"
+                  checked={formState.excludeSimilar}
+                  onCheckedChange={(checked) =>
+                    handleOptionChange("excludeSimilar", checked)
                   }
-                  className="text-sm"
                 />
-                <span className="text-muted-foreground text-xs sm:text-sm">
-                  If provided, only these characters will be used (overrides
-                  other options)
-                </span>
+                <Label htmlFor="excludeSimilar" className="text-xs sm:text-sm">
+                  Exclude similar characters (0, O, l, 1, I)
+                </Label>
               </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                <Button 
-                  onClick={generatePassword} 
-                  disabled={isGenerating}
-                  className="w-full sm:w-auto text-sm sm:text-base"
-                >
-                  {isGenerating ? (
-                    <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                  ) : (
-                    <Key className="w-4 h-4 sm:w-5 sm:h-5" />
-                  )}
-                  Generate Password
-                </Button>
-                <Button 
-                  onClick={handleClear} 
-                  variant="outline"
-                  className="w-full sm:w-auto text-sm sm:text-base"
-                >
-                  Clear
-                  <BrushCleaning className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Button>
-              </div>
+            {/* Custom Characters */}
+            <div className="space-y-2">
+              <Label htmlFor="customChars" className="text-sm sm:text-base">
+                Custom Characters (Optional)
+              </Label>
+              <Input
+                id="customChars"
+                placeholder="Enter custom characters to use instead of default sets"
+                value={formState.customChars}
+                onChange={(e) =>
+                  handleOptionChange("customChars", e.target.value)
+                }
+                className="text-sm"
+              />
+              <span className="text-muted-foreground text-xs sm:text-sm">
+                If provided, only these characters will be used (overrides other
+                options)
+              </span>
+            </div>
 
-              {/* Generated Password */}
-              {formState.generatedPassword && (
-                <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border rounded-md bg-muted/50">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                    <Label className="text-sm sm:text-base">Generated Password</Label>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-xs sm:text-sm font-medium ${passwordStrength.color}`}
-                      >
-                        {passwordStrength.label}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={togglePasswordVisibility}
-                        title={
-                          formState.showPassword
-                            ? "Hide password"
-                            : "Show password"
-                        }
-                      >
-                        {formState.showPassword ? (
-                          <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
-                        ) : (
-                          <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          copyToClipboard(formState.generatedPassword)
-                        }
-                      >
-                        {copyState ? (
-                          <Check className="w-3 h-3 sm:w-4 sm:h-4" />
-                        ) : (
-                          <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="p-2 sm:p-3 bg-background rounded border break-all font-mono text-xs sm:text-sm">
-                    {formState.showPassword
-                      ? formState.generatedPassword
-                      : "•".repeat(formState.generatedPassword.length)}
-                  </div>
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs sm:text-sm text-muted-foreground">
-                    <span>
-                      Length: {formState.generatedPassword.length} characters
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Button
+                onClick={generatePassword}
+                disabled={isGenerating}
+                className="w-full sm:w-auto text-sm sm:text-base"
+              >
+                {isGenerating ? (
+                  <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                ) : (
+                  <Key className="w-4 h-4 sm:w-5 sm:h-5" />
+                )}
+                Generate Password
+              </Button>
+              <Button
+                onClick={handleClear}
+                variant="outline"
+                className="w-full sm:w-auto text-sm sm:text-base"
+              >
+                Clear
+                <BrushCleaning className="w-4 h-4 sm:w-5 sm:h-5" />
+              </Button>
+            </div>
+
+            {/* Generated Password */}
+            {formState.generatedPassword && (
+              <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border rounded-md bg-muted/50">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                  <Label className="text-sm sm:text-base">
+                    Generated Password
+                  </Label>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-xs sm:text-sm font-medium ${passwordStrength.color}`}
+                    >
+                      {passwordStrength.label}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
-                      <span>Strength: {passwordStrength.label}</span>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={togglePasswordVisibility}
+                      title={
+                        formState.showPassword
+                          ? "Hide password"
+                          : "Show password"
+                      }
+                    >
+                      {formState.showPassword ? (
+                        <EyeOff className="w-3 h-3 sm:w-4 sm:h-4" />
+                      ) : (
+                        <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        copyToClipboard(formState.generatedPassword)
+                      }
+                    >
+                      {copyState ? (
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4" />
+                      ) : (
+                        <Copy className="w-3 h-3 sm:w-4 sm:h-4" />
+                      )}
+                    </Button>
                   </div>
                 </div>
-              )}
-            </CardContent>
+                <div className="p-2 sm:p-3 bg-background rounded border break-all font-mono text-xs sm:text-sm">
+                  {formState.showPassword
+                    ? formState.generatedPassword
+                    : "•".repeat(formState.generatedPassword.length)}
+                </div>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                  <span>
+                    Length: {formState.generatedPassword.length} characters
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <span>Strength: {passwordStrength.label}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
 
-            <CardFooter className="flex-col p-4 sm:p-6">
-              <div className="flex justify-center items-center mb-3">
-                <Carousel
-                  autoplay={true}
-                  autoplayDelay={3000}
-                  pauseOnHover={true}
-                  loop={true}
-                />
-              </div>
-              <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-muted-foreground w-full gap-2 sm:gap-0">
-                <ShinyText
-                  text="KDSM Password Generator by - Idris Vohra"
-                  disabled={false}
-                  speed={3}
-                />
-                <ShinyText
-                  text="Secure • Customizable • Fast"
-                  disabled={false}
-                  speed={3}
-                />
-              </div>
-            </CardFooter>
-          </Card>
-        </motion.div>
-      </div>
+          <CardFooter className="flex-col p-4 sm:p-6">
+            <div className="flex justify-center items-center mb-3">
+              <Carousel
+                autoplay={true}
+                autoplayDelay={3000}
+                pauseOnHover={true}
+                loop={true}
+              />
+            </div>
+            <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-muted-foreground w-full gap-2 sm:gap-0">
+              <ShinyText
+                text="KDSM Password Generator by - Idris Vohra"
+                disabled={false}
+                speed={3}
+                className="text-center"
+              />
+              <ShinyText
+                text="Secure • Customizable • Fast"
+                disabled={false}
+                speed={3}
+                className="text-center"
+              />
+            </div>
+          </CardFooter>
+        </Card>
+      </motion.div>
     </div>
   );
 }

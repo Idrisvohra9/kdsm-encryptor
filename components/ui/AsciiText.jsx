@@ -1,14 +1,14 @@
 "use client";
 import { useRef, useEffect, useCallback } from "react";
-import { 
-  PerspectiveCamera, 
-  Scene, 
-  PlaneGeometry, 
-  ShaderMaterial, 
-  Mesh, 
-  WebGLRenderer, 
-  CanvasTexture, 
-  NearestFilter 
+import {
+  PerspectiveCamera,
+  Scene,
+  PlaneGeometry,
+  ShaderMaterial,
+  Mesh,
+  WebGLRenderer,
+  CanvasTexture,
+  NearestFilter,
 } from "three";
 
 const vertexShader = `
@@ -57,17 +57,26 @@ const mapValue = (n, start, stop, start2, stop2) => {
 };
 
 const PX_RATIO = typeof window !== "undefined" ? window.devicePixelRatio : 1;
-const DEFAULT_CHARSET = " .'`^\",:;Il!i~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
+const DEFAULT_CHARSET =
+  " .'`^\",:;Il!i~+_-?][}{1)(|/tfjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@$";
 
 class AsciiFilter {
-  constructor(renderer, { fontSize = 12, fontFamily = "'Courier New', monospace", charset = DEFAULT_CHARSET, invert = true } = {}) {
+  constructor(
+    renderer,
+    {
+      fontSize = 12,
+      fontFamily = "'Courier New', monospace",
+      charset = DEFAULT_CHARSET,
+      invert = true,
+    } = {}
+  ) {
     this.renderer = renderer;
     this.fontSize = fontSize;
     this.fontFamily = fontFamily;
     this.charset = charset;
     this.invert = invert;
     this.deg = 0;
-    
+
     this.setupDOM();
     this.setupCanvas();
     this.setupEventListeners();
@@ -80,7 +89,7 @@ class AsciiFilter {
       top: "0",
       left: "0",
       width: "100%",
-      height: "100%"
+      height: "100%",
     });
 
     this.pre = document.createElement("pre");
@@ -89,12 +98,18 @@ class AsciiFilter {
 
   setupCanvas() {
     this.canvas = document.createElement("canvas");
-    this.context = this.canvas.getContext("2d");
+    this.context = this.canvas.getContext("2d", { willReadFrequently: true });
+
     this.domElement.appendChild(this.canvas);
 
     // Disable image smoothing for pixelated effect
-    const smoothingProps = ['webkitImageSmoothingEnabled', 'mozImageSmoothingEnabled', 'msImageSmoothingEnabled', 'imageSmoothingEnabled'];
-    smoothingProps.forEach(prop => {
+    const smoothingProps = [
+      "webkitImageSmoothingEnabled",
+      "mozImageSmoothingEnabled",
+      "msImageSmoothingEnabled",
+      "imageSmoothingEnabled",
+    ];
+    smoothingProps.forEach((prop) => {
       if (prop in this.context) {
         this.context[prop] = false;
       }
@@ -120,12 +135,14 @@ class AsciiFilter {
     this.context.font = `${this.fontSize}px ${this.fontFamily}`;
     const charWidth = this.context.measureText("A").width;
 
-    this.cols = Math.floor(this.width / (this.fontSize * (charWidth / this.fontSize)));
+    this.cols = Math.floor(
+      this.width / (this.fontSize * (charWidth / this.fontSize))
+    );
     this.rows = Math.floor(this.height / this.fontSize);
 
     this.canvas.width = this.cols;
     this.canvas.height = this.rows;
-    
+
     Object.assign(this.pre.style, {
       fontFamily: this.fontFamily,
       fontSize: `${this.fontSize}px`,
@@ -137,7 +154,7 @@ class AsciiFilter {
       top: "0",
       zIndex: "9",
       backgroundAttachment: "fixed",
-      mixBlendMode: "difference"
+      mixBlendMode: "difference",
     });
   }
 
@@ -146,7 +163,7 @@ class AsciiFilter {
 
     const { width: w, height: h } = this.canvas;
     this.context.clearRect(0, 0, w, h);
-    
+
     if (this.context && w && h) {
       this.context.drawImage(this.renderer.domElement, 0, 0, w, h);
     }
@@ -175,14 +192,19 @@ class AsciiFilter {
 
   asciify(ctx, w, h) {
     if (!w || !h) return;
-    
+
     const imgData = ctx.getImageData(0, 0, w, h).data;
     let str = "";
-    
+
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
         const i = x * 4 + y * 4 * w;
-        const [r, g, b, a] = [imgData[i], imgData[i + 1], imgData[i + 2], imgData[i + 3]];
+        const [r, g, b, a] = [
+          imgData[i],
+          imgData[i + 1],
+          imgData[i + 2],
+          imgData[i + 3],
+        ];
 
         if (a === 0) {
           str += " ";
@@ -205,7 +227,10 @@ class AsciiFilter {
 }
 
 class CanvasTxt {
-  constructor(txt, { fontSize = 200, fontFamily = "Arial", color = "#fdf9f3" } = {}) {
+  constructor(
+    txt,
+    { fontSize = 200, fontFamily = "Arial", color = "#fdf9f3" } = {}
+  ) {
     this.canvas = document.createElement("canvas");
     this.context = this.canvas.getContext("2d");
     this.txt = txt;
@@ -220,9 +245,10 @@ class CanvasTxt {
     const metrics = this.context.measureText(this.txt);
 
     const textWidth = Math.ceil(metrics.width) + 20;
-    const textHeight = Math.ceil(
-      metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
-    ) + 20;
+    const textHeight =
+      Math.ceil(
+        metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+      ) + 20;
 
     this.canvas.width = textWidth;
     this.canvas.height = textHeight;
@@ -332,8 +358,16 @@ class CanvAscii {
     this.setSize(this.width, this.height);
 
     const eventOptions = { passive: true };
-    this.container.addEventListener("mousemove", this.onMouseMove, eventOptions);
-    this.container.addEventListener("touchmove", this.onMouseMove, eventOptions);
+    this.container.addEventListener(
+      "mousemove",
+      this.onMouseMove,
+      eventOptions
+    );
+    this.container.addEventListener(
+      "touchmove",
+      this.onMouseMove,
+      eventOptions
+    );
   }
 
   setSize(w, h) {
@@ -426,24 +460,27 @@ export default function ASCIIText({
   const containerRef = useRef(null);
   const asciiRef = useRef(null);
 
-  const initializeAscii = useCallback((width, height) => {
-    if (!containerRef.current) return;
+  const initializeAscii = useCallback(
+    (width, height) => {
+      if (!containerRef.current) return;
 
-    asciiRef.current = new CanvAscii(
-      {
-        text,
-        asciiFontSize,
-        textFontSize,
-        textColor,
-        planeBaseHeight,
-        enableWaves,
-      },
-      containerRef.current,
-      width,
-      height
-    );
-    asciiRef.current.load();
-  }, [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves]);
+      asciiRef.current = new CanvAscii(
+        {
+          text,
+          asciiFontSize,
+          textFontSize,
+          textColor,
+          planeBaseHeight,
+          enableWaves,
+        },
+        containerRef.current,
+        width,
+        height
+      );
+      asciiRef.current.load();
+    },
+    [text, asciiFontSize, textFontSize, textColor, planeBaseHeight, enableWaves]
+  );
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -453,7 +490,11 @@ export default function ASCIIText({
     if (width === 0 || height === 0) {
       const observer = new IntersectionObserver(
         ([entry]) => {
-          if (entry.isIntersecting && entry.boundingClientRect.width > 0 && entry.boundingClientRect.height > 0) {
+          if (
+            entry.isIntersecting &&
+            entry.boundingClientRect.width > 0 &&
+            entry.boundingClientRect.height > 0
+          ) {
             const { width: w, height: h } = entry.boundingClientRect;
             initializeAscii(w, h);
             observer.disconnect();

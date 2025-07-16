@@ -1,6 +1,8 @@
 import FuzzyText from "@/components/ui/FuzzyText";
-import React from "react";
-
+export const metadata = {
+  title: "404 Not Found",
+  description: "The page you are looking for does not exist.",
+};
 export default function Page() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24">

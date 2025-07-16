@@ -19,7 +19,10 @@ const tomorrow = Tomorrow({
 });
 
 export const metadata = {
-  title: "KDSM Encryptor",
+  title: {
+    default: "KDSM Encryptor - Secure your messages",
+    template: "%s | KDSM Encryptor",
+  },
   description:
     "Secure your messages with Keyed Dynamic Shift Matrix encryption",
   keywords: [

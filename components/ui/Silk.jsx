@@ -69,10 +69,7 @@ void main() {
 }
 `;
 
-const SilkPlane = forwardRef(function SilkPlane(
-  { uniforms },
-  ref
-) {
+const SilkPlane = forwardRef(function SilkPlane({ uniforms }, ref) {
   const { viewport } = useThree();
 
   useLayoutEffect(() => {
@@ -106,7 +103,7 @@ SilkPlane.displayName = "SilkPlane";
 const Silk = ({
   speed = 5,
   scale = 1,
-  color = "#7B7481",
+  color = "#1d1d1b",
   noiseIntensity = 1.5,
   rotation = 0,
 }) => {
@@ -125,16 +122,18 @@ const Silk = ({
   );
 
   return (
-    <div style={{ 
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      zIndex: -1
-    }}>
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        zIndex: -1,
+      }}
+    >
       <Canvas dpr={[1, 2]} frameloop="always">
-        <SilkPlane ref={meshRef} uniforms={uniforms}/>
+        <SilkPlane ref={meshRef} uniforms={uniforms} />
       </Canvas>
     </div>
   );

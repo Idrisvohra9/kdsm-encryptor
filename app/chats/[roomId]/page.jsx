@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { Loader2, Lock, Share2, LogIn, ArrowLeft } from "lucide-react";
 import { getChatRoom, joinChatRoom } from "@/lib/chatRooms";
 import ChatRoom from "@/components/ui/chats/ChatRoom";
+import GhostLoader from "@/components/ui/GhostLoader";
 
 function ChatRoomPageContent() {
   const { roomId } = useParams();
@@ -121,7 +122,7 @@ function ChatRoomPageContent() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <GhostLoader />
           <p className="text-muted-foreground">Loading chat room...</p>
         </div>
       </div>
@@ -310,7 +311,7 @@ function ChatRoomPageFallback() {
   return (
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center space-y-4">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+        <GhostLoader />
         <p className="text-muted-foreground">Loading...</p>
       </div>
     </div>

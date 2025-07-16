@@ -46,7 +46,7 @@ class KDSMClient:
         return data["data"]
 
 # Usage example
-client = KDSMClient("kdsm_7c16356850c8b5516f7a6602652baaa1")
+client = KDSMClient("kdsm_3eb76e42948b0ee7db7f0592a4ead316")
 
 try:
     # Encrypt a message

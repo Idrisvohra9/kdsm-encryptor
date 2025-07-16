@@ -109,11 +109,11 @@ h6 {
   }
 }
 .shiny-text {
-  @apply text-muted-foreground;
+  color: #b5b5b5a4; /* Adjust this color to change intensity/style */
   background: linear-gradient(
     120deg,
     rgba(255, 255, 255, 0) 40%,
-    rgb(255, 255, 255) 60%,
+    rgba(255, 255, 255, 0.8) 50%,
     rgba(255, 255, 255, 0) 60%
   );
   background-size: 200% 100%;
@@ -135,6 +135,7 @@ h6 {
 .shiny-text.disabled {
   animation: none;
 }
+
 .theme-switch {
   --toggle-size: 15px;
   /* the size is adjusted using font-size,
@@ -441,6 +442,7 @@ pre {
 #ghost {
   position: relative;
   scale: 0.8;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 #red {
@@ -1470,4 +1472,55 @@ pre {
   .screenM {
     display: none;
   }
+}
+
+/* Premium button */
+/* From Uiverse.io by vinodjangid07 */ 
+.Btn {
+  width: 140px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(to right,#77530a,#ffd277,#77530a,#77530a,#ffd277,#77530a);
+  background-size: 250%;
+  background-position: left;
+  color: #ffd277;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition-duration: 1s;
+  overflow: hidden;
+}
+
+.Btn::before {
+  position: absolute;
+  content: "Upgrade Plan";
+  color: #ffd277;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 97%;
+  height: 90%;
+  font-family: var(--font-tomorrow);
+  border-radius: 8px;
+  transition-duration: 1s;
+  background-color: rgba(0, 0, 0, 0.842);
+  background-size: 200%;
+}
+
+.Btn:hover {
+  background-position: right;
+  transition-duration: 1s;
+}
+
+.Btn:hover::before {
+  background-position: right;
+  transition-duration: 1s;
+}
+
+.Btn:active {
+  transform: scale(0.95);
 }

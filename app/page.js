@@ -253,14 +253,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
-      <div className="fixed inset-0 -z-10 w-screen h-screen">
-        <LetterGlitch
-          glitchSpeed={50}
-          centerVignette={true}
-          outerVignette={true}
-          smooth={true}
-        />
-      </div>
+      <LetterGlitch />
       <div className="w-full max-w-3xl relative z-20">
         <motion.div
           initial={{ opacity: 0, y: -50 }}
@@ -274,9 +267,7 @@ export default function Home() {
           className="backdrop-blur-md"
         >
           <Card className="w-full text-primary bg-primary/10">
-            <CardHeader
-              className={"flex flex-row-reverse items-center"}
-            >
+            <CardHeader className={"flex flex-row-reverse items-center"}>
               <Image
                 src="/icons/1.png"
                 width={86}
@@ -325,7 +316,8 @@ export default function Home() {
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Security Notice</AlertTitle>
                   <AlertDescription>
-                    For security reasons, emojis will be automatically removed from your message during encryption
+                    For security reasons, emojis will be automatically removed
+                    from your message during encryption
                   </AlertDescription>
                 </Alert>
               </div>
