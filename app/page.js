@@ -28,9 +28,9 @@ import {
   ShieldOff,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Carousel from "@/components/ui/Carousel";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
+import FlowingMenu from "@/components/ui/FlowingMenu";
 
 // Define constants with corrected emoji regex
 const KEY_START_MARKER = "[KDSM_KEY_START]";
@@ -254,7 +254,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen h-full flex-col items-center justify-between p-4 md:p-24">
       <LetterGlitch />
-      <div className="w-full max-w-3xl relative z-20">
+      <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl relative z-20">
         <motion.div
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
@@ -267,21 +267,21 @@ export default function Home() {
           className="backdrop-blur-md"
         >
           <Card className="w-full text-primary bg-primary/10">
-            <CardHeader className={"flex flex-row-reverse items-center"}>
+            <CardHeader className="flex flex-col sm:flex-row-reverse items-center gap-3 sm:gap-4">
               <Image
                 src="/icons/1.png"
                 width={86}
                 height={86}
-                className="me-2 object-cover"
+                className="me-2 object-cover w-16 h-16 sm:w-20 sm:h-20 md:w-[86px] md:h-[86px]"
                 alt="KDSM Logo"
               />
               <div
                 ref={containerRef}
-                className="flex-1 flex flex-col text-left space-y-4"
+                className="flex-1 flex flex-col text-center sm:text-left space-y-2 sm:space-y-4"
               >
                 <VariableProximity
                   label={"KDSM Encryptor V - 0.5"}
-                  className={"sm:text-2xl text-lg"}
+                  className="text-lg sm:text-xl md:text-2xl"
                   containerRef={containerRef}
                   radius={50}
                   falloff="linear"
@@ -291,7 +291,7 @@ export default function Home() {
                     label={
                       "Secure your messages with Keyed Dynamic Shift Matrix encryption"
                     }
-                    className={"text-base"}
+                    className="text-sm sm:text-base"
                     containerRef={containerRef}
                     radius={50}
                     falloff="linear"
@@ -300,9 +300,11 @@ export default function Home() {
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6 p-4 sm:p-6">
               <div className="space-y-2">
-                <Label htmlFor="message">Message</Label>
+                <Label htmlFor="message" className="text-sm sm:text-base">
+                  Message
+                </Label>
                 <Textarea
                   id="message"
                   placeholder="Enter your message here or paste message with key..."
@@ -310,12 +312,15 @@ export default function Home() {
                   value={formState.message}
                   onChange={handleMessageChange}
                   onPaste={handlePaste}
-                  className="min-h-[120px]"
+                  className="min-h-[120px] text-sm sm:text-base"
+                  autoFocus
                 />
                 <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Security Notice</AlertTitle>
-                  <AlertDescription>
+                  <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <AlertTitle className="text-sm sm:text-base">
+                    Security Notice
+                  </AlertTitle>
+                  <AlertDescription className="text-xs sm:text-sm">
                     For security reasons, emojis will be automatically removed
                     from your message during encryption
                   </AlertDescription>
@@ -324,14 +329,17 @@ export default function Home() {
 
               <div className="space-y-2">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
-                  <Label htmlFor="key" className="whitespace-nowrap">
+                  <Label
+                    htmlFor="key"
+                    className="text-sm sm:text-base whitespace-nowrap"
+                  >
                     Encryption Key (Optional)
                   </Label>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={generateRandomKey}
-                    className="w-full sm:w-auto"
+                    className="w-full sm:w-auto text-xs sm:text-sm"
                   >
                     Generate Random Key
                   </Button>
@@ -341,27 +349,44 @@ export default function Home() {
                   placeholder="Enter a key or leave blank for auto-generation"
                   value={formState.key}
                   onChange={handleKeyChange}
-                  className="w-full"
+                  className="w-full text-sm sm:text-base"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  inputMode="text"
                 />
               </div>
 
-              <div className="flex flex-wrap gap-4 flex-row-reverse">
-                <Button onClick={handleEncrypt}>
-                  Encrypt <Shield className="w-5 h-5" />
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Button
+                  onClick={handleEncrypt}
+                  className="w-full sm:w-auto text-sm sm:text-base"
+                >
+                  Encrypt <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
-                <Button onClick={handleDecrypt} variant="secondary">
-                  Decrypt <ShieldOff className="w-5 h-5" />
+                <Button
+                  onClick={handleDecrypt}
+                  variant="secondary"
+                  className="w-full sm:w-auto text-sm sm:text-base"
+                >
+                  Decrypt <ShieldOff className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
-                <Button onClick={handleClear} variant="outline">
+                <Button
+                  onClick={handleClear}
+                  variant="outline"
+                  className="w-full sm:w-auto text-sm sm:text-base"
+                >
                   Clear All
-                  <BrushCleaning className="w-5 h-5" />
+                  <BrushCleaning className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
               </div>
 
               {formState.encryptedResult && (
-                <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                  <div className="flex justify-between items-center">
-                    <Label>Encrypted Result</Label>
+                <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border rounded-md bg-muted/50">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <Label className="text-sm sm:text-base">
+                      Encrypted Result
+                    </Label>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
@@ -375,14 +400,14 @@ export default function Home() {
                         title="Copy Encrypted Message Only"
                       >
                         {copyStates.encrypted ? (
-                          <Check className="w-5 h-5" />
+                          <Check className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                         ) : (
-                          <Copy className="w-5 h-5" />
+                          <Copy className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                         )}
                       </Button>
                     </div>
                   </div>
-                  <div className="p-3 bg-background rounded border break-all">
+                  <div className="p-2 sm:p-3 bg-background rounded border break-all font-tomorrow text-xs sm:text-sm">
                     {formState.encryptedResult}
                   </div>
                   <div className="w-full flex flex-row-reverse">
@@ -391,11 +416,12 @@ export default function Home() {
                       size="sm"
                       onClick={copyEncryptedWithKey}
                       title="Copy with Key"
+                      className="text-xs sm:text-sm"
                     >
                       {copyStates.encryptedWithKey ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       ) : (
-                        <Copy className="w-5 h-5" />
+                        <Copy className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       )}{" "}
                       With Key
                     </Button>
@@ -404,9 +430,11 @@ export default function Home() {
               )}
 
               {formState.decryptedResult && (
-                <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                  <div className="flex justify-between items-center">
-                    <Label>Decrypted Result</Label>
+                <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border rounded-md bg-muted/50">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <Label className="text-sm sm:text-base">
+                      Decrypted Result
+                    </Label>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -415,13 +443,13 @@ export default function Home() {
                       }
                     >
                       {copyStates.decrypted ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       ) : (
-                        <Copy className="w-5 h-5" />
+                        <Copy className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 bg-background rounded border break-all">
+                  <div className="p-2 sm:p-3 bg-background rounded border break-all font-tomorrow text-xs sm:text-sm">
                     <DecryptedText
                       text={formState.decryptedResult}
                       animateOn="view"
@@ -438,8 +466,9 @@ export default function Home() {
                           window.open(formState.decryptedResult, "_blank")
                         }
                         title="Open link in new tab"
+                        className="text-xs sm:text-sm"
                       >
-                        <ExternalLink className="w-5 h-5" />
+                        <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       </Button>
                     </div>
                   )}
@@ -447,9 +476,11 @@ export default function Home() {
               )}
 
               {formState.lastUsedKey && (
-                <div className="space-y-2 p-4 border rounded-md bg-muted/50">
-                  <div className="flex justify-between items-center">
-                    <Label>Last Used Key</Label>
+                <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 border rounded-md bg-muted/50">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <Label className="text-sm sm:text-base">
+                      Last Used Key
+                    </Label>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -458,38 +489,33 @@ export default function Home() {
                       }
                     >
                       {copyStates.key ? (
-                        <Check className="w-5 h-5" />
+                        <Check className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       ) : (
-                        <Copy className="w-5 h-5" />
+                        <Copy className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 bg-background rounded border break-all">
+                  <div className="p-2 sm:p-3 bg-background rounded border break-all font-tomorrow text-xs sm:text-sm">
                     {formState.lastUsedKey}
                   </div>
                 </div>
               )}
             </CardContent>
 
-            <CardFooter className="flex-col">
-              <div className="flex justify-center items-center mb-3">
-                <Carousel
-                  autoplay={true}
-                  autoplayDelay={3000}
-                  pauseOnHover={true}
-                  loop={true}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-muted-foreground w-full">
+            <CardFooter className="flex-col p-4 sm:p-6">
+              <FlowingMenu />
+              <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-muted-foreground w-full gap-2 sm:gap-0">
                 <ShinyText
                   text="KDSM Encryptor by - Idris Vohra"
                   disabled={false}
                   speed={3}
+                  className="text-center"
                 />
                 <ShinyText
                   text="OP • Super Fast • One of a kind"
                   disabled={false}
                   speed={3}
+                  className="text-center"
                 />
               </div>
             </CardFooter>

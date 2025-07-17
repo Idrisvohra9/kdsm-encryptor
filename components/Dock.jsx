@@ -44,13 +44,13 @@ export function Dock() {
       href: "/profile",
     },
     {
-      title: "Messaging",
+      title: "Chats",
       icon: (
         <Image
           src="/icons/2.png"
           width={55}
           height={55}
-          alt="KDSM messaging Logo"
+          alt="KDSM chats Logo"
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300"
         />
       ),

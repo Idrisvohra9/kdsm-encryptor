@@ -29,7 +29,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Carousel from "@/components/ui/Carousel";
+import FlowingMenu from "@/components/ui/FlowingMenu";
 
 const COPY_TIMEOUT = 2000;
 
@@ -173,7 +173,7 @@ export default function PasswordGenerator() {
   const passwordStrength = getPasswordStrength(formState.generatedPassword);
 
   return (
-    <div className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-3xl xl:max-w-4xl relative z-20">
+    <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-3xl relative z-20">
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
@@ -430,12 +430,7 @@ export default function PasswordGenerator() {
 
           <CardFooter className="flex-col p-4 sm:p-6">
             <div className="flex justify-center items-center mb-3">
-              <Carousel
-                autoplay={true}
-                autoplayDelay={3000}
-                pauseOnHover={true}
-                loop={true}
-              />
+              <FlowingMenu />
             </div>
             <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-muted-foreground w-full gap-2 sm:gap-0">
               <ShinyText

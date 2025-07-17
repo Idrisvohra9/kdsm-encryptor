@@ -114,7 +114,7 @@ export default function ChatsPage() {
                     width={65}
                     height={65}
                     className="me-2 object-cover"
-                    alt="KDSM Messaging Logo"
+                    alt="KDSM Chats Logo"
                   />
                   <div>
                     <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-500 to-zinc-500 bg-clip-text text-transparent">

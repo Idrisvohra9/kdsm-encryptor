@@ -27,9 +27,10 @@ export const FloatingDock = ({ items, desktopClassName, mobileClassName }) => {
     </>
   );
 };
-
 const FloatingDockMobile = ({ items, className }) => {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  
   return (
     <div className={cn("relative block md:hidden", className)}>
       <AnimatePresence>
@@ -58,7 +59,15 @@ const FloatingDockMobile = ({ items, className }) => {
                 <Link
                   href={item.href}
                   key={item.title}
-                  className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary/80 backdrop-blur-md border border-white/20 shadow-lg"
+                  className={`flex h-12 w-12 items-center justify-center rounded-full bg-secondary/80 backdrop-blur-md border border-white/20 shadow-lg ${
+                    item.href === "/"
+                      ? pathname === "/"
+                        ? "border-2 !border-white"
+                        : ""
+                      : pathname.startsWith(item.href)
+                      ? "border-2 !border-white"
+                      : ""
+                  }`}
                 >
                   <div className="h-8 w-8">{item.icon}</div>
                 </Link>
@@ -98,7 +107,11 @@ const FloatingDockDesktop = ({ items, className }) => {
           mouseX={mouseX}
           key={item.title}
           {...item}
-          isActive={item.href === '/' ? pathname === '/' : pathname.startsWith(item.href)}
+          isActive={
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href)
+          }
         />
       ))}
     </motion.div>

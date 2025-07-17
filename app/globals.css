@@ -59,6 +59,8 @@ h6 {
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.55 0 0);
+  --font-tomorrow: 'Tomorrow';
+  --font-silkscreen: 'Silkscreen';
 }
 @theme inline {
   --color-background: var(--background);
@@ -1523,4 +1525,140 @@ pre {
 
 .Btn:active {
   transform: scale(0.95);
+}
+/* Experimental */
+.menu-wrap {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-tomorrow), sans-serif;
+}
+
+.menu__item {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 -1px #fff;
+}
+
+.menu__item-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  position: relative;
+  cursor: pointer;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #fff;
+  font-size: clamp(1.5rem, 4vh, 3rem);
+  padding: 0 1rem;
+}
+
+.menu__item-link:hover {
+  color: #060010;
+}
+
+.menu__item-link:focus:not(:focus-visible) {
+  color: #fff;
+}
+
+.marquee {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  background: #fff;
+  transform: translate3d(0, 101%, 0);
+  transition: transform 0.6s ease-expo;
+}
+
+.marquee__inner-wrap {
+  height: 100%;
+  width: 200%;
+  display: flex;
+  transform: translateX(0);
+}
+
+.marquee__inner {
+  display: flex;
+  align-items: center;
+  position: relative;
+  height: 100%;
+  width: 200%;
+  will-change: transform;
+  animation: marquee 15s linear infinite;
+}
+
+.marquee span {
+  color: #060010;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: clamp(1.2rem, 4vh, 2.5rem);
+  line-height: 1.2;
+  padding: 1vh 1vw 0;
+}
+
+.menu__item-link:hover+.marquee {
+  transform: translate3d(0, 0%, 0);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .menu__item-link {
+    font-size: clamp(1.2rem, 3vh, 2.5rem);
+    font-weight: 500;
+  }
+
+  .marquee span {
+    font-size: clamp(1rem, 3vh, 2rem);
+    padding: 0.5vh 0.5vw 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu__item-link {
+    font-size: clamp(1rem, 2.5vh, 2rem);
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .marquee span {
+    font-size: clamp(0.9rem, 2.5vh, 1.5rem);
+  }
+}
+
+@media (max-height: 600px) {
+  .menu__item-link {
+    font-size: clamp(1rem, 3vh, 2rem);
+  }
+
+  .marquee span {
+    font-size: clamp(0.8rem, 3vh, 1.8rem);
+  }
 }
