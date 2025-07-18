@@ -185,7 +185,7 @@ export default function PasswordGenerator() {
         }}
         className="backdrop-blur-md"
       >
-        <Card className="w-full text-primary bg-primary/10">
+        <Card className="w-full text-primary bg-primary/10 gap-0">
           <CardHeader className="flex flex-col sm:flex-row-reverse items-center gap-3 sm:gap-4">
             <Image
               src="/icons/6.png"
@@ -429,9 +429,7 @@ export default function PasswordGenerator() {
           </CardContent>
 
           <CardFooter className="flex-col p-4 sm:p-6">
-            <div className="flex justify-center items-center mb-3">
-              <FlowingMenu />
-            </div>
+            <FlowingMenu />
             <div className="flex flex-col sm:flex-row justify-between text-xs sm:text-sm text-muted-foreground w-full gap-2 sm:gap-0">
               <ShinyText
                 text="KDSM Password Generator by - Idris Vohra"

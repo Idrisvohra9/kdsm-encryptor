@@ -9,7 +9,7 @@
 ---
 
 ![BSL License](https://img.shields.io/badge/license-BSL%201.1-blue)
-<a href="https://appwrite.io" target="_blank"><img src="./public/assets/kdsm-banner.png" alt="KDSM banner, with logo and text saying 'Built for security'"></a>
+<a href="https://appwrite.io" target="_blank"><img src="./public/assets/kdsm-banner.gif" alt="KDSM banner, with logo and text saying 'Built for security'"></a>
 <br />
 
 ## 🎯 Join the Revolution!
@@ -19,6 +19,8 @@ Hey there, crypto enthusiasts and security-minded developers! 🔐
 Are you passionate about **cutting-edge encryption** and **innovative security solutions**? Do you believe in creating tools that put privacy back in the hands of users? Then **KDSM Encryptor** is calling your name!
 
 We're building something **extraordinary** - a next-generation encryption system that's not just secure, but blazingly fast and user-friendly. This isn't just another project; it's a movement towards democratizing advanced cryptography.
+
+💵 The core contributors and maintainers will also get hired by us to work remotely on another project and will be paid handsomely! 💸
 
 ### 🚀 Why KDSM is Cool
 

@@ -69,6 +69,19 @@ export function Dock() {
       ),
       href: "/password-generator",
     },
+    {
+      title: "Contribute",
+      icon: (
+        <Image
+          src="/icons/7.png"
+          width={55}
+          height={55}
+          alt="KDSM Contribute Logo"
+          className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300"
+        />
+      ),
+      href: "/contribute",
+    },
   ];
 
   return (

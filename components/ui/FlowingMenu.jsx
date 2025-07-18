@@ -4,24 +4,29 @@ import Image from 'next/image';
 
 const ITEMS = [
   {
-    title: "KDSM Chats",
+    title: "Chats",
     imageNumber: "2",
     link: "/chats",
   },
   {
-    title: "KDSM Encryptor",
+    title: "Encryptor",
     imageNumber: "1",
     link: "/",
   },
   {
-    title: "KDSM Developer API",
+    title: "Developer API",
     imageNumber: "5",
     link: "/readme#api-documentation",
   },
   {
-    title: "KDSM Profile Management",
+    title: "Profile Management",
     imageNumber: "3",
     link: "/profile",
+  },
+  {
+    title: "Contribute",
+    imageNumber: "7",
+    link: "/contribute",
   },
 ];
 

@@ -266,7 +266,7 @@ export default function Home() {
           }}
           className="backdrop-blur-md"
         >
-          <Card className="w-full text-primary bg-primary/10">
+          <Card className="w-full text-primary bg-primary/10 gap-0">
             <CardHeader className="flex flex-col sm:flex-row-reverse items-center gap-3 sm:gap-4">
               <Image
                 src="/icons/1.png"
