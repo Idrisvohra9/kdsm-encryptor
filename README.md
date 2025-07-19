@@ -9,7 +9,7 @@
 ---
 
 ![BSL License](https://img.shields.io/badge/license-BSL%201.1-blue)
-<a href="https://appwrite.io" target="_blank"><img src="./public/assets/kdsm-banner.gif" alt="KDSM banner, with logo and text saying 'Built for security'"></a>
+<a href="https://kdsm.vercel.app" target="_blank"><img src="./public/assets/kdsm-banner.gif" alt="KDSM banner, with logo and text saying 'Built for security'"></a>
 <br />
 
 ## 🎯 Join the Revolution!
@@ -115,7 +115,7 @@ _Beautiful, intuitive interface that makes security accessible to everyone_
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/kdsm-encryptor.git
+git clone https://github.com/Idrisvohra9/kdsm-encryptor.git
 cd kdsm-encryptor
 
 # Install dependencies
@@ -175,9 +175,8 @@ We welcome contributions of all sizes! Whether you're fixing a typo, adding a fe
 
 ### Phase 5: 🎯 Upcoming
 
-- [ ] Mobile app development
-- [ ] Enterprise features
-- [ ] Advanced analytics dashboard
+- [ ] KDSM CLI (For encrypting and decrypting entire files using a secret key)
+- [ ] Paper extraction and decryption of secret messages (Secret Extraction)
 
 For more information on the DEVELOPMENT_PLAN please See the [DEVELOPMENT_PLAN](./DEVELOPMENT_PLAN.md) file for full details.
 
