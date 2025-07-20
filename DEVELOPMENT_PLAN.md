@@ -207,7 +207,6 @@
 | `createdAt`   | datetime      | Room creation time     |
 
 ---
-
 ### 💬 `messages`
 
 | Field              | Type                        | Description                 |
@@ -216,8 +215,19 @@
 | `senderId`         | string                      | Auth user ID                |
 | `contentEncrypted` | string                      | KDSM encrypted message      |
 | `replyToId`        | string                      | Message ID being replied to |
+| `readBy`           | array(object)               | [{userId, readAt}] tracking |
 | `isExpired`        | boolean                     | Soft delete flag            |
 | `expiresAt`        | datetime                    | When to expire message      |
+
+---
+
+### 📖 `messageReads` (Alternative Approach)
+
+| Field       | Type     | Description        |
+| ----------- | -------- | ------------------ |
+| `messageId` | string   | Reference to message |
+| `userId`    | string   | User who read it   |
+| `readAt`    | datetime | When message was read |
 
 ---
 

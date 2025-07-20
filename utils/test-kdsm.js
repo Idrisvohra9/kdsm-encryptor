@@ -1,282 +1,159 @@
-// import { encrypt, decrypt } from "./kdsm";
+import { encrypt, decrypt } from "./kdsm";
 
-// /**
-//  * Test suite for KDSM encryption/decryption
-//  * Runs a series of tests to verify algorithm correctness
-//  */
-// export function runKDSMTests() {
-//   const testResults = {
-//     passed: 0,
-//     failed: 0,
-//     tests: [],
-//   };
+/**
+ * Test suite for KDSM encryption/decryption
+ * Runs a series of tests to verify algorithm correctness
+ */
+export function runKDSMTests() {
+  const testResults = {
+    passed: 0,
+    failed: 0,
+    tests: [],
+  };
 
-//   // Helper function to run a test
-//   function runTest(name, test) {
-//     try {
-//       const result = test();
-//       if (result === true) {
-//         testResults.passed++;
-//         testResults.tests.push({ name, passed: true });
-//         console.log(`✅ PASSED: ${name}`);
-//       } else {
-//         testResults.failed++;
-//         testResults.tests.push({ name, passed: false, error: result });
-//         console.error(`❌ FAILED: ${name}`, result);
-//       }
-//     } catch (error) {
-//       testResults.failed++;
-//       testResults.tests.push({ name, passed: false, error: error.message });
-//       console.error(`❌ FAILED: ${name}`, error.message);
-//     }
-//   }
+  // Helper function to run a test
+  function runTest(name, test) {
+    try {
+      const result = test();
+      if (result === true) {
+        testResults.passed++;
+        testResults.tests.push({ name, passed: true });
+        console.log(`✅ PASSED: ${name}`);
+      } else if (typeof result === 'object' && result.passed) {
+        testResults.passed++;
+        testResults.tests.push({ name, passed: true, ...result });
+        console.log(`✅ PASSED: ${name}`);
+      } else {
+        testResults.failed++;
+        testResults.tests.push({ name, passed: false, error: typeof result === 'string' ? result : result.error });
+        console.error(`❌ FAILED: ${name}`, typeof result === 'string' ? result : result.error);
+      }
+    } catch (error) {
+      testResults.failed++;
+      testResults.tests.push({ name, passed: false, error: error.message });
+      console.error(`❌ FAILED: ${name}`, error.message);
+    }
+  }
 
-//   // Test 1: Basic encryption/decryption
-//   // runTest("Basic encryption/decryption", () => {
-//   //   const message = "Hello, World!";
-//   //   const key = "test-key";
-//   //   const encrypted = encrypt(message, key);
-//   //   const decrypted = decrypt(encrypted, key);
+  // Test: Performance benchmark for long input
+  runTest("Performance benchmark - Long input encryption/decryption", () => {
+    const message = `Plan to rob a bank ^_~ (Spoof)
 
-//   //   if (decrypted !== message) {
-//   //     return `Expected "${message}" but got "${decrypted}"`;
-//   //   }
-//   //   return true;
-//   // });
+Step 1: Planning the Plan to Make a Plan
 
-//   // // Test 2: Empty message
-//   // runTest("Empty message", () => {
-//   //   const message = "";
-//   //   const key = "test-key";
-//   //   const encrypted = encrypt(message, key);
-//   //   const decrypted = decrypt(encrypted, key);
+Hold a secret planning meeting at a public Starbucks.
 
-//   //   if (decrypted !== message) {
-//   //     return `Expected empty string but got "${decrypted}"`;
-//   //   }
-//   //   return true;
-//   // });
+Use fake mustaches and upside-down blueprints for cover.
 
-//   // // Test 3: No key provided (should use auto-generated key)
-//   // runTest("No key provided", () => {
-//   //   const message = "Secret message with no key";
-//   //   const encrypted = encrypt(message);
-//   //   // We can't decrypt without the same key, so this is just checking it doesn't throw
-//   //   return encrypted.length > 0;
-//   // });
+The hacker pretends to hack but actually plays Minesweeper.
 
-//   // // Test 4: Long message (1000+ characters)
-//   // runTest("Long message (1000+ characters)", () => {
-//   //   let longMessage = "";
-//   //   for (let i = 0; i < 100; i++) {
-//   //     longMessage +=
-//   //       "This is a very long message that needs to be encrypted and decrypted correctly. ";
-//   //   }
-//   //   const key = "long-message-key";
-//   //   const encrypted = encrypt(longMessage, key);
-//   //   const decrypted = decrypt(encrypted, key);
+Say "I'm in!" every few minutes to sound cool.
 
-//   //   if (decrypted !== longMessage) {
-//   //     return `Long message decryption failed. Expected length ${longMessage.length} but got ${decrypted.length}`;
-//   //   }
-//   //   return true;
-//   // });
+Step 2: Scouting the Bank
 
-//   // // Test 5: Special characters
-//   // runTest("Special characters", () => {
-//   //   const message = "!@#$%^&*()_+{}:\"<>?[];',./-=~`";
-//   //   const key = "lolamlol^^^";
-//   //   const encrypted = encrypt(message, key);
-//   //   const decrypted = decrypt(encrypted, key);
+Go undercover in disguises:
 
-//   //   if (decrypted !== message) {
-//   //     return `Expected "${message}" but got "${decrypted}"`;
-//   //   }
-//   //   return true;
-//   // });
+Lead wears a grandma outfit with cats in a stroller.
 
-//   // // Test 6: Unicode characters
-//   // runTest("Unicode characters", () => {
-//   //   const message = "Hello, 世界! こんにちは";
-//   //   const key = "unicode-key";
-//   //   const encrypted = encrypt(message, key);
-//   //   const decrypted = decrypt(encrypted, key);
+Hacker pretends to be IT support with a suspicious name tag.
 
-//   //   if (decrypted !== message) {
-//   //     return `Expected "${message}" but got "${decrypted}"`;
-//   //   }
-//   //   return true;
-//   // });
+Muscle guy fakes being a financial advisor who just says "STOCKS!"
 
-//   // // Test 7: Wrong decryption key
-//   // runTest("Wrong decryption key", () => {
-//   //   const message = "This is a secret message";
-//   //   const encryptKey = "correct-key";
-//   //   const decryptKey = "wrong-key";
-//   //   const encrypted = encrypt(message, encryptKey);
-//   //   const decrypted = decrypt(encrypted, decryptKey);
+Driver waits outside in his Uber.
 
-//   //   // This should fail (decrypted should not match original)
-//   //   if (decrypted === message) {
-//   //     return "Decryption succeeded with wrong key!";
-//   //   }
-//   //   return true;
-//   // });
+Use fake spy gadgets like banana microphones and off sunglasses.
 
-//   // // Test 8: Spaces and whitespace
-//   // runTest("Spaces and whitespace", () => {
-//   //   const message = "   Multiple    spaces   and\ttabs\nand newlines\r\n";
-//   //   const key = "whitespace-key";
-//   //   const encrypted = encrypt(message, key);
-//   //   const decrypted = decrypt(encrypted, key);
+Step 3: Distractions
 
-//   //   if (decrypted !== message) {
-//   //     return `Expected "${message}" but got "${decrypted}"`;
-//   //   }
-//   //   return true;
-//   // });
+Unleash 42 rubber chickens in the bank lobby.
 
-//   // // Test 9: Case preservation
-//   // runTest("Case preservation", () => {
-//   //   const message = "ThIs MeSsAgE hAs MiXeD cAsE";
-//   //   const key = "case-key";
-//   //   const encrypted = encrypt(message, key);
-//   //   const decrypted = decrypt(encrypted, key);
+Start a flash mob dancing to "Baby Shark."
 
-//   //   if (decrypted !== message) {
-//   //     return `Expected "${message}" but got "${decrypted}"`;
-//   //   }
-//   //   return true;
-//   // });
+Host a fake seminar on crypto to lure guards away with confusing jargon.
 
-//   // Test 10: URL encryption/decryption
-//   // runTest("URL encryption/decryption", () => {
-//   //   const urls = [
-//   //     "https://youtube.com/shorts/CBOOQiB8-cg?si=9iJHnYjrz8COqteH",
-//   //     "https://youtube.com/shorts/vMNXDeCsk4E?si=RWlYSR7TfW7V6I2k",
-//   //     "https://youtube.com/shorts/J2Hyh8jyEsE?si=-dzJYOkCOdHrzSIU",
-//   //     "https://youtube.com/shorts/hDnt5vtZSa4?si=WglbV7aZoEsiv_CD",
-//   //   ];
+Step 4: Cracking the Vault
 
-//   //   // Run 10 iterations with random keys
-//   //   for (let i = 0; i < 10; i++) {
-//   //     // Generate random 8 digit key
-//   //     const randomKey = generateKey()
-//   //     // Test each URL with the random key
-//   //     for (const url of urls) {
-//   //       const encrypted = encrypt(url, randomKey);
-//   //       const decrypted = decrypt(encrypted, randomKey);
-//   //       console.log("Decrypted: ", decrypted);
-//   //       if (decrypted !== url) {
-//   //         return `Failed on iteration ${
-//   //           i + 1
-//   //         } with key ${randomKey}. Expected "${url}" but got "${decrypted}"`;
-//   //       }
-//   //     }
-//   //     console.log(`✓ Iteration ${i + 1} passed with key: ${randomKey}`);
-//   //   }
+Attempt to open the vault with a plastic spoon and stethoscope.
 
-//   //   return true;
-//   // });
+Hacker uses meaningless tech terms to "hack."
 
-//   // Test 11: Complex URL with special characters
-//   // runTest("Complex URL with special characters", () => {
-//   //   const url =
-//   //     "https://example.com/path/to/resource?query=value&another=123#fragment-id";
-//   //   const key = "complex-url-key";
-//   //   const encrypted = encrypt(url, key);
-//   //   const decrypted = decrypt(encrypted, key);
+Muscle guy breaks his wrist punching the vault.
 
-//   //   if (decrypted !== url) {
-//   //     return `Expected "${url}" but got "${decrypted}"`;
-//   //   }
-//   //   return true;
-//   // });
+Realize the vault is already open during business hours and walk in awkwardly.
 
-//   // Test 12: Performance benchmark
-//   // runTest("Performance benchmark", () => {
-//   //   const message = "A".repeat(10000); // 10,000 character message
-//   //   const key = "benchmark-key";
+Step 5: The Money Mishap
 
-//   //   const startEncrypt = performance.now();
-//   //   const encrypted = encrypt(message, key);
-//   //   const endEncrypt = performance.now();
+Accidentally grab the wrong bags—filled with confetti and Monopoly money.
 
-//   //   const startDecrypt = performance.now();
-//   //   const decrypted = decrypt(encrypted, key);
-//   //   const endDecrypt = performance.now();
+Mysterious glowing briefcase is ignored.
 
-//   //   const encryptTime = endEncrypt - startEncrypt;
-//   //   const decryptTime = endDecrypt - startDecrypt;
+Vault janitor watches quietly, unimpressed.
 
-//   //   console.log(
-//   //     `Encryption time for 10,000 chars: ${encryptTime.toFixed(2)}ms`
-//   //   );
-//   //   console.log(
-//   //     `Decryption time for 10,000 chars: ${decryptTime.toFixed(2)}ms`
-//   //   );
+Step 6: The Great Escape
 
-//   //   if (decrypted !== message) {
-//   //     return "Benchmark message decryption failed";
-//   //   }
+Try to escape in the getaway car but it's booted due to unpaid parking.
 
-//   //   // Fail if it takes more than 1 second (1000ms) for either operation
-//   //   // This threshold can be adjusted based on expected performance
-//   //   if (encryptTime > 1000 || decryptTime > 1000) {
-//   //     return `Performance too slow: Encrypt ${encryptTime.toFixed(
-//   //       2
-//   //     )}ms, Decrypt ${decryptTime.toFixed(2)}ms`;
-//   //   }
+Switch to a tandem bicycle not designed for four grown adults.
 
-//   //   return true;
-//   // });
+End up in a drive-thru during the chase.
 
-//   // Test: Alpha-numeric messages with numeric keys
-//   runTest("Alpha-numeric messages with numeric keys", () => {
-//     const message = "Hello123World456";
-//     const key = "789012";
-//     const encrypted = encrypt(message, key);
-//     const decrypted = decrypt(encrypted, key);
+Police catch up but wait behind them in line.
 
-//     if (decrypted !== message) {
-//       return `Expected "${message}" but got "${decrypted}"`;
-//     }
-//     return true;
-//   });
+Step 7: Courtroom Drama
 
-//   // Test: Numeric messages with numeric keys
-//   runTest("Numeric messages with numeric keys", () => {
-//     const message = "1234567890";
-//     const key = "987654";
-//     const encrypted = encrypt(message, key);
-//     const decrypted = decrypt(encrypted, key);
+Claim it was a performance art piece or social experiment.
 
-//     if (decrypted !== message) {
-//       return `Expected "${message}" but got "${decrypted}"`;
-//     }
-//     return true;
-//   });
-//   // Test: Numeric messages with string keys
-//   runTest("Numeric messages with string keys", () => {
-//     const message = "1234567890";
-//     const key = "string-key";
-//     const encrypted = encrypt(message, key);
-//     const decrypted = decrypt(encrypted, key);
+Hacker blames bad Wi-Fi.
 
-//     if (decrypted !== message) {
-//       return `Expected "${message}" but got "${decrypted}"`;
-//     }
-//     return true;
-//   });
+Driver asks if this affects his Uber rating.
 
-//   return testResults;
-// }
+Sentenced to community service as mall Santas.`;
 
-// // Function to run in browser console or test environment
-// export function runTests() {
-//   console.log("🧪 Running KDSM Algorithm Tests...");
-//   const results = runKDSMTests();
-//   console.log(`✅ Passed: ${results.passed}, ❌ Failed: ${results.failed}`);
-//   return results;
-// }
-console.log(false && false)
+    const key = "performance-test-key";
+
+    const startEncrypt = performance.now();
+    const encrypted = encrypt(message, key);
+    const endEncrypt = performance.now();
+
+    const startDecrypt = performance.now();
+    const decrypted = decrypt(encrypted, key);
+    const endDecrypt = performance.now();
+
+    const encryptTime = endEncrypt - startEncrypt;
+    const decryptTime = endDecrypt - startDecrypt;
+
+    console.log(`Encryption time for ${message.length} chars: ${encryptTime.toFixed(2)}ms`);
+    console.log(`Decryption time for ${message.length} chars: ${decryptTime.toFixed(2)}ms`);
+
+    if (decrypted !== message) {
+      return { passed: false, error: "Long input message decryption failed" };
+    }
+
+    // Fail if it takes more than 1 second (1000ms) for either operation
+    if (encryptTime > 1000 || decryptTime > 1000) {
+      return { 
+        passed: false, 
+        error: `Performance too slow: Encrypt ${encryptTime.toFixed(2)}ms, Decrypt ${decryptTime.toFixed(2)}ms`,
+        encryptTime: encryptTime.toFixed(2),
+        decryptTime: decryptTime.toFixed(2)
+      };
+    }
+
+    return {
+      passed: true,
+      encryptTime: encryptTime.toFixed(2),
+      decryptTime: decryptTime.toFixed(2),
+      messageLength: message.length
+    };
+  });
+
+  return testResults;
+}
+
+// Function to run in browser console or test environment
+export function runTests() {
+  console.log("🧪 Running KDSM Algorithm Performance Test...");
+  const results = runKDSMTests();
+  console.log(`✅ Passed: ${results.passed}, ❌ Failed: ${results.failed}`);
+  return results;
+}

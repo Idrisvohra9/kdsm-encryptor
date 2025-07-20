@@ -18,6 +18,7 @@ import {
   Zap,
 } from "lucide-react";
 import Image from "next/image";
+import DotGrid from "@/components/ui/DotGrid";
 
 export default function ChatsPage() {
   const { user } = useAuth();
@@ -58,30 +59,6 @@ export default function ChatsPage() {
     });
   };
 
-  const getGradientClass = (index) => {
-    const gradients = [
-      "from-slate-500/20 via-zinc-400/20 to-gray-500/20",
-      "from-stone-500/20 via-neutral-400/20 to-slate-500/20",
-      "from-gray-500/20 via-zinc-400/20 to-stone-500/20",
-      "from-zinc-500/20 via-slate-400/20 to-gray-500/20",
-      "from-neutral-500/20 via-stone-400/20 to-zinc-500/20",
-      "from-slate-600/20 via-gray-400/20 to-neutral-500/20",
-    ];
-    return gradients[index % gradients.length];
-  };
-
-  const getIconGradient = (index) => {
-    const iconGradients = [
-      "from-slate-400 to-zinc-400",
-      "from-stone-400 to-neutral-400",
-      "from-gray-400 to-slate-400",
-      "from-zinc-400 to-stone-400",
-      "from-neutral-400 to-gray-400",
-      "from-slate-500 to-zinc-500",
-    ];
-    return iconGradients[index % iconGradients.length];
-  };
-
   if (!user) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
@@ -94,17 +71,12 @@ export default function ChatsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-slate-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-zinc-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-stone-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
-      </div>
-
+    <div className="min-h-screen text-foreground">
+      {/* Background Dot Grid Animation */}
+      <DotGrid />
       {/* Top Navigation Bar */}
       <div className="relative z-10">
-        <div className="backdrop-blur-xl bg-background/80 border-b border-border sticky top-0 z-50">
+        <div className="backdrop-blur-xl bg-background/40 border-b border-border sticky top-0 z-10">
           <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -117,7 +89,7 @@ export default function ChatsPage() {
                     alt="KDSM Chats Logo"
                   />
                   <div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-500 to-zinc-500 bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-100 to-zinc-300 bg-clip-text text-transparent">
                       KDSM Chats
                     </h1>
                     <p className="text-sm text-muted-foreground">
@@ -134,8 +106,8 @@ export default function ChatsPage() {
                 </div>
                 <Link href="/chats/create">
                   <Button className="bg-gradient-to-r from-slate-600 to-zinc-600 hover:from-slate-700 hover:to-zinc-700 text-white border-0 shadow-lg shadow-slate-500/25 hover:shadow-slate-500/40 transition-all duration-300">
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create Room
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden md:inline ml-1">Create Room</span>
                   </Button>
                 </Link>
               </div>
@@ -196,9 +168,7 @@ export default function ChatsPage() {
                 {rooms.map((room, index) => (
                   <Link key={room.$id} href={`/chats/${room.$id}`}>
                     <Card
-                      className={`group relative overflow-hidden backdrop-blur-xl bg-gradient-to-br ${getGradientClass(
-                        index
-                      )} border border-border hover:border-border/60 transition-all duration-500 ease-linear hover:shadow-2xl hover:shadow-slate-500/20 cursor-pointer`}
+                      className={`group relative overflow-hidden backdrop-blur-xl bg-gradient-to-br border border-border hover:border-border/60 transition-all duration-500 ease-linear hover:shadow-2xl hover:shadow-slate-500/20 cursor-pointer`}
                     >
                       {/* Glow Effect */}
                       <div className="absolute inset-0 bg-gradient-to-r from-slate-500/0 via-slate-500/5 to-zinc-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -209,9 +179,7 @@ export default function ChatsPage() {
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex items-center space-x-3">
                             <div
-                              className={`w-12 h-12 bg-gradient-to-r ${getIconGradient(
-                                index
-                              )} rounded-xl flex items-center justify-center shadow-lg`}
+                              className={`w-12 h-12 bg-gradient-to-r rounded-xl flex items-center justify-center shadow-lg`}
                             >
                               <MessageCircle className="h-6 w-6 text-white" />
                             </div>
@@ -269,13 +237,6 @@ export default function ChatsPage() {
                             )}
                           </div>
                         </div>
-
-                        {/* Bottom Gradient Line */}
-                        <div
-                          className={`h-1 bg-gradient-to-r ${getIconGradient(
-                            index
-                          )} rounded-full opacity-60 group-hover:opacity-100 transition-opacity duration-300`}
-                        ></div>
                       </CardContent>
                     </Card>
                   </Link>

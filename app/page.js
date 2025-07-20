@@ -18,6 +18,7 @@ import VariableProximity from "@/components/ui/VariableProximity";
 import LetterGlitch from "@/components/ui/LetterGlitch";
 import ShinyText from "@/components/ui/ShinyText";
 import DecryptedText from "@/components/ui/DecryptedText";
+import ShareModal from "@/components/ui/ShareModal";
 import Image from "next/image";
 import {
   BrushCleaning,
@@ -26,6 +27,7 @@ import {
   ExternalLink,
   Shield,
   ShieldOff,
+  Share2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -55,6 +57,8 @@ export default function Home() {
     key: false,
     encryptedWithKey: false,
   });
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Refs for DOM elements
   const containerRef = useRef(null);
@@ -231,6 +235,11 @@ export default function Home() {
     copyToClipboard(textWithKey, "encryptedWithKey");
   }, [formState.encryptedResult, formState.lastUsedKey, copyToClipboard]);
 
+  // Handle share modal toggle
+  const handleShareToggle = useCallback(() => {
+    setIsShareModalOpen((prev) => !prev);
+  }, []);
+
   // Clear all form data
   const handleClear = useCallback(() => {
     setFormState({
@@ -314,6 +323,9 @@ export default function Home() {
                   onPaste={handlePaste}
                   className="min-h-[120px] text-sm sm:text-base"
                   autoFocus
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
                 />
                 <Alert>
                   <AlertTriangle className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -404,6 +416,14 @@ export default function Home() {
                         ) : (
                           <Copy className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                         )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleShareToggle}
+                        title="Share Encrypted Message"
+                      >
+                        <Share2 className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                       </Button>
                     </div>
                   </div>
@@ -522,6 +542,14 @@ export default function Home() {
           </Card>
         </motion.div>
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={handleShareToggle}
+        encryptedMessage={formState.encryptedResult}
+        encryptionKey={formState.lastUsedKey}
+      />
     </div>
   );
-}
+};

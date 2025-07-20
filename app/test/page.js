@@ -33,9 +33,9 @@ export default function TestPage() {
       <div className="w-full max-w-3xl">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold">KDSM Algorithm Tests</CardTitle>
+            <CardTitle className="text-2xl font-bold">KDSM Algorithm Performance Test</CardTitle>
             <CardDescription>
-              Run comprehensive tests to verify the KDSM encryption/decryption algorithm
+              Run performance benchmark to verify KDSM encryption/decryption speed with long input
             </CardDescription>
           </CardHeader>
           
@@ -45,7 +45,7 @@ export default function TestPage() {
               disabled={isRunning}
               className="w-full"
             >
-              {isRunning ? "Running Tests..." : "Run All Tests"}
+              {isRunning ? "Running Performance Test..." : "Run Performance Test"}
             </Button>
             
             {results && (
@@ -68,6 +68,7 @@ export default function TestPage() {
                       <tr>
                         <th className="p-2 text-left">Test</th>
                         <th className="p-2 text-left">Result</th>
+                        <th className="p-2 text-left">Performance</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -86,6 +87,25 @@ export default function TestPage() {
                               </div>
                             )}
                           </td>
+                          <td className="p-2">
+                            {(test.encryptTime && test.decryptTime) ? (
+                              <div className="text-sm space-y-1">
+                                <div className="text-blue-600">
+                                  🔒 Encrypt: {test.encryptTime}ms
+                                </div>
+                                <div className="text-green-600">
+                                  🔓 Decrypt: {test.decryptTime}ms
+                                </div>
+                                {test.messageLength && (
+                                  <div className="text-gray-500">
+                                    📝 {test.messageLength} chars
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -95,24 +115,18 @@ export default function TestPage() {
             )}
             
             <div className="text-sm text-muted-foreground">
-              <p>These tests verify:</p>
+              <p>This test verifies:</p>
               <ul className="list-disc pl-5 space-y-1 mt-2">
-                {/* <li>Basic encryption/decryption functionality</li>
-                <li>Handling of special cases (empty strings, no key)</li>
-                <li>Performance with large inputs (1000+ characters)</li>
-                <li>Special character handling</li>
-                <li>Unicode support</li>
-                <li>Wrong key behavior</li>
-                <li>Whitespace preservation</li>
-                <li>Case preservation</li> */}
-                <li>URL encryption/decryption</li>
-                {/* <li>Complex URLs with special characters</li> */}
+                <li>Performance benchmark for long input encryption/decryption</li>
+                <li>Correctness of encryption/decryption with complex text content</li>
+                <li>Speed optimization (should complete within 1000ms for each operation)</li>
+                <li>Handling of multi-line text with special characters</li>
               </ul>
             </div>
           </CardContent>
           
           <CardFooter className="flex justify-between text-sm text-muted-foreground">
-            <div>KDSM Test Suite</div>
+            <div>KDSM Performance Test Suite</div>
             <Button variant="outline" size="sm" onClick={() => window.location.href = "/"}>
               Back to Encryptor
             </Button>
