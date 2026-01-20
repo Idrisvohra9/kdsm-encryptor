@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -20,7 +20,8 @@ import SecurityQuestionModal from "@/components/ui/SecurityQuestionModal";
 import { decrypt } from "@/utils/kdsm";
 
 export default function page() {
-  const { user, loading } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
   const router = useRouter();
   const [showSecurityDialog, setShowSecurityDialog] = useState(true);
   const [securityQuestions, setSecurityQuestions] = useState([]);

@@ -58,24 +58,20 @@ export default function SetupMFAPage() {
     try {
       const response = await fetch("/api/user/mfa/verify", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: verificationCode }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        toast.success("MFA enabled successfully!");
+        toast.success("MFA enabled! Next time you log in, you will be prompted for a code.");
         router.push("/profile");
       } else {
-        toast.error(data.error || "Invalid verification code. Please try again.");
-        setVerificationCode("");
+        toast.error(data.error || "Invalid code.");
       }
     } catch (error) {
-      console.error("Error verifying code:", error);
-      toast.error("Failed to verify code. Please try again.");
+      toast.error("Verification failed.");
     } finally {
       setIsVerifying(false);
     }
@@ -83,7 +79,7 @@ export default function SetupMFAPage() {
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 relative z-10">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-3xl">
         <CardHeader>
           <CardTitle>Set Up Two-Factor Authentication</CardTitle>
           <CardDescription>

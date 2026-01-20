@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { ChatProvider } from "@/context/ChatContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +23,7 @@ function ChatRoomPageContent() {
   const { roomId } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
 
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);

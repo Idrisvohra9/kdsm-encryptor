@@ -5,27 +5,27 @@ import Image from 'next/image';
 const ITEMS = [
   {
     title: "Chats",
-    imageNumber: "2",
+    imageName: "messaging",
     link: "/chats",
   },
   {
     title: "Encryptor",
-    imageNumber: "1",
-    link: "/",
+    imageName: "encryptor",
+    link: "/encryptor",
   },
   {
     title: "Developer API",
-    imageNumber: "5",
+    imageName: "docs",
     link: "/docs#api-documentation",
   },
   {
     title: "Password Generator",
-    imageNumber: "6",
+    imageName: "pass",
     link: "/password-generator",
   },
   {
     title: "Contribute",
-    imageNumber: "7",
+    imageName: "github",
     link: "/contribute",
   },
 ];
@@ -48,7 +48,7 @@ function FlowingMenu() {
   );
 }
 
-function MenuItem({ link, title, imageNumber }) {
+function MenuItem({ link, title, imageName }) {
   const itemRef = useRef(null);
   const marqueeRef = useRef(null);
   const marqueeInnerRef = useRef(null);
@@ -105,17 +105,18 @@ function MenuItem({ link, title, imageNumber }) {
         <span className="mb-2">{title}</span>
         <div className="w-10 h-10 relative overflow-hidden">
           <Image
-            src={`/icons/${imageNumber}.png`}
+            src={`/icons/${imageName}.webp`}
             alt={`${title} icon`}
             fill
             className="object-cover object-center"
             sizes="40px"
             priority={false}
+            loading="lazy"
           />
         </div>
       </Fragment>
     )), 
-    [title, imageNumber]
+    [title, imageName]
   );
 
   return (

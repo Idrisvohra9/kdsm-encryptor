@@ -23,8 +23,6 @@ import {
   Check,
   Copy,
   Key,
-  RefreshCw,
-  Shield,
   Eye,
   EyeOff,
 } from "lucide-react";
@@ -32,7 +30,6 @@ import { motion } from "framer-motion";
 import FlowingMenu from "@/components/ui/FlowingMenu";
 import TextType from "@/components/ui/TextType";
 import Link from "next/link";
-import { getWordsByLength } from "@/utils/constants";
 import UpdatesAccordion from "@/components/UpdatesAccordion";
 import SteelSwitch from "@/components/ui/SteelSwitch";
 import SavePasswordPopover from "@/components/SavePassPopover";

@@ -17,7 +17,8 @@ export async function proxy(request) {
   // Define auth routes that authenticated users shouldn't access
   const authRoutes = [
     '/auth/login',
-    '/auth/register'
+    '/auth/register',
+    '/auth/verify-mfa' // Add this
   ];
   
   // Check if the current route is protected
@@ -30,29 +31,19 @@ export async function proxy(request) {
     pathname.startsWith(route)
   );
   
-  // Get session cookie
-  const sessionCookie = request.cookies.get('kdsm-session');
+  // Get session cookie value properly
+  const sessionToken = request.cookies.get('kdsm-session')?.value;
   
-  if (isProtectedRoute && !sessionCookie) {
+  if (isProtectedRoute && !sessionToken) {
     // Redirect to login if trying to access protected route without session
     const loginUrl = new URL('/auth/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
   
-  // Optional: Verify session validity for API routes
-  if (pathname.startsWith('/api/') && isProtectedRoute) {
-    if (!sessionCookie) {
-      return NextResponse.json(
-        { success: false, error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-  }
-  
-  // Optional: Redirect authenticated users away from auth pages
-  if (isAuthRoute && sessionCookie) {
-    return NextResponse.redirect(new URL('/', request.url));
+  // Redirect authenticated users away from auth pages
+  if (isAuthRoute && sessionToken) {
+    return NextResponse.redirect(new URL('/profile', request.url)); // Redirect to profile instead of /
   }
   
   return NextResponse.next();

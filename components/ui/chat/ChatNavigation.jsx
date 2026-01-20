@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ import { getUserRooms } from "@/lib/chatRooms";
 import { Plus, MessageCircle, Users, Clock } from "lucide-react";
 
 export default function ChatNavigation() {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 

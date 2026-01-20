@@ -1,7 +1,6 @@
 import { Silkscreen, Tomorrow } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/context/AuthContext";
 
 const silkscreen = Silkscreen({
   subsets: ["latin"],
@@ -63,10 +62,8 @@ export default function RootLayout({ children }) {
       <body
         className={`${silkscreen.variable} ${tomorrow.variable} antialiased font-silkscreen`}
       >
-        <AuthProvider>
-          <main>{children}</main>
-          <Toaster />
-        </AuthProvider>
+        <main>{children}</main>
+        <Toaster />
       </body>
     </html>
   );

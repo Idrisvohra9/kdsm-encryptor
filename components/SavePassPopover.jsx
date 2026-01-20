@@ -13,7 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Check, Key, PencilLineIcon } from "lucide-react";
 import Link from "next/link";
 import { SocialIcon } from "react-social-icons";
@@ -23,7 +23,8 @@ import { Separator } from "./ui/separator";
 import { toast } from "sonner";
 
 export default function SavePasswordPopover({ password = "" }) {
-  const { user, loading } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
   const [form, setForm] = useState({
     platformName: null,
     email: user?.email || "",

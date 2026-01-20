@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -51,7 +51,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [securityQuestions, setSecurityQuestions] = useState([]);
 
-  const { register } = useAuth();
+  const register = useAuthStore((state) => state.register);
   const router = useRouter();
 
   // Helper function to update form state

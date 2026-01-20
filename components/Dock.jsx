@@ -12,6 +12,7 @@ export function Dock() {
           width={55}
           height={55}
           alt="KDSM icon"
+          loading="eager"
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300 pointer-events-none"
         />
       ),
@@ -25,6 +26,7 @@ export function Dock() {
           width={55}
           height={55}
           alt="KDSM icon"
+          loading="eager"
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300 pointer-events-none"
         />
       ),
@@ -38,6 +40,7 @@ export function Dock() {
           width={55}
           height={55}
           alt="Profile icon"
+          loading="eager"
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300 pointer-events-none"
         />
       ),
@@ -51,6 +54,7 @@ export function Dock() {
           width={55}
           height={55}
           alt="KDSM chats Logo"
+          loading="eager"
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300 pointer-events-none"
         />
       ),
@@ -64,6 +68,7 @@ export function Dock() {
           width={55}
           height={55}
           alt="KDSM Password generator Logo"
+          loading="eager"
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300 pointer-events-none"
         />
       ),
@@ -77,6 +82,7 @@ export function Dock() {
           width={55}
           height={55}
           alt="KDSM Contribute Logo"
+          loading="eager"
           className="drop-shadow-lg hover:drop-shadow-2xl transition-shadow duration-300 pointer-events-none"
         />
       ),

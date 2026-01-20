@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { getUserRooms, generateInviteLink } from "@/lib/chatRooms";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,7 +22,7 @@ import DotGrid from "@/components/ui/DotGrid";
 import { InitialsAvatar } from "@/components/ui/InitialsAvatar";
 
 export default function ChatsPage() {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 

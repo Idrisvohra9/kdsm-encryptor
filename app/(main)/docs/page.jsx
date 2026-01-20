@@ -1,21 +1,17 @@
-"use client";
-import ASCIIText from "@/components/ui/AsciiText";
-import VariableProximity from "@/components/ui/VariableProximity";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import Scrollspy from "@/components/ui/Scrollspy";
 import Section from "@/components/ui/Section";
-import { useRef, useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Copy, Info, TriangleAlert } from "lucide-react";
-import { toast } from "sonner";
+import DocsHeader from "@/components/ui/DocsHeader";
+import DocsCodeBlock from "@/components/ui/DocsCodeBlock";
+import { Info, TriangleAlert } from "lucide-react";
 import Image from "next/image";
+import { FAQs } from "@/utils/constants";
 import {
   Accordion,
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { FAQs } from "@/utils/constants";
 function Faq({ question, answer }) {
   return (
     <AccordionItem value={question}>
@@ -29,10 +25,6 @@ function Faq({ question, answer }) {
   );
 }
 export default function ReadmePage() {
-  const containerRef = useRef(null);
-  const [planeBaseHeight, setPlaneBaseHeight] = useState(5);
-
-  // Define sections for the scrollspy
   const sections = [
     { id: "introduction", title: "Introduction" },
     { id: "how-it-works", title: "How It Works" },
@@ -45,81 +37,11 @@ export default function ReadmePage() {
     { id: "faqs", title: "FAQs" },
   ];
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) {
-        setPlaneBaseHeight(2.5);
-      } else if (window.innerWidth < 1024) {
-        setPlaneBaseHeight(4);
-      } else {
-        setPlaneBaseHeight(5);
-      }
-    };
-
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => {
-        toast.success("Copied to clipboard");
-      })
-      .catch(() => {
-        toast.error("Failed to copy");
-      });
-  };
-
-  const CodeBlock = ({ children }) => (
-    <div className="relative bg-secondary rounded-lg p-4">
-      <pre className="text-gray-100 text-sm overflow-x-auto">
-        <code className="whitespace-pre-wrap break-words">
-          {children}
-        </code>
-      </pre>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="absolute top-2 right-2 text-gray-400 hover:text-gray-200"
-        onClick={() => copyToClipboard(children)}
-      >
-        <Copy className="w-4 h-4" />
-      </Button>
-    </div>
-  );
-
   return (
-    <div className="overflow-x-hidden min-h-screen">
-      <div className="relative z-10">
-        <ASCIIText
-          text="K.D.S.M"
-          enableWaves={false}
-          planeBaseHeight={planeBaseHeight}
-          textColor={"#fdf9f3"}
-        />
-      </div>
+    <div className="min-h-screen">
+      <DocsHeader />
 
       <div className="flex justify-center top-[360px] relative z-10 min-w-full min-h-screen flex-col">
-        <header className="flex justify-center items-center h-16 gap-10 mb-10 pt-10 w-full">
-          <div
-            ref={containerRef}
-            style={{
-              position: "relative",
-              display: "flex",
-            }}
-          >
-            <VariableProximity
-              label={"• Keyed Dynamic Shift Matrix •"}
-              className={"sm:text-2xl text-lg"}
-              containerRef={containerRef}
-              radius={100}
-              falloff="gaussian"
-            />
-          </div>
-        </header>
-
         <Scrollspy sections={sections} />
 
         <main className="container mx-auto px-4 py-8 max-w-4xl text-primary bg-secondary/30 rounded-xl">
@@ -308,7 +230,7 @@ export default function ReadmePage() {
                 Generate a strong password via query parameters.
               </p>
               <h5 className="font-medium mb-2">Query Parameters:</h5>
-              <CodeBlock>{`length=12&includeNumbers=true&includeSpecialChars=true&includeUppercase=true&includeLowercase=true&excludeSimilar=false&useCustomWord=false&customWord=&useReadablePassword=false`}</CodeBlock>
+              <DocsCodeBlock>{`length=12&includeNumbers=true&includeSpecialChars=true&includeUppercase=true&includeLowercase=true&excludeSimilar=false&useCustomWord=false&customWord=&useReadablePassword=false`}</DocsCodeBlock>
               <div className="my-4 space-y-2 text-sm">
                 <p>
                   <strong>All Parameters:</strong>
@@ -380,20 +302,20 @@ export default function ReadmePage() {
                 </div>
               </div>
               <h5 className="font-medium mb-2 mt-4">Response:</h5>
-              <CodeBlock>{`{ "password": "generated_password_here" }`}</CodeBlock>
+              <DocsCodeBlock>{`{ "password": "generated_password_here" }`}</DocsCodeBlock>
               <h5 className="font-medium mb-2 mt-4">cURL Examples:</h5>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm mb-2">Basic password generation:</p>
-                  <CodeBlock>{`curl "https://kdsm.tech/api/password-generator?length=12&includeNumbers=true&includeSpecialChars=true"`}</CodeBlock>
+                  <DocsCodeBlock>{`curl "https://kdsm.tech/api/password-generator?length=12&includeNumbers=true&includeSpecialChars=true"`}</DocsCodeBlock>
                 </div>
                 <div>
                   <p className="text-sm mb-2">With readable password:</p>
-                  <CodeBlock>{`curl "https://kdsm.tech/api/password-generator?length=12&useReadablePassword=true&includeNumbers=true&includeUppercase=true"`}</CodeBlock>
+                  <DocsCodeBlock>{`curl "https://kdsm.tech/api/password-generator?length=12&useReadablePassword=true&includeNumbers=true&includeUppercase=true"`}</DocsCodeBlock>
                 </div>
                 <div>
                   <p className="text-sm mb-2">With custom word:</p>
-                  <CodeBlock>{`curl "https://kdsm.tech/api/password-generator?length=15&useCustomWord=true&customWord=secure&includeNumbers=true"`}</CodeBlock>
+                  <DocsCodeBlock>{`curl "https://kdsm.tech/api/password-generator?length=15&useCustomWord=true&customWord=secure&includeNumbers=true"`}</DocsCodeBlock>
                 </div>
               </div>
             </div>
@@ -404,7 +326,7 @@ export default function ReadmePage() {
 
               <p className="mb-4">Generate a strong password via JSON body.</p>
               <h5 className="font-medium mb-2">Request Body:</h5>
-              <CodeBlock>{`{
+              <DocsCodeBlock>{`{
   "length": 12,
   "includeNumbers": true,
   "includeSpecialChars": true,
@@ -414,7 +336,7 @@ export default function ReadmePage() {
   "useCustomWord": false,
   "customWord": "",
   "useReadablePassword": false
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
               <div className="my-4 space-y-2 text-sm">
                 <p>
                   <strong>Request Body Fields:</strong>
@@ -486,29 +408,29 @@ export default function ReadmePage() {
                 </div>
               </div>
               <h5 className="font-medium mb-2 mt-4">Response:</h5>
-              <CodeBlock>{`{ "password": "generated_password_here" }`}</CodeBlock>
+              <DocsCodeBlock>{`{ "password": "generated_password_here" }`}</DocsCodeBlock>
               <h5 className="font-medium mb-2 mt-4">cURL Examples:</h5>
               <div className="space-y-4">
                 <div>
                   <p className="text-sm mb-2">Basic password generation:</p>
-                  <CodeBlock>{`curl -X POST https://kdsm.tech/api/password-generator \
+                  <DocsCodeBlock>{`curl -X POST https://kdsm.tech/api/password-generator \
   -H "Content-Type: application/json" \
-  -d '{ "length": 12, "includeNumbers": true }'`}</CodeBlock>
+  -d '{ "length": 12, "includeNumbers": true }'`}</DocsCodeBlock>
                 </div>
                 <div>
                   <p className="text-sm mb-2">With readable password:</p>
-                  <CodeBlock>{`curl -X POST https://kdsm.tech/api/password-generator \
+                  <DocsCodeBlock>{`curl -X POST https://kdsm.tech/api/password-generator \
   -H "Content-Type: application/json" \
   -d '{
     "length": 12,
     "useReadablePassword": true,
     "includeNumbers": true,
     "includeUppercase": true
-  }'`}</CodeBlock>
+  }'`}</DocsCodeBlock>
                 </div>
                 <div>
                   <p className="text-sm mb-2">With custom word:</p>
-                  <CodeBlock>{`curl -X POST https://kdsm.tech/api/password-generator \
+                  <DocsCodeBlock>{`curl -X POST https://kdsm.tech/api/password-generator \
   -H "Content-Type: application/json" \
   -d '{
     "length": 15,
@@ -516,7 +438,7 @@ export default function ReadmePage() {
     "customWord": "moon",
     "includeNumbers": true,
     "includeSpecialChars": true
-  }'`}</CodeBlock>
+  }'`}</DocsCodeBlock>
                 </div>
               </div>
             </div>
@@ -545,7 +467,7 @@ export default function ReadmePage() {
 
               <div>
                 <h3 className="text-xl font-semibold mb-4">Base URL</h3>
-                <CodeBlock>https://kdsm.tech/api/v1</CodeBlock>
+                <DocsCodeBlock>https://kdsm.tech/api/v1</DocsCodeBlock>
               </div>
 
               <div>
@@ -554,7 +476,7 @@ export default function ReadmePage() {
                   All API requests require an API key to be included in the
                   request headers:
                 </p>
-                <CodeBlock>x-api-key: your_api_key_here</CodeBlock>
+                <DocsCodeBlock>x-api-key: your_api_key_here</DocsCodeBlock>
               </div>
 
               <div>
@@ -604,29 +526,29 @@ export default function ReadmePage() {
                     </p>
 
                     <h5 className="font-medium mb-2">Request Body:</h5>
-                    <CodeBlock>{`{
+                    <DocsCodeBlock>{`{
   "message": "Hello, World!",
   "key": "optional-custom-key"
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
 
                     <h5 className="font-medium mb-2 mt-4">Response:</h5>
-                    <CodeBlock>{`{
+                    <DocsCodeBlock>{`{
   "success": true,
   "data": {
     "encryptedMessage": "encrypted_text_here",
     "key": "encryption_key_used",
     "keyGenerated": false
   }
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
 
                     <h5 className="font-medium mb-2 mt-4">cURL Example:</h5>
-                    <CodeBlock>{`curl -X POST https://kdsm.tech/api/v1/encrypt \\
+                    <DocsCodeBlock>{`curl -X POST https://kdsm.tech/api/v1/encrypt \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: your_api_key_here" \\
   -d '{
     "message": "Hello, World!",
     "key": "my-secret-key"
-  }'`}</CodeBlock>
+  }'`}</DocsCodeBlock>
                   </div>
 
                   <div>
@@ -634,27 +556,27 @@ export default function ReadmePage() {
                     <p className="mb-4">Decrypt a KDSM encrypted message.</p>
 
                     <h5 className="font-medium mb-2">Request Body:</h5>
-                    <CodeBlock>{`{
+                    <DocsCodeBlock>{`{
   "encryptedMessage": "encrypted_text_here",
   "key": "decryption_key"
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
 
                     <h5 className="font-medium mb-2 mt-4">Response:</h5>
-                    <CodeBlock>{`{
+                    <DocsCodeBlock>{`{
   "success": true,
   "data": {
     "decryptedMessage": "Hello, World!"
   }
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
 
                     <h5 className="font-medium mb-2 mt-4">cURL Example:</h5>
-                    <CodeBlock>{`curl -X POST https://kdsm.tech/api/v1/decrypt \\
+                    <DocsCodeBlock>{`curl -X POST https://kdsm.tech/api/v1/decrypt \\
   -H "Content-Type: application/json" \\
   -H "x-api-key: your_api_key_here" \\
   -d '{
     "encryptedMessage": "encrypted_text_here",
     "key": "my-secret-key"
-  }'`}</CodeBlock>
+  }'`}</DocsCodeBlock>
                   </div>
                 </div>
               </div>
@@ -664,26 +586,26 @@ export default function ReadmePage() {
                 <div className="space-y-4">
                   <div>
                     <h5 className="font-medium mb-2">400 Bad Request</h5>
-                    <CodeBlock>{`{
+                    <DocsCodeBlock>{`{
   "success": false,
   "error": "Message is required"
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
                   </div>
 
                   <div>
                     <h5 className="font-medium mb-2">401 Unauthorized</h5>
-                    <CodeBlock>{`{
+                    <DocsCodeBlock>{`{
   "success": false,
   "error": "Invalid API key"
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
                   </div>
 
                   <div>
                     <h5 className="font-medium mb-2">429 Too Many Requests</h5>
-                    <CodeBlock>{`{
+                    <DocsCodeBlock>{`{
   "success": false,
   "error": "Rate limit exceeded. Maximum 10 requests per day."
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
                   </div>
                 </div>
               </div>
@@ -696,7 +618,7 @@ export default function ReadmePage() {
                   Here's a simple JavaScript class to interact with the KDSM
                   API:
                 </p>
-                <CodeBlock>{`class KDSMClient {
+                <DocsCodeBlock>{`class KDSMClient {
   constructor(apiKey, baseUrl = 'https://kdsm.tech/api/v1') {
     this.apiKey = apiKey;
     this.baseUrl = baseUrl;
@@ -759,12 +681,12 @@ try {
   console.log('Decrypted:', result.decryptedMessage);
 } catch (error) {
   console.error('Decryption failed:', error.message);
-}`}</CodeBlock>
+}`}</DocsCodeBlock>
               </div>
 
               <div>
                 <h3 className="text-xl font-semibold mb-4">Python Example</h3>
-                <CodeBlock>{`import requests
+                <DocsCodeBlock>{`import requests
 import json
 
 class KDSMClient:
@@ -825,7 +747,7 @@ try:
     print(f"Decrypted: {decrypted['decryptedMessage']}")
     
 except Exception as e:
-    print(f"Error: {e}")`}</CodeBlock>
+    print(f"Error: {e}")`}</DocsCodeBlock>
               </div>
 
               <div>

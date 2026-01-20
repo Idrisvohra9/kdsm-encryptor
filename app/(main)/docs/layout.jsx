@@ -39,7 +39,7 @@ export const metadata = {
 };
 export default function Layout({ children }) {
   return (
-    <div className="relative min-h-screen font-tomorrow overflow-x-hidden">
+    <>
       <Silk
         speed={5}
         scale={1}
@@ -48,6 +48,6 @@ export default function Layout({ children }) {
         rotation={0}
       />
       {children}
-    </div>
+    </>
   );
 }

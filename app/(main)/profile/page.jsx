@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -74,10 +74,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UserTierBadge from "@/components/ui/UserTierBadge";
-import { decrypt } from "@/utils/kdsm";
 
 export default function ProfilePage() {
-  const { user, logout, loading } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const loading = useAuthStore((state) => state.loading);
   const router = useRouter();
   const [apiKeys, setApiKeys] = useState([]);
   const [loadingKeys, setLoadingKeys] = useState(false);
@@ -130,7 +131,7 @@ export default function ProfilePage() {
     }
 
     if (user) {
-      // console.log(decrypt(user.hashedAnswer, user.securityQuestion.$id));
+      // console.log(user);
       fetchApiKeys();
       fetchRateLimitStatus();
     }

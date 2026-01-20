@@ -40,6 +40,7 @@ export async function GET(request) {
         status: user.status,
         labels: user.labels,
         prefs: user.prefs,
+        mfa: user.mfa,
       },
     });
   } catch (error) {

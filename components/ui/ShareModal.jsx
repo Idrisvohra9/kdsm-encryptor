@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Send, Copy, Check, Clock, Lock, LogIn, Loader2, Gamepad2 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { createSharedMessage } from "@/lib/shareEncryptedMsgs";
 import {
   Select,
@@ -26,7 +26,8 @@ const ShareModal = ({ isOpen, onClose, encryptedMessage, encryptionKey }) => {
     hangman: false,
     tries: -1,
   });
-  const { user, loading } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const loading = useAuthStore((state) => state.loading);
   const autoCloseTimerRef = useRef(null);
 
   // Clear auto-close timer on unmount

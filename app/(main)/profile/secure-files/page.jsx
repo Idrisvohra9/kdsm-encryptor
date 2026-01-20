@@ -9,13 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function page() {
-  const { user, logout, loading } = useAuth();
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const loading = useAuthStore((state) => state.loading);
   const router = useRouter();
   const [rateLimitStatus, setRateLimitStatus] = useState(null);
 

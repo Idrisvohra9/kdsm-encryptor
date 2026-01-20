@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Plus, Settings } from "lucide-react";
 
 export default function MainNav() {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
 
   if (!user) return null;
 

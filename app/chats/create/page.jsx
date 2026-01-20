@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +32,7 @@ import {
 import { AlertTriangle } from "lucide-react";
 
 export default function CreateChatRoom() {
-  const { user } = useAuth();
+  const user = useAuthStore((state) => state.user);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

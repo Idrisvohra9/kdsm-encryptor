@@ -4,7 +4,6 @@ import {
   config,
   collections,
   getUserFromSession,
-  createSessionClient,
 } from "@/lib/appwrite/kdsm";
 import { encrypt } from "@/utils/kdsm";
 

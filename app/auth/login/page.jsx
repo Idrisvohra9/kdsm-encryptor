@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import useAuthStore from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,7 +22,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const { login } = useAuth();
+  const login = useAuthStore((state) => state.login);
   const router = useRouter();
 
   const handleSubmit = async (e) => {
@@ -30,8 +30,16 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(email, password);
-      router.push("/profile");
+      const data = await login(email, password);
+
+      if (data.mfaRequired) {
+        // Store tempSecret for the verification page
+        sessionStorage.setItem("mfaTempSecret", data.tempSecret);
+        toast.info("MFA verification required");
+        router.push("/auth/verify-mfa");
+      } else {
+        router.push("/profile");
+      }
     } catch (err) {
       toast.error("Oopsie!", {
         description:
