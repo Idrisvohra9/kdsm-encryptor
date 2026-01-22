@@ -295,7 +295,7 @@ export default function PasswordGenerator() {
                   Select all of them for best results!
                 </span>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 font-tomorrow">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="includeUppercase"
@@ -364,7 +364,7 @@ export default function PasswordGenerator() {
             {/* Additional Options */}
             <div className="space-y-3 sm:space-y-4">
               <Label className="text-sm sm:text-base">Additional Options</Label>
-              <div className="space-y-3">
+              <div className="space-y-3 font-tomorrow">
                 <div className="flex items-center space-x-2">
                   <SteelSwitch
                     id="excludeSimilar"

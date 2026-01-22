@@ -178,16 +178,11 @@ export async function GET(request) {
   } catch (error) {
     console.error("Session verification error:", error);
 
-    // Clear invalid session cookie
-    const response = NextResponse.json(
+    // FIX: Just return 401, DO NOT delete the cookie.
+    // Deleting here causes redirect loops during transient failures or MFA transitions.
+    return NextResponse.json(
       { success: false, error: "Invalid or expired session" },
       { status: 401 },
     );
-
-    response.cookies.delete("kdsm-session", {
-      path: "/",
-    });
-
-    return response;
   }
 }

@@ -60,8 +60,8 @@ export default function SecurityQuestionModal({
   };
 
   return (
-    <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-lg" showCloseButton={false}>
+    <Dialog open={isOpen} >
+      <DialogContent className="sm:max-w-lg max-w-md" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />

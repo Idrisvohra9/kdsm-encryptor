@@ -8,7 +8,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Download, MoreHorizontal, Plus, Upload } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -34,6 +34,8 @@ import { useState } from "react";
 import { socialIcons } from "@/utils/constants";
 import { SocialIcon } from "react-social-icons";
 import SteelSwitch from "./SteelSwitch";
+import { toast } from "sonner";
+import GeneratePasswordModal from "../GeneratePasswordModal";
 // Todo: update delete password action and when expires notification
 const columns = [
   {
@@ -149,7 +151,7 @@ const columns = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      const payment = row.original;
+      const password = row.original;
 
       return (
         <DropdownMenu>
@@ -164,7 +166,10 @@ const columns = [
               Actions
             </DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => {
+                navigator.clipboard.writeText(password.password)
+                toast.success("Password copied to clipboard");
+              }}
             >
               Copy password
             </DropdownMenuItem>
@@ -183,26 +188,7 @@ export default function PasswordsDatatable({ passwords }) {
   const [columnFilters, setColumnFilters] = useState([]);
   const [columnVisibility, setColumnVisibility] = useState({});
   const [rowSelection, setRowSelection] = useState({});
-
-  const toggleKeyVisibility = (keyId) => {
-    setVisibleKeys((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(keyId)) {
-        newSet.delete(keyId);
-      } else {
-        newSet.add(keyId);
-        // Auto-hide after 5 seconds
-        setTimeout(() => {
-          setVisibleKeys((current) => {
-            const updatedSet = new Set(current);
-            updatedSet.delete(keyId);
-            return updatedSet;
-          });
-        }, 2000);
-      }
-      return newSet;
-    });
-  };
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const table = useReactTable({
     data: passwords,
@@ -225,7 +211,16 @@ export default function PasswordsDatatable({ passwords }) {
 
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
+      <GeneratePasswordModal
+        isOpen={showAddDialog}
+        onClose={() => setShowAddDialog(false)}
+        onCreatePassword={(newPassword) => {
+          // Handle the newly created password here
+          console.log("New password created:", newPassword);
+          setShowAddDialog(false);
+        }}
+      />
+      <div className="flex items-center justify-between flex-wrap py-4 gap-4">
         <Input
           placeholder="Filter emails..."
           value={table.getColumn("email")?.getFilterValue() ?? ""}
@@ -234,32 +229,44 @@ export default function PasswordsDatatable({ passwords }) {
           }
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto font-tomorrow">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="font-tomorrow">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-4 flex-wrap">
+          <Button className="font-tomorrow" variant="secondary" onClick={() => setShowAddDialog(true)}>
+            New <Plus />
+          </Button>
+          <Button className="font-tomorrow">
+            Import <Download />
+          </Button>
+          <Button className="font-tomorrow">
+            Export <Upload />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="font-tomorrow">
+                Columns <ChevronDown />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="font-tomorrow">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+        </div>
       </div>
       <div className="overflow-hidden rounded-md border font-tomorrow">
         <Table>
@@ -272,9 +279,9 @@ export default function PasswordsDatatable({ passwords }) {
                       {header.isPlaceholder
                         ? null
                         : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
                     </TableHead>
                   );
                 })}

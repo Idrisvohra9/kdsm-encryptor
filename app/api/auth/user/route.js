@@ -14,9 +14,15 @@ export async function GET(request) {
       );
     }
 
-    // Get user data using the session
     const user = await getUserFromSession(request);
     
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Session invalid or expired" },
+        { status: 401 }
+      );
+    }
+
     // Use admin client to access the database
     const { client: adminClient } = createAdminClient();
     const databases = new Databases(adminClient);
@@ -46,17 +52,11 @@ export async function GET(request) {
   } catch (error) {
     console.error("User data fetch error:", error);
 
-    // Clear invalid session cookie
-    const response = NextResponse.json(
+    // FIX: Just return 401, DO NOT delete the cookie.
+    return NextResponse.json(
       { success: false, error: "Failed to fetch user data" },
       { status: 401 }
     );
-
-    response.cookies.delete("kdsm-session", {
-      path: "/",
-    });
-
-    return response;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -22,7 +22,7 @@ import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { toast } from "sonner";
 
-export default function SavePasswordPopover({ password = "" }) {
+export default function SavePasswordPopover({ password = "", onCreatePassword }) {
   const user = useAuthStore((state) => state.user);
   const loading = useAuthStore((state) => state.loading);
   const [form, setForm] = useState({
@@ -41,7 +41,12 @@ export default function SavePasswordPopover({ password = "" }) {
   const [editingPlatform, setEditingPlatform] = useState(true);
   const [platformInput, setPlatformInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  async function handleSavePassword() {
+
+  /**
+   * Handles saving the generated password to the database via API.
+   * Sends the form data and notifies the user of the result.
+   */
+  const handleSavePassword = useCallback(async () => {
     setSubmitting(true);
     try {
       const response = await fetch("/api/saved-passwords", {
@@ -60,6 +65,9 @@ export default function SavePasswordPopover({ password = "" }) {
             description: "You can view it in your profile.",
           }
         );
+        if (onCreatePassword) {
+          onCreatePassword(data.data);
+        }
       } else {
         toast.error("Oopsie!", {
           description: data.error || "Failed to save password",
@@ -73,16 +81,21 @@ export default function SavePasswordPopover({ password = "" }) {
       });
       setSubmitting(false);
     }
-  }
+  }, [form, onCreatePassword]);
+
   return (
-    <Popover>
+    <Popover modal={true}>
       <PopoverTrigger asChild>
         <Button disabled={submitting}>
           {submitting ? "Saving Password..." : "Save Password"}{" "}
           <Key className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80">
+      <PopoverContent 
+        className="w-80 z-[100]"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+      >
         {!loading && !user ? (
           <div className="text-sm text-center text-red-600">
             Please log in to save passwords.
@@ -160,7 +173,7 @@ export default function SavePasswordPopover({ password = "" }) {
                       ) && (
                         <CommandItem
                           key="custom-platform"
-                          onClick={() => {
+                          onSelect={() => {
                             setForm({
                               ...form,
                               platformName: platformInput.trim(),
@@ -186,7 +199,7 @@ export default function SavePasswordPopover({ password = "" }) {
                       .map((icon) => (
                         <CommandItem
                           key={icon}
-                          onClick={() => {
+                          onSelect={() => {
                             setForm({ ...form, platformName: icon });
                             setEditingPlatform(false);
                           }}

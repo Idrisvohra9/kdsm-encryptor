@@ -74,24 +74,23 @@ export default function page() {
     }
 
     if (user) {
-      // console.log(user);
       fetchPasswords();
       fetchSecurityQuestions();
-      setOriginalAnswer(decrypt(user.hashedAnswer, user.securityQuestion.$id));
+      setOriginalAnswer(decrypt(user.hashedAnswer, user.securityQuestion));
     }
   }, [user, loading, router]);
   return (
-    <Card className="max-w-4xl w-full text-primary bg-secondary/90 backdrop-blur-md min-h-screen">
+    <Card className="sm:max-w-4xl max-w-2xl w-full text-primary bg-secondary/90 backdrop-blur-md min-h-screen">
       <CardHeader>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 overflow-hidden">
           <Button variant="ghost" size={"lg"} onClick={() => router.back()}>
             <ArrowLeft />
           </Button>
-          <div className="w-[90%] overflow-hidden truncate ">
-            <CardTitle className="flex items-center gap-2 flex-wrap font-tomorrow text-2xl">
-              {user?.name || "User"}'s Saved Passwords
+          <div className="w-[70%] overflow-x-clip truncate ">
+            <CardTitle className="flex items-center gap-2 flex-wrap font-tomorrow sm:text-2xl text-base">
+              <span className="hidden sm:inline">{user?.name || "User"}'s</span> Saved Passwords
             </CardTitle>
-            <CardDescription className="font-tomorrow text-sm text-muted-foreground">
+            <CardDescription className="font-tomorrow sm:text-sm text-xs w-full text-muted-foreground truncate">
               View and manage all your saved passwords securely in one place.
             </CardDescription>
           </div>
@@ -99,14 +98,14 @@ export default function page() {
             src="/icons/saved-pass.webp"
             width={86}
             height={86}
-            className="ml-auto object-cover"
+            className="ml-auto object-cover sm:size-14 size-8"
             alt="KDSM Logo"
           />
         </div>
         <Separator />
       </CardHeader>
 
-      <CardContent>
+      <CardContent className={"sm:text-base text-sm"}>
         {loadingPasswords ? (
           <div className="text-center py-10 text-sm text-muted-foreground">
             Loading passwords...

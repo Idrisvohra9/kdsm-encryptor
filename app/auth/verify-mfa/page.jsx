@@ -59,15 +59,13 @@ export default function VerifyMFAPage() {
       const data = await res.json();
 
       if (data.success) {
-        toast.success("Identity verified!");
-        
-        // Sync the client-side store
-        await refreshUser(); 
+        toast.success("Identity verified! Redirecting...");
         
         sessionStorage.removeItem("mfaTempSecret");
-        setTimeout(() => {
-          router.replace("/profile");
-        }, 3000);
+        
+        // 2. Use window.location.href to force a full navigation
+        // This guarantees the browser attaches the new cookie to the header
+        window.location.href = "/profile"; 
       } else {
         toast.error(data.error || "Invalid code.");
       }

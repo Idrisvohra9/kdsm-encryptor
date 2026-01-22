@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 
 import {
   Dialog,
@@ -12,7 +12,6 @@ import SteelSwitch from "@/components/ui/SteelSwitch";
 import SavePasswordPopover from "@/components/SavePassPopover";
 import { Separator } from "@/components/ui/separator";
 import { BrushCleaning, Check, Copy, Key, Eye, EyeOff } from "lucide-react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,7 +40,6 @@ export default function GeneratePasswordModal({
     showPassword: false,
   });
   const [copyState, setCopyState] = useState(false);
-  const containerRef = useRef(null);
 
   const handleOptionChange = useCallback((key, value) => {
     setFormState((prev) => ({ ...prev, [key]: value }));
@@ -203,9 +201,12 @@ export default function GeneratePasswordModal({
     [formState.generatedPassword, getPasswordStrength]
   );
 
+  const togglePasswordVisibility = useCallback(() => {
+    setFormState((prev) => ({ ...prev, showPassword: !prev.showPassword }));
+  }, []);
   return (
-    <Dialog open={isOpen}>
-      <DialogContent className="sm:max-w-lg" showCloseButton={false}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-4xl max-w-lg w-full h-full overflow-y-scroll">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Key className="h-5 w-5" />
@@ -245,7 +246,7 @@ export default function GeneratePasswordModal({
                 Select all of them for best results!
               </span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 sm:gap-4 font-tomorrow">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="includeUppercase"
@@ -311,7 +312,7 @@ export default function GeneratePasswordModal({
           {/* Additional Options */}
           <div className="space-y-3 sm:space-y-4">
             <Label className="text-sm sm:text-base">Additional Options</Label>
-            <div className="space-y-3">
+            <div className="space-y-3 font-tomorrow">
               <div className="flex items-center space-x-2">
                 <SteelSwitch
                   id="excludeSimilar"
@@ -455,7 +456,7 @@ export default function GeneratePasswordModal({
                 <span>
                   Length: {formState.generatedPassword.length} characters
                 </span>
-                <SavePasswordPopover password={formState.generatedPassword} />
+                <SavePasswordPopover password={formState.generatedPassword} onCreatePassword={onCreatePassword}/>
               </div>
             </div>
           )}
