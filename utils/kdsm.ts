@@ -32,9 +32,13 @@ function addToCache(key: string, value: number): void {
  * @returns A numeric seed derived from the key
  */
 export function deriveSeed(key: string): number {
-  // Use cached seed if available
+  // Use cached seed if available (implements LRU by moving accessed items to end)
   if (key && seedCache.has(key)) {
-    return seedCache.get(key)!;
+    const cachedValue = seedCache.get(key)!;
+    // Delete and re-insert to move to end (LRU behavior)
+    seedCache.delete(key);
+    seedCache.set(key, cachedValue);
+    return cachedValue;
   }
 
   if (!key || key.length === 0) {

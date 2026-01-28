@@ -49,7 +49,7 @@ export async function middleware(request) {
   return NextResponse.next();
 }
 
-// Configure which routes this proxy runs on
+// Configure which routes this middleware runs on
 export const config = {
   matcher: [
     /*
