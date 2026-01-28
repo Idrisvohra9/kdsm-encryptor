@@ -26,6 +26,28 @@ export async function POST(request) {
       );
     }
 
+    // Prevent DoS attacks with overly large inputs (limit to 2MB for encrypted content)
+    if (encryptedMessage.length > 2 * 1024 * 1024) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Encrypted message is too large. Maximum size is 2MB.",
+        },
+        { status: 413 }
+      );
+    }
+
+    // Validate key length
+    if (key.length > 1000) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Key is too long. Maximum length is 1000 characters.",
+        },
+        { status: 400 }
+      );
+    }
+
     if (!apiKey) {
       return NextResponse.json(
         {
@@ -95,13 +117,22 @@ export async function POST(request) {
       clientIP
     ).catch(console.error);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         decryptedMessage,
       },
       rateLimitStatus
     });
+
+    // Add rate limit headers
+    if (rateLimitStatus.limit !== 'unlimited') {
+      response.headers.set('X-RateLimit-Limit', rateLimitStatus.limit.toString());
+      response.headers.set('X-RateLimit-Remaining', rateLimitStatus.remaining.toString());
+      response.headers.set('X-RateLimit-Used', rateLimitStatus.used.toString());
+    }
+
+    return response;
   } catch (error) {
     console.error("Decryption API error:", error);
     return NextResponse.json(

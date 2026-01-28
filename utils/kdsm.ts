@@ -8,7 +8,23 @@
 import { getWordsByLength } from "./constants";
 
 // Cache for derived seeds to avoid recalculating for the same key
+// Limited to prevent memory leaks
 const seedCache = new Map();
+const MAX_CACHE_SIZE = 1000;
+
+/**
+ * Adds an entry to the seed cache with LRU eviction
+ * @param key - The key to cache
+ * @param value - The seed value
+ */
+function addToCache(key: string, value: number): void {
+  // If cache is full, remove the oldest entry (first one)
+  if (seedCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = seedCache.keys().next().value;
+    seedCache.delete(firstKey);
+  }
+  seedCache.set(key, value);
+}
 
 /**
  * Derives a numeric seed from a string key using weighted character codes
@@ -18,7 +34,7 @@ const seedCache = new Map();
 export function deriveSeed(key: string): number {
   // Use cached seed if available
   if (key && seedCache.has(key)) {
-    return seedCache.get(key);
+    return seedCache.get(key)!;
   }
 
   if (!key || key.length === 0) {
@@ -50,7 +66,7 @@ export function deriveSeed(key: string): number {
 
   // Cache the result for future use
   if (key) {
-    seedCache.set(key, finalSeed);
+    addToCache(key, finalSeed);
   }
 
   return finalSeed;
