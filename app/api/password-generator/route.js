@@ -23,9 +23,10 @@ export async function GET(request) {
   const useReadablePassword = searchParams.get("useReadablePassword") === "true";
   const customWord = searchParams.get("customWord") || "";
   
-  if (isNaN(lengthParam) || lengthParam <= 0) {
+  // Validate length bounds to prevent abuse
+  if (isNaN(lengthParam) || lengthParam <= 0 || lengthParam > 128) {
     return NextResponse.json(
-      { error: "Invalid length parameter" },
+      { error: "Length must be between 1 and 128" },
       { status: 400, headers: { "Access-Control-Allow-Origin": "*" } }
     );
   }
@@ -73,9 +74,10 @@ export async function POST(request) {
     } = body;
     
     const lengthNum = typeof length === "number" ? length : parseInt(length, 10);
-    if (isNaN(lengthNum) || lengthNum <= 0) {
+    // Validate length bounds to prevent abuse
+    if (isNaN(lengthNum) || lengthNum <= 0 || lengthNum > 128) {
       return NextResponse.json(
-        { error: "Invalid length" },
+        { error: "Length must be between 1 and 128" },
         { status: 400, headers: { "Access-Control-Allow-Origin": "*" } }
       );
     }

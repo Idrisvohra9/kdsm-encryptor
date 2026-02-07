@@ -23,10 +23,15 @@ export async function POST(request) {
       );
     }
     
-    // Hash password with encrypt for storage in your users collection
-    const passwordHash = encrypt(password, password);
+    // Validate password strength
+    if (password.length < 8) {
+      return NextResponse.json(
+        { success: false, error: 'Password must be at least 8 characters long' },
+        { status: 400 }
+      );
+    }
     
-    // Encrypt the security answer
+    // Encrypt the security answer with the question as the key
     const hashedAnswer = encrypt(answer, securityQuestion);
     
     // Create user account in Appwrite Auth (this also hashes the password internally)
@@ -38,6 +43,7 @@ export async function POST(request) {
     );
 
     // Store additional user data in your custom users collection
+    // Note: Appwrite Auth already securely hashes the password, so we don't store it here
     await databases.createDocument(
       config.database,
       collections.users,
@@ -45,7 +51,6 @@ export async function POST(request) {
       {
         email: user.email,
         name: user.name,
-        passwordHash, // Store the bcrypt hash
         securityQuestion: securityQuestion,
         hashedAnswer,
       }

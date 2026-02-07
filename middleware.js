@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
-// Proxy to check authentication for protected routes
-export async function proxy(request) {
+// Middleware to check authentication for protected routes
+export async function middleware(request) {
   // Get the pathname
   const { pathname } = request.nextUrl;
   
@@ -49,7 +49,7 @@ export async function proxy(request) {
   return NextResponse.next();
 }
 
-// Configure which routes this proxy runs on
+// Configure which routes this middleware runs on
 export const config = {
   matcher: [
     /*

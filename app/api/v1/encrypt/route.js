@@ -26,6 +26,28 @@ export async function POST(request) {
       );
     }
 
+    // Prevent DoS attacks with overly large messages (limit to 1MB)
+    if (message.length > 1024 * 1024) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Message is too large. Maximum size is 1MB.",
+        },
+        { status: 413 }
+      );
+    }
+
+    // Validate key length if provided
+    if (key && key.length > 1000) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Key is too long. Maximum length is 1000 characters.",
+        },
+        { status: 400 }
+      );
+    }
+
     if (!apiKey) {
       return NextResponse.json(
         {
@@ -89,7 +111,7 @@ export async function POST(request) {
     }
 
     // Process encryption
-    const usedKey = key || generateKey();
+    const usedKey = key || await generateKey();
     const encryptedMessage = encrypt(message, usedKey);
 
     // Log successful usage non-blocking
@@ -101,7 +123,7 @@ export async function POST(request) {
       clientIP
     ).catch(console.error);
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         encryptedMessage,
@@ -110,6 +132,15 @@ export async function POST(request) {
       },
       rateLimitStatus,
     });
+
+    // Add rate limit headers
+    if (rateLimitStatus.limit !== 'unlimited') {
+      response.headers.set('X-RateLimit-Limit', rateLimitStatus.limit.toString());
+      response.headers.set('X-RateLimit-Remaining', rateLimitStatus.remaining.toString());
+      response.headers.set('X-RateLimit-Used', rateLimitStatus.used.toString());
+    }
+
+    return response;
   } catch (error) {
     console.error("Encryption API error:", error);
     return NextResponse.json(
